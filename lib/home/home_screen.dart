@@ -3,6 +3,7 @@ import 'package:booking_application/category/cricket_screen.dart';
 import 'package:booking_application/home/enroll_screen.dart';
 import 'package:booking_application/match_details.dart';
 import 'package:booking_application/provider/category_provider.dart';
+import 'package:booking_application/provider/location_provider.dart';
 import 'package:booking_application/provider/upcoming_tournament_provider.dart';
 import 'package:booking_application/views/details_screen.dart';
 import 'package:booking_application/views/live_screen.dart';
@@ -84,7 +85,14 @@ class _HomeScreenState extends State<HomeScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<CategoryProvider>().fetchCategories();
       context.read<UpcomingTournamentProvider>().fetchUpcomingTournament();
+     Provider.of<LocationProvider>(context, listen: false)
+        .updateLocationAndGetTurfs();
     });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
   }
 
   @override
@@ -777,6 +785,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 // }
 
                 final tournament = provider.tournament!;
+                if (tournament == null) {
+                  return Center(child: Text('No upcoming tournament'));
+                }
                 final baseImageUrl = 'http://31.97.206.144:3081';
 
                 return Container(
@@ -792,7 +803,6 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                         child: Stack(
                           children: [
-                            // Background image covering the entire container
                             Positioned.fill(
                               child: ClipRRect(
                                 borderRadius: BorderRadius.circular(12),
@@ -1031,170 +1041,402 @@ class _HomeScreenState extends State<HomeScreen> {
 
             const SizedBox(height: 12),
 
+            // SizedBox(
+            //   height: 220,
+            //   child: ListView.builder(
+            //     scrollDirection: Axis.horizontal,
+            //     itemCount: cricketComplexes.length,
+            //     padding: const EdgeInsets.symmetric(horizontal: 16),
+            //     itemBuilder: (context, index) {
+            //       final complex = cricketComplexes[index];
+            //       return Container(
+            //         width: 280,
+            //         margin: const EdgeInsets.only(right: 16),
+            //         decoration: BoxDecoration(
+            //           color: Colors.white,
+            //           borderRadius: BorderRadius.circular(12),
+            //           boxShadow: [
+            //             BoxShadow(
+            //               color: Colors.grey.withOpacity(0.2),
+            //               spreadRadius: 1,
+            //               blurRadius: 4,
+            //               offset: const Offset(0, 2),
+            //             ),
+            //           ],
+            //         ),
+            //         child: Column(
+            //           children: [
+            //             // Image section
+            //             ClipRRect(
+            //               borderRadius: const BorderRadius.only(
+            //                 topLeft: Radius.circular(12),
+            //                 topRight: Radius.circular(12),
+            //               ),
+            //               child: Container(
+            //                 height: 95,
+            //                 width: double.infinity,
+            //                 child: Image.network(
+            //                   complex['image'],
+            //                   fit: BoxFit.cover,
+            //                   errorBuilder: (context, error, stackTrace) {
+            //                     return Container(
+            //                       color: Colors.green[100],
+            //                       child: const Center(
+            //                         child: Icon(
+            //                           Icons.sports_cricket,
+            //                           color: Colors.green,
+            //                           size: 30,
+            //                         ),
+            //                       ),
+            //                     );
+            //                   },
+            //                 ),
+            //               ),
+            //             ),
+
+            //             // Content section
+            //             Expanded(
+            //               child: Padding(
+            //                 padding: const EdgeInsets.all(12),
+            //                 child: Column(
+            //                   crossAxisAlignment: CrossAxisAlignment.start,
+            //                   children: [
+            //                     // Title and price row
+            //                     Row(
+            //                       mainAxisAlignment:
+            //                           MainAxisAlignment.spaceBetween,
+            //                       children: [
+            //                         Text(
+            //                           complex['name'],
+            //                           style: const TextStyle(
+            //                             fontSize: 14,
+            //                             fontWeight: FontWeight.w600,
+            //                             color: Colors.black87,
+            //                           ),
+            //                         ),
+            //                         Text(
+            //                           complex['price'],
+            //                           style: const TextStyle(
+            //                             fontSize: 14,
+            //                             fontWeight: FontWeight.w600,
+            //                             color: Colors.black87,
+            //                           ),
+            //                         ),
+            //                       ],
+            //                     ),
+
+            //                     const SizedBox(height: 4),
+
+            //                     // Location row
+            //                     Row(
+            //                       children: [
+            //                         Icon(
+            //                           Icons.location_on,
+            //                           size: 12,
+            //                           color: Colors.blue[600],
+            //                         ),
+            //                         const SizedBox(width: 2),
+            //                         const Text(
+            //                           'Kokinada',
+            //                           style: TextStyle(
+            //                             fontSize: 11,
+            //                             color: Colors.grey,
+            //                           ),
+            //                         ),
+            //                       ],
+            //                     ),
+
+            //                     const SizedBox(height: 2),
+
+            //                     // Timing row
+            //                     Row(
+            //                       children: [
+            //                         Icon(
+            //                           Icons.access_time,
+            //                           size: 12,
+            //                           color: Colors.blue[600],
+            //                         ),
+            //                         const SizedBox(width: 2),
+            //                         const Text(
+            //                           '09 AM - 12 PM open',
+            //                           style: TextStyle(
+            //                             fontSize: 11,
+            //                             color: Colors.grey,
+            //                           ),
+            //                         ),
+            //                       ],
+            //                     ),
+
+            //                     const Spacer(),
+
+            //                     // Book Now button
+            //                     Container(
+            //                       width: double.infinity,
+            //                       height: 28,
+            //                       child: ElevatedButton(
+            //                         onPressed: () {
+            //                           Navigator.push(
+            //                               context,
+            //                               MaterialPageRoute(
+            //                                   builder: (context) =>
+            //                                       DetailsScreen()));
+            //                         },
+            //                         style: ElevatedButton.styleFrom(
+            //                           backgroundColor: Colors.blue[600],
+            //                           foregroundColor: Colors.white,
+            //                           shape: RoundedRectangleBorder(
+            //                             borderRadius: BorderRadius.circular(20),
+            //                           ),
+            //                           elevation: 1,
+            //                           padding: EdgeInsets.zero,
+            //                         ),
+            //                         child: const Text(
+            //                           'Book Now',
+            //                           style: TextStyle(
+            //                             fontSize: 12,
+            //                             fontWeight: FontWeight.w500,
+            //                           ),
+            //                         ),
+            //                       ),
+            //                     ),
+            //                   ],
+            //                 ),
+            //               ),
+            //             ),
+            //           ],
+            //         ),
+            //       );
+            //     },
+            //   ),
+            // ),
+
             SizedBox(
               height: 220,
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                itemCount: cricketComplexes.length,
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                itemBuilder: (context, index) {
-                  final complex = cricketComplexes[index];
-                  return Container(
-                    width: 280,
-                    margin: const EdgeInsets.only(right: 16),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.grey.withOpacity(0.2),
-                          spreadRadius: 1,
-                          blurRadius: 4,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: Column(
-                      children: [
-                        // Image section
-                        ClipRRect(
-                          borderRadius: const BorderRadius.only(
-                            topLeft: Radius.circular(12),
-                            topRight: Radius.circular(12),
+              child: Consumer<LocationProvider>(
+                builder: (context, locationProvider, child) {
+                  // Show loading indicator
+                  if (locationProvider.isLoading) {
+                    return const Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  }
+
+                  // Show error message
+                  if (locationProvider.errorMessage != null) {
+                    return Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.error, color: Colors.red),
+                          Text(
+                            locationProvider.errorMessage!,
+                            style: TextStyle(color: Colors.red, fontSize: 12),
+                            textAlign: TextAlign.center,
                           ),
-                          child: Container(
-                            height: 95,
-                            width: double.infinity,
-                            child: Image.network(
-                              complex['image'],
-                              fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) {
-                                return Container(
-                                  color: Colors.green[100],
-                                  child: const Center(
-                                    child: Icon(
-                                      Icons.sports_cricket,
-                                      color: Colors.green,
-                                      size: 30,
-                                    ),
-                                  ),
-                                );
-                              },
+                        ],
+                      ),
+                    );
+                  }
+
+                  // Show empty state
+                  if (locationProvider.nearbyTurfs.isEmpty) {
+                    return const Center(
+                      child: Text(
+                        'No nearby turfs found',
+                        style: TextStyle(color: Colors.grey),
+                      ),
+                    );
+                  }
+
+                  // Show turfs list
+                  return ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: locationProvider.nearbyTurfs.length,
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    itemBuilder: (context, index) {
+                      final turf = locationProvider.nearbyTurfs[index];
+                      return Container(
+                        width: 280,
+                        margin: const EdgeInsets.only(right: 16),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withOpacity(0.2),
+                              spreadRadius: 1,
+                              blurRadius: 4,
+                              offset: const Offset(0, 2),
                             ),
-                          ),
+                          ],
                         ),
+                        child: Column(
+                          children: [
+                            // Image section
+                            ClipRRect(
+                              borderRadius: const BorderRadius.only(
+                                topLeft: Radius.circular(12),
+                                topRight: Radius.circular(12),
+                              ),
+                              child: Container(
+                                height: 95,
+                                width: double.infinity,
+                                child: turf.images.isNotEmpty
+                                    ? Image.network(
+                                        'http://31.97.206.144:3081${turf.images.first}',
+                                        fit: BoxFit.cover,
+                                        errorBuilder:
+                                            (context, error, stackTrace) {
+                                          return Container(
+                                            color: Colors.green[100],
+                                            child: const Center(
+                                              child: Icon(
+                                                Icons.sports_cricket,
+                                                color: Colors.green,
+                                                size: 30,
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                      )
+                                    : Container(
+                                        color: Colors.green[100],
+                                        child: const Center(
+                                          child: Icon(
+                                            Icons.sports_cricket,
+                                            color: Colors.green,
+                                            size: 30,
+                                          ),
+                                        ),
+                                      ),
+                              ),
+                            ),
 
-                        // Content section
-                        Expanded(
-                          child: Padding(
-                            padding: const EdgeInsets.all(12),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                // Title and price row
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
+                            // Content section
+                            Expanded(
+                              child: Padding(
+                                padding: const EdgeInsets.all(12),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(
-                                      complex['name'],
-                                      style: const TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w600,
-                                        color: Colors.black87,
-                                      ),
+                                    // Title and price row
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Expanded(
+                                          child: Text(
+                                            turf.name,
+                                            style: const TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w600,
+                                              color: Colors.black87,
+                                            ),
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
+                                        Text(
+                                          '₹${turf.pricePerHour}/hr',
+                                          style: const TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w600,
+                                            color: Colors.black87,
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                                    Text(
-                                      complex['price'],
-                                      style: const TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w600,
-                                        color: Colors.black87,
-                                      ),
+
+                                    const SizedBox(height: 4),
+
+                                    // Location row
+                                    Row(
+                                      children: [
+                                        Icon(
+                                          Icons.location_on,
+                                          size: 12,
+                                          color: Colors.blue[600],
+                                        ),
+                                        const SizedBox(width: 2),
+                                        Expanded(
+                                          child: Text(
+                                            turf.location,
+                                            style: const TextStyle(
+                                              fontSize: 11,
+                                              color: Colors.grey,
+                                            ),
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                                  ],
-                                ),
 
-                                const SizedBox(height: 4),
+                                    const SizedBox(height: 2),
 
-                                // Location row
-                                Row(
-                                  children: [
-                                    Icon(
-                                      Icons.location_on,
-                                      size: 12,
-                                      color: Colors.blue[600],
+                                    // Timing row
+                                    Row(
+                                      children: [
+                                        Icon(
+                                          Icons.access_time,
+                                          size: 12,
+                                          color: Colors.blue[600],
+                                        ),
+                                        const SizedBox(width: 2),
+                                        Expanded(
+                                          child: Text(
+                                            turf.openingTime,
+                                            style: const TextStyle(
+                                              fontSize: 11,
+                                              color: Colors.grey,
+                                            ),
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                                    const SizedBox(width: 2),
-                                    const Text(
-                                      'Kokinada',
-                                      style: TextStyle(
-                                        fontSize: 11,
-                                        color: Colors.grey,
-                                      ),
-                                    ),
-                                  ],
-                                ),
 
-                                const SizedBox(height: 2),
+                                    const Spacer(),
 
-                                // Timing row
-                                Row(
-                                  children: [
-                                    Icon(
-                                      Icons.access_time,
-                                      size: 12,
-                                      color: Colors.blue[600],
-                                    ),
-                                    const SizedBox(width: 2),
-                                    const Text(
-                                      '09 AM - 12 PM open',
-                                      style: TextStyle(
-                                        fontSize: 11,
-                                        color: Colors.grey,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-
-                                const Spacer(),
-
-                                // Book Now button
-                                Container(
-                                  width: double.infinity,
-                                  height: 28,
-                                  child: ElevatedButton(
-                                    onPressed: () {
-                                      Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
+                                    // Book Now button
+                                    Container(
+                                      width: double.infinity,
+                                      height: 28,
+                                      child: ElevatedButton(
+                                        onPressed: () {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
                                               builder: (context) =>
-                                                  DetailsScreen()));
-                                    },
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.blue[600],
-                                      foregroundColor: Colors.white,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(20),
+                                                  DetailsScreen(),
+                                            ),
+                                          );
+                                        },
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: Colors.blue[600],
+                                          foregroundColor: Colors.white,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(20),
+                                          ),
+                                          elevation: 1,
+                                          padding: EdgeInsets.zero,
+                                        ),
+                                        child: const Text(
+                                          'Book Now',
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
                                       ),
-                                      elevation: 1,
-                                      padding: EdgeInsets.zero,
                                     ),
-                                    child: const Text(
-                                      'Book Now',
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                  ),
+                                  ],
                                 ),
-                              ],
+                              ),
                             ),
-                          ),
+                          ],
                         ),
-                      ],
-                    ),
+                      );
+                    },
                   );
                 },
               ),

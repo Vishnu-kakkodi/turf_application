@@ -1,4 +1,4 @@
-// Model Class
+
 class Tournament {
   final String id;
   final String name;
