@@ -2,12 +2,15 @@ import 'package:booking_application/category/category_screen.dart';
 import 'package:booking_application/category/cricket_screen.dart';
 import 'package:booking_application/home/enroll_screen.dart';
 import 'package:booking_application/match_details.dart';
+import 'package:booking_application/provider/category_provider.dart';
+import 'package:booking_application/provider/upcoming_tournament_provider.dart';
 import 'package:booking_application/views/details_screen.dart';
 import 'package:booking_application/views/live_screen.dart';
 import 'package:booking_application/views/profile/notification_screen.dart';
 import 'package:booking_application/views/profile/profile_screen.dart';
 import 'package:booking_application/widgets/courosel_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -76,6 +79,15 @@ class _HomeScreenState extends State<HomeScreen> {
   ];
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<CategoryProvider>().fetchCategories();
+      context.read<UpcomingTournamentProvider>().fetchUpcomingTournament();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
@@ -133,13 +145,13 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             TextFormField(
               decoration: InputDecoration(
-                  prefixIcon: Icon(Icons.search),
-                  suffixIcon: Icon(Icons.tune),
+                  prefixIcon: const Icon(Icons.search),
+                  suffixIcon: const Icon(Icons.tune),
                   labelText: 'Search here',
                   border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12))),
             ),
-            SizedBox(
+            const SizedBox(
               height: 18,
             ),
 
@@ -148,8 +160,48 @@ class _HomeScreenState extends State<HomeScreen> {
             const SizedBox(height: 24),
 
             // Select Game Section
+            // Row(
+            //   // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            //   children: [
+            //     const Text(
+            //       'Select Game',
+            //       style: TextStyle(
+            //         fontSize: 18,
+            //         fontWeight: FontWeight.w600,
+            //       ),
+            //     ),
+            //     SizedBox(
+            //       width: 120,
+            //     ),
+            //     TextButton(
+            //       onPressed: () {
+            //         Navigator.push(
+            //             context,
+            //             MaterialPageRoute(
+            //                 builder: (context) => CategoryScreen()));
+            //       },
+            //       child: const Text(
+            //         'See All',
+            //         style: TextStyle(
+            //           color: Colors.black,
+            //           fontSize: 14,
+            //         ),
+            //       ),
+            //     ),
+            //     Icon(
+            //       Icons.arrow_forward_ios,
+            //       size: 19,
+            //     )
+            //   ],
+            // ),
+
+            // const SizedBox(height: 12),
+
+            // // Sports Icons Row
+            // SportSelector(),
+            // const SizedBox(height: 24),
+
             Row(
-              // mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 const Text(
                   'Select Game',
@@ -158,15 +210,13 @@ class _HomeScreenState extends State<HomeScreen> {
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                SizedBox(
-                  width: 120,
-                ),
+                const SizedBox(width: 120),
                 TextButton(
                   onPressed: () {
                     Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => CategoryScreen()));
+                            builder: (context) => const CategoryScreen()));
                   },
                   child: const Text(
                     'See All',
@@ -176,7 +226,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
                 ),
-                Icon(
+                const Icon(
                   Icons.arrow_forward_ios,
                   size: 19,
                 )
@@ -185,8 +235,116 @@ class _HomeScreenState extends State<HomeScreen> {
 
             const SizedBox(height: 12),
 
-            // Sports Icons Row
-            SportSelector(),
+// Categories Display using Consumer
+            Consumer<CategoryProvider>(
+              builder: (context, categoryProvider, child) {
+                if (categoryProvider.isLoading) {
+                  return const Center(
+                    child: CircularProgressIndicator(),
+                  );
+                }
+
+                // Show error message
+                if (categoryProvider.errorMessage.isNotEmpty) {
+                  return const Center(
+                    child: Text(
+                      'Error loading categories',
+                      style: TextStyle(color: Colors.red),
+                    ),
+                  );
+                }
+
+                // Show empty state
+                if (categoryProvider.categories.isEmpty) {
+                  return const Center(
+                    child: Text(
+                      'No categories available',
+                      style: TextStyle(color: Colors.grey),
+                    ),
+                  );
+                }
+
+                // Display categories horizontally (limited to first 4)
+                final displayCategories =
+                    categoryProvider.categories.take(4).toList();
+
+                return SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: displayCategories.map((category) {
+                      return Padding(
+                        padding: const EdgeInsets.only(right: 16.0),
+                        child: GestureDetector(
+                          onTap: () {
+                            // Handle category selection
+                            // You can navigate to a specific screen or perform an action
+                            print('Selected category: ${category.name}');
+                          },
+                          child: Column(
+                            children: [
+                              CircleAvatar(
+                                radius: 27,
+                                backgroundColor: Colors.grey[200],
+                                child: ClipOval(
+                                  child: Image.network(
+                                    categoryProvider
+                                        .getFullImageUrl(category.imageUrl),
+                                    width: 70,
+                                    height: 70,
+                                    fit: BoxFit.cover,
+                                    loadingBuilder:
+                                        (context, child, loadingProgress) {
+                                      if (loadingProgress == null) return child;
+                                      return SizedBox(
+                                        width: 35,
+                                        height: 35,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                          value: loadingProgress
+                                                      .expectedTotalBytes !=
+                                                  null
+                                              ? loadingProgress
+                                                      .cumulativeBytesLoaded /
+                                                  loadingProgress
+                                                      .expectedTotalBytes!
+                                              : null,
+                                        ),
+                                      );
+                                    },
+                                    errorBuilder: (context, error, stackTrace) {
+                                      return Icon(
+                                        Icons.sports,
+                                        size: 35,
+                                        color: Colors.grey[600],
+                                      );
+                                    },
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Container(
+                                width: 70,
+                                child: Text(
+                                  category.name,
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                );
+              },
+            ),
+
             const SizedBox(height: 24),
 
             GestureDetector(
@@ -231,9 +389,9 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                             ),
                             const SizedBox(width: 8),
-                            Column(
+                            const Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
-                              children: const [
+                              children: [
                                 Text(
                                   // textAlign: TextAlign.center,
                                   'Premier League',
@@ -317,9 +475,9 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
 
                         // Score
-                        Expanded(
+                        const Expanded(
                           child: Column(
-                            children: const [
+                            children: [
                               Text(
                                 '1 : 4',
                                 style: TextStyle(
@@ -411,161 +569,374 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
 
             const SizedBox(height: 12),
-            Container(
-              margin: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    width: double.infinity,
-                    height: 120,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(12),
+            // Container(
+            //   margin: const EdgeInsets.all(16),
+            //   child: Column(
+            //     crossAxisAlignment: CrossAxisAlignment.start,
+            //     children: [
+            //       Container(
+            //         width: double.infinity,
+            //         height: 120,
+            //         decoration: BoxDecoration(
+            //           borderRadius: BorderRadius.circular(12),
+            //         ),
+            //         child: Stack(
+            //           children: [
+            //             // Background image covering the entire container
+            //             Positioned.fill(
+            //               child: ClipRRect(
+            //                 borderRadius: BorderRadius.circular(12),
+            //                 child: Image.network(
+            //                   'https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80',
+            //                   fit: BoxFit.cover,
+            //                   errorBuilder: (context, error, stackTrace) {
+            //                     return Container(
+            //                       decoration: BoxDecoration(
+            //                         gradient: const LinearGradient(
+            //                           colors: [
+            //                             Color(0xFF1E88E5),
+            //                             Color(0xFF4CAF50)
+            //                           ],
+            //                           begin: Alignment.centerLeft,
+            //                           end: Alignment.centerRight,
+            //                         ),
+            //                         borderRadius: BorderRadius.circular(12),
+            //                       ),
+            //                       child: const Center(
+            //                         child: Icon(
+            //                           Icons.sports_cricket,
+            //                           color: Colors.white,
+            //                           size: 40,
+            //                         ),
+            //                       ),
+            //                     );
+            //                   },
+            //                 ),
+            //               ),
+            //             ),
+            //             Positioned.fill(
+            //               child: Container(
+            //                 decoration: BoxDecoration(
+            //                   // border: Border.all(),
+            //                   borderRadius: BorderRadius.circular(12),
+            //                   gradient: LinearGradient(
+            //                     colors: [
+            //                       Colors.black.withOpacity(0.4),
+            //                       Colors.transparent,
+            //                       Colors.black.withOpacity(0.3),
+            //                     ],
+            //                     begin: Alignment.centerLeft,
+            //                     end: Alignment.centerRight,
+            //                   ),
+            //                 ),
+            //               ),
+            //             ),
+            //           ],
+            //         ),
+            //       ),
+            //       const SizedBox(height: 12),
+            //       const Row(
+            //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            //         children: [
+            //           Text(
+            //             'Cricket Tournament',
+            //             style: TextStyle(
+            //               fontWeight: FontWeight.bold,
+            //               fontSize: 16,
+            //               color: Colors.black87,
+            //             ),
+            //           ),
+            //           Text(
+            //             '₹500',
+            //             style: TextStyle(
+            //               fontWeight: FontWeight.bold,
+            //               fontSize: 18,
+            //               color: Colors.black87,
+            //             ),
+            //           ),
+            //         ],
+            //       ),
+            //       const SizedBox(height: 8),
+            //       const Row(
+            //         children: [
+            //           Icon(
+            //             Icons.location_on,
+            //             color: Color(0xFF1E88E5),
+            //             size: 18,
+            //           ),
+            //           SizedBox(width: 4),
+            //           Text(
+            //             'Kakinada',
+            //             style: TextStyle(
+            //               color: Colors.black54,
+            //               fontSize: 14,
+            //             ),
+            //           ),
+            //         ],
+            //       ),
+            //       const SizedBox(height: 8),
+            //       const Row(
+            //         children: [
+            //           Icon(
+            //             Icons.access_time,
+            //             color: Color(0xFF1E88E5),
+            //             size: 18,
+            //           ),
+            //           SizedBox(width: 4),
+            //           Text(
+            //             '09 AM-12 PM',
+            //             style: TextStyle(
+            //               color: Colors.black54,
+            //               fontSize: 14,
+            //             ),
+            //           ),
+            //         ],
+            //       ),
+            //       const SizedBox(height: 12),
+            //       Row(
+            //         mainAxisAlignment: MainAxisAlignment.end,
+            //         children: [
+            //           ElevatedButton(
+            //             onPressed: () {
+            //               Navigator.push(
+            //                   context,
+            //                   MaterialPageRoute(
+            //                       builder: (context) => EnrollScreen()));
+            //             },
+            //             style: ElevatedButton.styleFrom(
+            //               backgroundColor: const Color(0xFF1E88E5),
+            //               foregroundColor: Colors.white,
+            //               padding: const EdgeInsets.symmetric(
+            //                   horizontal: 24, vertical: 10),
+            //               shape: RoundedRectangleBorder(
+            //                 borderRadius: BorderRadius.circular(20),
+            //               ),
+            //             ),
+            //             child: const Text(
+            //               'Enroll Now',
+            //               style: TextStyle(
+            //                 fontWeight: FontWeight.w600,
+            //                 fontSize: 14,
+            //               ),
+            //             ),
+            //           ),
+            //         ],
+            //       ),
+            //     ],
+            //   ),
+            // ),
+            Consumer<UpcomingTournamentProvider>(
+              builder: (context, provider, child) {
+                if (provider.isLoading) {
+                  return Container(
+                    margin: const EdgeInsets.all(16),
+                    height: 250,
+                    child: const Center(
+                      child: CircularProgressIndicator(
+                        color: Color(0xFF1E88E5),
+                      ),
                     ),
-                    child: Stack(
+                  );
+                }
+
+                if (provider.hasError) {
+                  return Container(
+                    margin: const EdgeInsets.all(16),
+                    child: Column(
                       children: [
-                        // Background image covering the entire container
-                        Positioned.fill(
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(12),
-                            child: Image.network(
-                              'https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80',
-                              fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) {
-                                return Container(
-                                  decoration: BoxDecoration(
-                                    gradient: const LinearGradient(
-                                      colors: [
-                                        Color(0xFF1E88E5),
-                                        Color(0xFF4CAF50)
-                                      ],
-                                      begin: Alignment.centerLeft,
-                                      end: Alignment.centerRight,
-                                    ),
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  child: const Center(
-                                    child: Icon(
-                                      Icons.sports_cricket,
-                                      color: Colors.white,
-                                      size: 40,
-                                    ),
-                                  ),
-                                );
-                              },
-                            ),
-                          ),
+                        Text(
+                          'Error: ${provider.errorMessage}',
+                          style: const TextStyle(color: Colors.red),
                         ),
-                        Positioned.fill(
-                          child: Container(
-                            decoration: BoxDecoration(
-                              // border: Border.all(),
-                              borderRadius: BorderRadius.circular(12),
-                              gradient: LinearGradient(
-                                colors: [
-                                  Colors.black.withOpacity(0.4),
-                                  Colors.transparent,
-                                  Colors.black.withOpacity(0.3),
-                                ],
-                                begin: Alignment.centerLeft,
-                                end: Alignment.centerRight,
-                              ),
-                            ),
-                          ),
+                        ElevatedButton(
+                          onPressed: () => provider.fetchUpcomingTournament(),
+                          child: const Text('Retry'),
                         ),
                       ],
                     ),
-                  ),
-                  const SizedBox(height: 12),
-                  const Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  );
+                }
+
+                // if (!provider.hasData) {
+                //   return Container(
+                //     margin: const EdgeInsets.all(16),
+                //     child: ElevatedButton(
+                //       onPressed: () => provider.fetchUpcomingTournament(),
+                //       child: const Text('Load Tournament'),
+                //     ),
+                //   );
+                // }
+                // if (provider.tournament == null) {
+                //   return Container(
+                //     margin: const EdgeInsets.all(16),
+                //     child: ElevatedButton(
+                //       onPressed: () => provider.fetchUpcomingTournament(),
+                //       child: const Text('Load Tournament'),
+                //     ),
+                //   );
+                // }
+
+                final tournament = provider.tournament!;
+                final baseImageUrl = 'http://31.97.206.144:3081';
+
+                return Container(
+                  margin: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        'Cricket Tournament',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                          color: Colors.black87,
+                      Container(
+                        width: double.infinity,
+                        height: 120,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Stack(
+                          children: [
+                            // Background image covering the entire container
+                            Positioned.fill(
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(12),
+                                child: Image.network(
+                                  tournament.imageUrl.isNotEmpty
+                                      ? '$baseImageUrl${tournament.imageUrl}'
+                                      : 'https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80',
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return Container(
+                                      decoration: BoxDecoration(
+                                        gradient: const LinearGradient(
+                                          colors: [
+                                            Color(0xFF1E88E5),
+                                            Color(0xFF4CAF50)
+                                          ],
+                                          begin: Alignment.centerLeft,
+                                          end: Alignment.centerRight,
+                                        ),
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      child: const Center(
+                                        child: Icon(
+                                          Icons.sports_cricket,
+                                          color: Colors.white,
+                                          size: 40,
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
+                            ),
+                            Positioned.fill(
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(12),
+                                  gradient: LinearGradient(
+                                    colors: [
+                                      Colors.black.withOpacity(0.4),
+                                      Colors.transparent,
+                                      Colors.black.withOpacity(0.3),
+                                    ],
+                                    begin: Alignment.centerLeft,
+                                    end: Alignment.centerRight,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                      Text(
-                        '₹500',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18,
-                          color: Colors.black87,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-               const   Row(
-                    children:  [
-                      Icon(
-                        Icons.location_on,
-                        color: Color(0xFF1E88E5),
-                        size: 18,
-                      ),
-                      SizedBox(width: 4),
-                      Text(
-                        'Kakinada',
-                        style: TextStyle(
-                          color: Colors.black54,
-                          fontSize: 14,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                const  Row(
-                    children:  [
-                      Icon(
-                        Icons.access_time,
-                        color: Color(0xFF1E88E5),
-                        size: 18,
-                      ),
-                      SizedBox(width: 4),
-                      Text(
-                        '09 AM-12 PM',
-                        style: TextStyle(
-                          color: Colors.black54,
-                          fontSize: 14,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      ElevatedButton(
-                        onPressed: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => EnrollScreen()));
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF1E88E5),
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 24, vertical: 10),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
+                      const SizedBox(height: 12),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            tournament.name,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                              color: Colors.black87,
+                            ),
                           ),
-                        ),
-                        child: const Text(
-                          'Enroll Now',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 14,
+                          Text(
+                            '₹${tournament.price}',
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18,
+                              color: Colors.black87,
+                            ),
                           ),
-                        ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      const Row(
+                        children: [
+                          Icon(
+                            Icons.location_on,
+                            color: Color(0xFF1E88E5),
+                            size: 18,
+                          ),
+                          SizedBox(width: 4),
+                          Text(
+                            'Kakinada',
+                            style: TextStyle(
+                              color: Colors.black54,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          const Icon(
+                            Icons.access_time,
+                            color: Color(0xFF1E88E5),
+                            size: 18,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            tournament.timeSlot,
+                            style: const TextStyle(
+                              color: Colors.black54,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          ElevatedButton(
+                            onPressed: () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => EnrollScreen()));
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF1E88E5),
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 24, vertical: 10),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                            ),
+                            child: const Text(
+                              'Enroll Now',
+                              style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 14,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
-                ],
-              ),
+                );
+              },
             ),
             const SizedBox(height: 24),
 
@@ -598,7 +969,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
                 ),
-              const  Icon(
+                const Icon(
                   Icons.arrow_forward_ios,
                   size: 18,
                 )
@@ -622,11 +993,11 @@ class _HomeScreenState extends State<HomeScreen> {
             const SizedBox(height: 24),
             Row(
               children: [
-              const  Text(
+                const Text(
                   'Nearby Turf',
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
-             const   SizedBox(
+                const SizedBox(
                   width: 130,
                 ),
                 GestureDetector(
@@ -636,14 +1007,14 @@ class _HomeScreenState extends State<HomeScreen> {
                         MaterialPageRoute(
                             builder: (context) => CategoryScreen()));
                   },
-                  child:const Text(
+                  child: const Text(
                     'See all',
                     style: TextStyle(color: Colors.black),
                   ),
                 ),
                 IconButton(
                     onPressed: () {},
-                    icon:const Icon(
+                    icon: const Icon(
                       Icons.arrow_forward_ios,
                       size: 18,
                     ))
@@ -842,7 +1213,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                SizedBox(
+                const SizedBox(
                   width: 100,
                 ),
                 TextButton(
@@ -850,7 +1221,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => CategoryScreen()));
+                            builder: (context) => const CategoryScreen()));
                   },
                   child: const Text(
                     'See All',
@@ -860,7 +1231,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
                 ),
-                Icon(
+                const Icon(
                   Icons.arrow_forward_ios,
                   size: 18,
                 )
@@ -970,7 +1341,8 @@ class _HomeScreenState extends State<HomeScreen> {
           // Match Details Card
           GestureDetector(
             onTap: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context)=>MatchDetails()));
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => MatchDetails()));
             },
             child: Container(
               margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
@@ -1021,11 +1393,11 @@ class _HomeScreenState extends State<HomeScreen> {
                       ],
                     ),
                   ),
-            
+
                   // Time Display (Center)
-                  Column(
+                  const Column(
                     children: [
-                      const Text(
+                      Text(
                         '02h15m',
                         style: TextStyle(
                           fontSize: 16,
@@ -1044,7 +1416,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       // ),
                     ],
                   ),
-            
+
                   // Chelsea (Right Side)
                   Expanded(
                     child: Column(
@@ -1252,7 +1624,7 @@ class SportSelector extends StatelessWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (_) =>const CricketScreen(),
+                  builder: (_) => const CricketScreen(),
                 ),
               );
             },
