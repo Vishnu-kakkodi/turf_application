@@ -6,6 +6,7 @@ import 'package:booking_application/provider/location_provider.dart';
 import 'package:booking_application/provider/login_provider.dart';
 import 'package:booking_application/provider/navbar_provider.dart';
 import 'package:booking_application/provider/registration_provider.dart';
+import 'package:booking_application/provider/single_tournament_provider.dart';
 import 'package:booking_application/provider/tournament_provider.dart';
 import 'package:booking_application/provider/upcoming_tournament_provider.dart';
 import 'package:booking_application/provider/user_details_provider.dart';
@@ -33,7 +34,8 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_)=>UpcomingTournamentProvider()),
         ChangeNotifierProvider(create: (_)=>LocationProvider()),
         ChangeNotifierProvider(create: (_)=>AllTurfProvider()),
-        ChangeNotifierProvider(create: (_)=>TournamentProvider())
+        ChangeNotifierProvider(create: (_)=>TournamentProvider()),
+        ChangeNotifierProvider(create: (_)=>SingleTournamentProvider())
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,

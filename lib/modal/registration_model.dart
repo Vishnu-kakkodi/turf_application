@@ -5,6 +5,7 @@ class User {
   final String mobile;
   final String? password;
   final String? otp;
+  final String?profileImage;
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -15,6 +16,7 @@ class User {
     required this.mobile,
     this.password,
     this.otp,
+    this.profileImage,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -29,6 +31,7 @@ class User {
       otp: json['otp'],
       createdAt: DateTime.parse(json['createdAt']),
       updatedAt: DateTime.parse(json['updatedAt']),
+      profileImage: json['profileImageUrl'] ?? json['profileImage'] ?? json['imageUrl'], // 
     );
   }
 
@@ -42,6 +45,7 @@ class User {
       'otp': otp,
       'createdAt': createdAt.toIso8601String(),
       'updatedAt': updatedAt.toIso8601String(),
+      'profileImage':profileImage
     };
   }
 }

@@ -16,8 +16,8 @@ class LocationService {
 
       
       print('hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh$latitude');
-            print('hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh$longitude');
-                    print('hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh$userId');
+      print('hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh$longitude');
+      print('hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh$userId');
 
       final token = await UserPreferences.getToken();
       
@@ -32,6 +32,9 @@ class LocationService {
           'longitude': longitude,
         }),
       );
+
+
+      print('melvinnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn${response.statusCode}');
 
       if (response.statusCode == 200) {
         return {
@@ -64,6 +67,8 @@ class LocationService {
           if (token != null) 'Authorization': 'Bearer $token',
         },
       );
+
+     print('dataaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa${response.statusCode}');
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);

@@ -1149,10 +1149,12 @@ class _EnrollScreenState extends State<EnrollScreen> {
                         builder: (context, provider, _) {
                           if (provider.isLoading) {
                             return const Center(
-                                child: CircularProgressIndicator());
+                              child: CircularProgressIndicator(),
+                            );
                           } else if (provider.error != null) {
                             return Center(
-                                child: Text('Error: ${provider.error}'));
+                              child: Text('Error: ${provider.error}'),
+                            );
                           } else {
                             final tournaments = provider.tournaments;
 
@@ -1171,27 +1173,30 @@ class _EnrollScreenState extends State<EnrollScreen> {
                                         CrossAxisAlignment.start,
                                     children: [
                                       ClipRRect(
-                                          borderRadius:
-                                              const BorderRadius.vertical(
-                                                  top: Radius.circular(12)),
-                                          child: Image.network(
-                                            'http://31.97.206.144:3081${tournament.imageUrl ?? ''}',
-                                            height: 150,
-                                            width: double.infinity,
-                                            fit: BoxFit.cover,
-                                            errorBuilder:
-                                                (context, error, stackTrace) {
-                                              return Container(
-                                                height: 150,
-                                                width: double.infinity,
-                                                color: Colors.grey[300],
-                                                alignment: Alignment.center,
-                                                child: const Icon(
-                                                    Icons.broken_image,
-                                                    size: 40),
-                                              );
-                                            },
-                                          )),
+                                        borderRadius:
+                                            const BorderRadius.vertical(
+                                          top: Radius.circular(12),
+                                        ),
+                                        child: Image.network(
+                                          'http://31.97.206.144:3081${tournament.image ?? ''}',
+                                          height: 150,
+                                          width: double.infinity,
+                                          fit: BoxFit.cover,
+                                          errorBuilder:
+                                              (context, error, stackTrace) {
+                                            return Container(
+                                              height: 150,
+                                              width: double.infinity,
+                                              color: Colors.grey[300],
+                                              alignment: Alignment.center,
+                                              child: const Icon(
+                                                Icons.broken_image,
+                                                size: 40,
+                                              ),
+                                            );
+                                          },
+                                        ),
+                                      ),
                                       Padding(
                                         padding: const EdgeInsets.all(12.0),
                                         child: Column(
@@ -1206,31 +1211,49 @@ class _EnrollScreenState extends State<EnrollScreen> {
                                               ),
                                             ),
                                             const SizedBox(height: 4),
+                                            if (tournament.description !=
+                                                null) ...[
+                                              // Text(
+                                              //   tournament.description!,
+                                              //   style: const TextStyle(
+                                              //     color: Colors.grey,
+                                              //     fontSize: 14,
+                                              //   ),
+                                              // ),
+                                              const SizedBox(height: 4),
+                                            ],
                                             Text(
-                                              "Location: Not provided", // Update if location field exists in model
+                                              tournament.location != null
+                                                  ? 'Location: ${tournament.location}'
+                                                  : 'Location: Not provided',
                                               style: const TextStyle(
                                                 color: Colors.blue,
                                                 fontSize: 14,
                                               ),
                                             ),
                                             const SizedBox(height: 4),
-                                            Text(
-                                              tournament.location ??
-                                                  'Location: Not provided',
-                                              style: const TextStyle(
-                                                color: Colors.blue,
-                                                fontSize: 14,
+                                            if (tournament.details?.date !=
+                                                null) ...[
+                                              Text(
+                                                'Date: ${tournament.details!.date}',
+                                                style: const TextStyle(
+                                                  color: Colors.green,
+                                                  fontSize: 14,
+                                                ),
                                               ),
-                                            ),
-
-                                            // Text(
-                                            //   'Date: ${tournament.d.toLocal().toString().split(' ')[0]}',
-                                            //   style: const TextStyle(
-                                            //     color: Colors.blue,
-                                            //     fontSize: 14,
-                                            //   ),
-                                            // ),
-                                            const SizedBox(height: 4),
+                                              const SizedBox(height: 4),
+                                            ],
+                                            if (tournament.details?.time !=
+                                                null) ...[
+                                              Text(
+                                                'Time: ${tournament.details!.time}',
+                                                style: const TextStyle(
+                                                  color: Colors.green,
+                                                  fontSize: 14,
+                                                ),
+                                              ),
+                                              const SizedBox(height: 4),
+                                            ],
                                             Row(
                                               mainAxisAlignment:
                                                   MainAxisAlignment
@@ -1249,7 +1272,24 @@ class _EnrollScreenState extends State<EnrollScreen> {
                                                       context,
                                                       MaterialPageRoute(
                                                         builder: (context) =>
-                                                            TournamentDetailsScreen(),
+                                                            TournamentDetailsScreen(
+                                                          tournamentId:
+                                                              tournament.id,
+                                                          imageUrl:
+                                                              tournament.image,
+                                                          price: tournament
+                                                              .price
+                                                              .toString(),
+                                                          date: tournament
+                                                                  .details
+                                                                  ?.date ??
+                                                              '',
+                                                          time: tournament
+                                                                  .details
+                                                                  ?.time ??
+                                                              '',
+                                                          // tournament: tournament,
+                                                        ),
                                                       ),
                                                     );
                                                   },

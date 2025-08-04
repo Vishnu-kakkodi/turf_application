@@ -70,6 +70,10 @@ class UserDetailsProvider extends ChangeNotifier {
       _setErrorMessage('No user logged in');
       return false;
     }
+       
+    
+    
+
 
     _setUpdating(true);
     _clearMessages();

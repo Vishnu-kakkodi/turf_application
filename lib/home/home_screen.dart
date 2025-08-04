@@ -85,8 +85,8 @@ class _HomeScreenState extends State<HomeScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<CategoryProvider>().fetchCategories();
       context.read<UpcomingTournamentProvider>().fetchUpcomingTournament();
-     Provider.of<LocationProvider>(context, listen: false)
-        .updateLocationAndGetTurfs();
+      Provider.of<LocationProvider>(context, listen: false)
+          .updateLocationAndGetTurfs();
     });
   }
 
@@ -218,7 +218,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                const SizedBox(width: 120),
+                const SizedBox(width: 130),
                 TextButton(
                   onPressed: () {
                     Navigator.push(
@@ -807,8 +807,8 @@ class _HomeScreenState extends State<HomeScreen> {
                               child: ClipRRect(
                                 borderRadius: BorderRadius.circular(12),
                                 child: Image.network(
-                                  tournament.imageUrl.isNotEmpty
-                                      ? '$baseImageUrl${tournament.imageUrl}'
+                                  tournament.image.isNotEmpty
+                                      ? '$baseImageUrl${tournament.image}'
                                       : 'https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80',
                                   fit: BoxFit.cover,
                                   errorBuilder: (context, error, stackTrace) {
@@ -896,23 +896,23 @@ class _HomeScreenState extends State<HomeScreen> {
                         ],
                       ),
                       const SizedBox(height: 8),
-                      Row(
-                        children: [
-                          const Icon(
-                            Icons.access_time,
-                            color: Color(0xFF1E88E5),
-                            size: 18,
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            tournament.timeSlot,
-                            style: const TextStyle(
-                              color: Colors.black54,
-                              fontSize: 14,
-                            ),
-                          ),
-                        ],
-                      ),
+                      // Row(
+                      //   children: [
+                      //     const Icon(
+                      //       Icons.access_time,
+                      //       color: Color(0xFF1E88E5),
+                      //       size: 18,
+                      //     ),
+                      //     const SizedBox(width: 4),
+                      //     Text(
+                      //       tournament.timeSlot,
+                      //       style: const TextStyle(
+                      //         color: Colors.black54,
+                      //         fontSize: 14,
+                      //       ),
+                      //     ),
+                      //   ],
+                      // ),
                       const SizedBox(height: 12),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.end,
@@ -961,6 +961,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
+                const Spacer(),
                 // SizedBox(
                 //   width: 2,
                 // ),
@@ -1001,35 +1002,37 @@ class _HomeScreenState extends State<HomeScreen> {
             SportSelector(),
 
             const SizedBox(height: 24),
-            Row(
-              children: [
-                const Text(
-                  'Nearby Turf',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(
-                  width: 130,
-                ),
-                GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => CategoryScreen()));
-                  },
-                  child: const Text(
-                    'See all',
-                    style: TextStyle(color: Colors.black),
-                  ),
-                ),
-                IconButton(
-                    onPressed: () {},
-                    icon: const Icon(
-                      Icons.arrow_forward_ios,
-                      size: 18,
-                    ))
-              ],
-            ),
+           Row(
+  children: [
+    const Text(
+      'Nearby Turf',
+      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+    ),
+    const Spacer(), // Pushes the rest to the right
+    GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => CategoryScreen()),
+        );
+      },
+      child: Row(
+        children: const [
+          Text(
+            'See all',
+            style: TextStyle(color: Colors.black),
+          ),
+          SizedBox(width: 4), // Small space between text and icon
+          Icon(
+            Icons.arrow_forward_ios,
+            size: 18,
+          ),
+        ],
+      ),
+    ),
+  ],
+),
+
             // Nearby Turf
             // const Text(
             //   'Nearby Turf',
@@ -1442,7 +1445,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
 
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
 
             // Recommended Section
             Row(
@@ -1455,9 +1458,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                const SizedBox(
-                  width: 100,
-                ),
+          const Spacer(),
                 TextButton(
                   onPressed: () {
                     Navigator.push(
@@ -1496,6 +1497,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     complex['price'],
                     complex['location'],
                     complex['image'],
+                    context, // ← Add this
                   );
                 },
               ),
@@ -1707,10 +1709,136 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildRecommendedCard(
-      String title, String price, String location, String imageUrl) {
+  // Widget _buildRecommendedCard(
+  //     String title, String price, String location, String imageUrl) {
+  //   return Container(
+  //     width: 140,
+  //     margin: const EdgeInsets.only(right: 12),
+  //     decoration: BoxDecoration(
+  //       color: Colors.white,
+  //       borderRadius: BorderRadius.circular(12),
+  //       boxShadow: [
+  //         BoxShadow(
+  //           color: Colors.grey.withOpacity(0.1),
+  //           spreadRadius: 1,
+  //           blurRadius: 4,
+  //           offset: const Offset(0, 2),
+  //         ),
+  //       ],
+  //     ),
+  //     child: Column(
+  //       crossAxisAlignment: CrossAxisAlignment.start,
+  //       children: [
+  //         // Image section
+  //         ClipRRect(
+  //           borderRadius: const BorderRadius.only(
+  //             topLeft: Radius.circular(12),
+  //             topRight: Radius.circular(12),
+  //           ),
+  //           child: GestureDetector(
+  //             onTap: () {
+  //               Navigator.push(context,
+  //                   MaterialPageRoute(builder: (context) => DetailsScreen()));
+  //             },
+  //             child: Container(
+  //               height: 100,
+  //               width: double.infinity,
+  //               child: Image.network(
+  //                 imageUrl,
+  //                 fit: BoxFit.cover,
+  //                 errorBuilder: (context, error, stackTrace) {
+  //                   return Container(
+  //                     decoration: BoxDecoration(
+  //                       color: Colors.green[100],
+  //                       borderRadius: const BorderRadius.only(
+  //                         topLeft: Radius.circular(12),
+  //                         topRight: Radius.circular(12),
+  //                       ),
+  //                     ),
+  //                     child: const Center(
+  //                       child: Icon(
+  //                         Icons.sports_cricket,
+  //                         color: Colors.green,
+  //                         size: 30,
+  //                       ),
+  //                     ),
+  //                   );
+  //                 },
+  //               ),
+  //             ),
+  //           ),
+  //         ),
+
+  //         // Content section
+  //         Expanded(
+  //           child: Padding(
+  //             padding: const EdgeInsets.all(12),
+  //             child: Column(
+  //               crossAxisAlignment: CrossAxisAlignment.start,
+  //               children: [
+  //                 // Title
+  //                 Text(
+  //                   title,
+  //                   style: const TextStyle(
+  //                     fontSize: 14,
+  //                     fontWeight: FontWeight.w600,
+  //                     color: Colors.black87,
+  //                   ),
+  //                   maxLines: 1,
+  //                   overflow: TextOverflow.ellipsis,
+  //                 ),
+
+  //                 const SizedBox(height: 4),
+
+  //                 // Location row
+  //                 Row(
+  //                   children: [
+  //                     Icon(
+  //                       Icons.location_on,
+  //                       size: 12,
+  //                       color: Colors.blue[600],
+  //                     ),
+  //                     const SizedBox(width: 4),
+  //                     Expanded(
+  //                       child: Text(
+  //                         location,
+  //                         style: TextStyle(
+  //                           fontSize: 12,
+  //                           color: Colors.grey[600],
+  //                         ),
+  //                         maxLines: 1,
+  //                         overflow: TextOverflow.ellipsis,
+  //                       ),
+  //                     ),
+  //                   ],
+  //                 ),
+
+  //                 const Spacer(),
+
+  //                 // Price
+  //                 Text(
+  //                   price,
+  //                   style: const TextStyle(
+  //                     fontSize: 14,
+  //                     fontWeight: FontWeight.w600,
+  //                     color: Colors.black87,
+  //                   ),
+  //                 ),
+  //               ],
+  //             ),
+  //           ),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
+
+  Widget _buildRecommendedCard(String title, String price, String location,
+      String imageUrl, BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+
     return Container(
-      width: 140,
+      width: screenWidth * 0.38, // Responsive card width
       margin: const EdgeInsets.only(right: 12),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -1739,13 +1867,14 @@ class _HomeScreenState extends State<HomeScreen> {
                     MaterialPageRoute(builder: (context) => DetailsScreen()));
               },
               child: Container(
-                height: 110,
+                height: screenWidth * 0.25, // Responsive image height
                 width: double.infinity,
                 child: Image.network(
                   imageUrl,
                   fit: BoxFit.cover,
                   errorBuilder: (context, error, stackTrace) {
                     return Container(
+                      height: screenWidth * 0.25,
                       decoration: BoxDecoration(
                         color: Colors.green[100],
                         borderRadius: const BorderRadius.only(
@@ -1770,15 +1899,16 @@ class _HomeScreenState extends State<HomeScreen> {
           // Content section
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.all(12),
+              padding:
+                  EdgeInsets.all(screenWidth * 0.025), // Responsive padding
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Title
                   Text(
                     title,
-                    style: const TextStyle(
-                      fontSize: 14,
+                    style: TextStyle(
+                      fontSize: screenWidth * 0.035,
                       fontWeight: FontWeight.w600,
                       color: Colors.black87,
                     ),
@@ -1786,22 +1916,22 @@ class _HomeScreenState extends State<HomeScreen> {
                     overflow: TextOverflow.ellipsis,
                   ),
 
-                  const SizedBox(height: 4),
+                  SizedBox(height: screenWidth * 0.01),
 
                   // Location row
                   Row(
                     children: [
                       Icon(
                         Icons.location_on,
-                        size: 12,
+                        size: screenWidth * 0.03,
                         color: Colors.blue[600],
                       ),
-                      const SizedBox(width: 4),
+                      SizedBox(width: screenWidth * 0.01),
                       Expanded(
                         child: Text(
                           location,
                           style: TextStyle(
-                            fontSize: 12,
+                            fontSize: screenWidth * 0.03,
                             color: Colors.grey[600],
                           ),
                           maxLines: 1,
@@ -1816,8 +1946,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   // Price
                   Text(
                     price,
-                    style: const TextStyle(
-                      fontSize: 14,
+                    style: TextStyle(
+                      fontSize: screenWidth * 0.035,
                       fontWeight: FontWeight.w600,
                       color: Colors.black87,
                     ),

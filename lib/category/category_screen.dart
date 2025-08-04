@@ -192,10 +192,12 @@ class _CategoryScreenState extends State<CategoryScreen> {
           'Select Category',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
-        ),
+        automaticallyImplyLeading: false,
+        centerTitle: true,
+        // leading: IconButton(
+        //   icon: const Icon(Icons.arrow_back),
+        //   onPressed: () => Navigator.pop(context),
+        // ),
         bottom: const PreferredSize(
           preferredSize: Size.fromHeight(1),
           child: Divider(height: 1, thickness: 1),
@@ -308,7 +310,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                       return GestureDetector(
                         onTap: () {
                           // Handle category selection
-                          Navigator.pop(context, category);
+                          // Navigator.pop(context, category);
                         },
                         child: Column(
                           children: [

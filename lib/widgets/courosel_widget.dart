@@ -217,12 +217,13 @@ class _SoccerCarouselState extends State<SoccerCarousel> {
   Future<void> fetchBanners() async {
     try {
       final response = await http.get(Uri.parse('http://31.97.206.144:3081/admin/getallbanners'));
+      print('status code ${response.statusCode}');
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         if (data['success'] == true && data['banners'] != null) {
           setState(() {
             soccerImages = List<String>.from(
-              data['banners'].map((banner) => 'http://31.97.206.144:3081${banner['image ']}'),
+              data['banners'].map((banner) => 'http://31.97.206.144:3081${banner['image']}'),
             );
             isLoading = false;
             _startAutoScroll();

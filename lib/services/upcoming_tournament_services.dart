@@ -14,6 +14,8 @@ class UpcomingTournamentService {
         },
       );
 
+      print('tournament status code ${response.statusCode}');
+
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = json.decode(response.body);
         return TournamentResponse.fromJson(data);

@@ -2,9 +2,15 @@ import 'package:booking_application/views/details_screen.dart';
 import 'package:booking_application/views/tournament_details_screen.dart';
 import 'package:flutter/material.dart';
 
-class MyBookings extends StatelessWidget {
-  const MyBookings({super.key});
+class MyBookings extends StatefulWidget {
+  final String?id;
+  const MyBookings({super.key,this.id});
 
+  @override
+  State<MyBookings> createState() => _MyBookingsState();
+}
+
+class _MyBookingsState extends State<MyBookings> {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
@@ -173,9 +179,15 @@ class VenueList extends StatelessWidget {
   }
 }
 
-class TournamentList extends StatelessWidget {
-  const TournamentList({super.key});
+class TournamentList extends StatefulWidget {
+  final String?id;
+  const TournamentList({super.key,this.id});
 
+  @override
+  State<TournamentList> createState() => _TournamentListState();
+}
+
+class _TournamentListState extends State<TournamentList> {
   @override
   Widget build(BuildContext context) {
     return ListView(
@@ -261,7 +273,7 @@ class TournamentList extends StatelessWidget {
                         ),
                         OutlinedButton(
                           onPressed: () {
-                             Navigator.push(context, MaterialPageRoute(builder: (context)=>TournamentDetailsScreen()));
+                             Navigator.push(context, MaterialPageRoute(builder: (context)=>TournamentDetailsScreen(tournamentId:widget.id.toString(),)));
                           },
                           style: OutlinedButton.styleFrom(
                             side: const BorderSide(color: Colors.blue),

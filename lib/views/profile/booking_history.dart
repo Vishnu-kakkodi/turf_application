@@ -2,7 +2,8 @@ import 'package:booking_application/views/tournament_details_screen.dart';
 import 'package:flutter/material.dart';
 
 class BookingHistory extends StatelessWidget {
-  const BookingHistory({super.key});
+  final String?id;
+  const BookingHistory({super.key,this.id});
 
   @override
   Widget build(BuildContext context) {
@@ -179,7 +180,8 @@ class VenueList extends StatelessWidget {
 }
 
 class TournamentList extends StatelessWidget {
-  const TournamentList({super.key});
+  final String?id;
+  const TournamentList({super.key,this.id});
 
   @override
   Widget build(BuildContext context) {
@@ -266,7 +268,7 @@ class TournamentList extends StatelessWidget {
                         ),
                         OutlinedButton(
                           onPressed: () {
-                            Navigator.push(context, MaterialPageRoute(builder: (context)=>TournamentDetailsScreen()));
+                            Navigator.push(context, MaterialPageRoute(builder: (context)=>TournamentDetailsScreen(tournamentId:id.toString(),)));
                           },
                           style: OutlinedButton.styleFrom(
                             side: const BorderSide(color: Colors.blue),
