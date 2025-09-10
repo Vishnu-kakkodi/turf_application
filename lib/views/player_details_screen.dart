@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
 class PlayerDetailsScreen extends StatelessWidget {
-  const PlayerDetailsScreen({super.key});
+  final String?id;
+  const PlayerDetailsScreen({super.key,this.id});
 
   @override
   Widget build(BuildContext context) {

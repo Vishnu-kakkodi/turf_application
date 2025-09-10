@@ -57,11 +57,11 @@
 //         'POST',
 //         Uri.parse('$baseUrl/$userId/upload-image'),
 //       );
-      
+
 //       request.files.add(await http.MultipartFile.fromPath('image', imagePath));
-      
+
 //       var response = await request.send();
-      
+
 //       if (response.statusCode == 200) {
 //         var responseData = await response.stream.bytesToString();
 //         var data = jsonDecode(responseData);
@@ -76,27 +76,6 @@
 //     }
 //   }
 // }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 import 'dart:convert';
 import 'dart:io';
@@ -133,7 +112,8 @@ class UserProfileService {
   }
 
   // Update user profile (existing method - keeping for backward compatibility)
-  Future<bool> updateUserProfile(String userId, Map<String, dynamic> userData) async {
+  Future<bool> updateUserProfile(
+      String userId, Map<String, dynamic> userData) async {
     try {
       final response = await http.put(
         Uri.parse('$baseUrl/userprofile/$userId'),
@@ -158,7 +138,8 @@ class UserProfileService {
   }
 
   // NEW: Update user info using the new API endpoint
-  Future<bool> updateUserInfo(String userId, {
+  Future<bool> updateUserInfo(
+    String userId, {
     required String name,
     required String email,
     required String phone,
@@ -193,47 +174,92 @@ class UserProfileService {
       return false;
     }
   }
-  
+
+//   Future<String?> updateProfileImage(String userId, String imagePath) async {
+//   try {
+//     // Check if file exists
+//     final file = File(imagePath);
+//     if (!await file.exists()) {
+//       print('Image file does not exist: $imagePath');
+//       return null;
+//     }
+
+//     var request = http.MultipartRequest(
+//       'PUT',
+//       Uri.parse('$baseUrl/profile-image/$userId'),
+//     );
+
+//     // Fix: Use correct field name expected by backend
+//     request.files.add(await http.MultipartFile.fromPath('profileImage', imagePath));
+
+//     print('Updating profile image to: $baseUrl/profile-image/$userId');
+
+//     var streamedResponse = await request.send();
+//     var response = await http.Response.fromStream(streamedResponse);
+
+//     print('Update Profile Image Response: ${response.statusCode}');
+//     print('Update Profile Image Body: ${response.body}');
+
+//     if (response.statusCode == 200) {
+//       var data = jsonDecode(response.body);
+//       if (data['success'] == true) {
+//         return data['imageUrl'] ?? data['profileImageUrl'] ?? data['url'];
+//       } else {
+//         print('API returned success: false. Message: ${data['message']}');
+//       }
+//     } else {
+//       print('HTTP Error: ${response.statusCode} - ${response.body}');
+//     }
+//     return null;
+//   } catch (e) {
+//     print('Error updating profile image: $e');
+//     return null;
+//   }
+// }
+
+
   Future<String?> updateProfileImage(String userId, String imagePath) async {
-  try {
-    // Check if file exists
-    final file = File(imagePath);
-    if (!await file.exists()) {
-      print('Image file does not exist: $imagePath');
+    try {
+      final file = File(imagePath);
+      if (!await file.exists()) {
+        print('Image file does not exist: $imagePath');
+        return null;
+      }
+
+      var request = http.MultipartRequest(
+        'PUT',
+        Uri.parse('$baseUrl/profile-image/$userId'),
+      );
+
+      request.files
+          .add(await http.MultipartFile.fromPath('profileImage', imagePath));
+
+      print('Updating profile image to: $baseUrl/profile-image/$userId');
+
+      var streamedResponse = await request.send();
+      var response = await http.Response.fromStream(streamedResponse);
+
+      print('Update Profile Image Response: ${response.statusCode}');
+      print('Update Profile Image Body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        var data = jsonDecode(response.body);
+        if (data['success'] == true) {
+          // Update the current user's profile image in the provider
+          final imageUrl =
+              data['imageUrl'] ?? data['profileImageUrl'] ?? data['url'];
+          if (imageUrl != null && imageUrl.isNotEmpty) {
+            return imageUrl;
+          }
+        }
+        print('API returned success: false. Message: ${data['message']}');
+      } else {
+        print('HTTP Error: ${response.statusCode} - ${response.body}');
+      }
+      return null;
+    } catch (e) {
+      print('Error updating profile image: $e');
       return null;
     }
-
-    var request = http.MultipartRequest(
-      'PUT',
-      Uri.parse('$baseUrl/profile-image/$userId'),
-    );
-
-    // Fix: Use correct field name expected by backend
-    request.files.add(await http.MultipartFile.fromPath('profileImage', imagePath));
-
-    print('Updating profile image to: $baseUrl/profile-image/$userId');
-
-    var streamedResponse = await request.send();
-    var response = await http.Response.fromStream(streamedResponse);
-
-    print('Update Profile Image Response: ${response.statusCode}');
-    print('Update Profile Image Body: ${response.body}');
-
-    if (response.statusCode == 200) {
-      var data = jsonDecode(response.body);
-      if (data['success'] == true) {
-        return data['imageUrl'] ?? data['profileImageUrl'] ?? data['url'];
-      } else {
-        print('API returned success: false. Message: ${data['message']}');
-      }
-    } else {
-      print('HTTP Error: ${response.statusCode} - ${response.body}');
-    }
-    return null;
-  } catch (e) {
-    print('Error updating profile image: $e');
-    return null;
   }
-}
-
 }

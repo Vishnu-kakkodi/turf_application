@@ -31,7 +31,9 @@ class User {
       otp: json['otp'],
       createdAt: DateTime.parse(json['createdAt']),
       updatedAt: DateTime.parse(json['updatedAt']),
-      profileImage: json['profileImageUrl'] ?? json['profileImage'] ?? json['imageUrl'], // 
+       profileImage: json['profileImage']?.toString().isEmpty ?? true 
+          ? null 
+          : json['profileImage'], 
     );
   }
 

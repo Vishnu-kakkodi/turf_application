@@ -35,7 +35,7 @@ class _LiveScreenState extends State<LiveScreen> with TickerProviderStateMixin {
       'sr': 133.3,
       'isOnStrike': true,
       'imageUrl':
-          'https://images.unsplash.com/photo-1566071142265-b7db70e4c5b9?w=150&h=150&fit=crop&crop=face'
+          'lib/assets/8b633588b640de4868e105e951a71279f209860c.png'
     },
     {
       'name': 'Hardik Pandya',
@@ -46,7 +46,7 @@ class _LiveScreenState extends State<LiveScreen> with TickerProviderStateMixin {
       'sr': 150.0,
       'isOnStrike': false,
       'imageUrl':
-          'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face'
+          'lib/assets/8b633588b640de4868e105e951a71279f209860c.png'
     },
   ];
 
@@ -60,7 +60,7 @@ class _LiveScreenState extends State<LiveScreen> with TickerProviderStateMixin {
       'wickets': '2',
       'econ': '5.14',
       'imageUrl':
-          'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face'
+          'lib/assets/8b633588b640de4868e105e951a71279f209860c.png'
     },
     {
       'name': 'Mohammed Shami',
@@ -313,6 +313,8 @@ class _LiveScreenState extends State<LiveScreen> with TickerProviderStateMixin {
                   ),
                   child: Column(
                     children: [
+
+                      
                       // Tab bar
                       Container(
                         margin: const EdgeInsets.all(20),

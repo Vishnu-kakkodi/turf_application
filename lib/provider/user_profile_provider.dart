@@ -335,39 +335,91 @@ class UserProfileProvider extends ChangeNotifier {
   }
 
   // Upload profile image (legacy method - keeping for backward compatibility)
+  // Future<bool> uploadProfileImage(String imagePath) async {
+  //   if (_currentUser == null) {
+  //     _setError('No user logged in');
+  //     return false;
+  //   }
+
+  //   _setLoading(true);
+  //   _clearError();
+
+  //   try {
+  //     print('Uploading profile image: $imagePath');
+  //     final imageUrl = await _userProfileService.updateProfileImage(
+  //       _currentUser!.id,
+  //       imagePath,
+  //     );
+
+  //     if (imageUrl != null && imageUrl.isNotEmpty) {
+  //       _profileImageUrl = imageUrl;
+  //       print('Profile image uploaded successfully: $imageUrl');
+  //       notifyListeners();
+  //       return true;
+  //     } else {
+  //       _setError('Failed to upload image - no URL returned');
+  //       return false;
+  //     }
+  //   } catch (e) {
+  //     print('Error in uploadProfileImage: $e');
+  //     _setError('Error uploading image: $e');
+  //     return false;
+  //   } finally {
+  //     _setLoading(false);
+  //   }
+  // }
+
+
+
   Future<bool> uploadProfileImage(String imagePath) async {
-    if (_currentUser == null) {
-      _setError('No user logged in');
-      return false;
-    }
-
-    _setLoading(true);
-    _clearError();
-
-    try {
-      print('Uploading profile image: $imagePath');
-      final imageUrl = await _userProfileService.updateProfileImage(
-        _currentUser!.id,
-        imagePath,
-      );
-
-      if (imageUrl != null && imageUrl.isNotEmpty) {
-        _profileImageUrl = imageUrl;
-        print('Profile image uploaded successfully: $imageUrl');
-        notifyListeners();
-        return true;
-      } else {
-        _setError('Failed to upload image - no URL returned');
-        return false;
-      }
-    } catch (e) {
-      print('Error in uploadProfileImage: $e');
-      _setError('Error uploading image: $e');
-      return false;
-    } finally {
-      _setLoading(false);
-    }
+  if (_currentUser == null) {
+    _setError('No user logged in');
+    return false;
   }
+
+  _setLoading(true);
+  _clearError();
+
+  try {
+    print('Uploading profile image: $imagePath');
+    final imageUrl = await _userProfileService.updateProfileImage(
+      _currentUser!.id,
+      imagePath,
+    );
+
+    if (imageUrl != null && imageUrl.isNotEmpty) {
+      // Update both the profileImageUrl and the currentUser's profileImage
+      _profileImageUrl = imageUrl;
+      _currentUser = User(
+        id: _currentUser!.id,
+        name: _currentUser!.name,
+        email: _currentUser!.email,
+        mobile: _currentUser!.mobile,
+        password: _currentUser!.password,
+        otp: _currentUser!.otp,
+        profileImage: imageUrl, // Update the profile image URL
+        createdAt: _currentUser!.createdAt,
+        updatedAt: DateTime.now(),
+      );
+      
+      // Save to local storage
+      await UserPreferences.updateUser(_currentUser!);
+      
+      print('Profile image uploaded successfully: $imageUrl');
+      notifyListeners();
+      return true;
+    } else {
+      _setError('Failed to upload image - no URL returned');
+      return false;
+    }
+  } catch (e) {
+    print('Error in uploadProfileImage: $e');
+    _setError('Error uploading image: $e');
+    return false;
+  } finally {
+    _setLoading(false);
+  }
+}
 
   // NEW: Update profile image using the new API endpoint
   Future<bool> updateProfileImage(String imagePath) async {

@@ -123,6 +123,95 @@
 
 
 
+// class Tournament {
+//   final String id;
+//   final String name;
+//   final int price;
+//   final String? location;
+//   final String? description;
+//   final String? image;
+//   final String? imageUrl;
+//   final TournamentDetails? details;
+
+//   Tournament({
+//     required this.id,
+//     required this.name,
+//     required this.price,
+//     this.location,
+//     this.description,
+//     this.image,
+//     this.imageUrl,
+//     this.details,
+//   });
+
+//   factory Tournament.fromJson(Map<String, dynamic> json) {
+//     return Tournament(
+//       id: json['_id'] ?? '',
+//       name: json['name'] ?? 'Untitled',
+//       price: json['price'] ?? 0,
+//       location: json['location'],
+//       description: json['description'],
+//       image: json['image'],
+//       imageUrl: json['imageUrl'],
+//       details: json['details'] != null 
+//           ? TournamentDetails.fromJson(json['details']) 
+//           : null,
+//     );
+//   }
+
+//   Map<String, dynamic> toJson() {
+//     return {
+//       '_id': id,
+//       'name': name,
+//       'price': price,
+//       'location': location,
+//       'description': description,
+//       'image': image,
+//       'imageUrl': imageUrl,
+//       'details': details?.toJson(),
+//     };
+//   }
+// }
+
+// class TournamentDetails {
+//   final String? date;
+//   final String? time;
+
+//   TournamentDetails({
+//     this.date,
+//     this.time,
+//   });
+
+//   factory TournamentDetails.fromJson(Map<String, dynamic> json) {
+//     return TournamentDetails(
+//       date: json['date'],
+//       time: json['time'],
+//     );
+//   }
+
+//   Map<String, dynamic> toJson() {
+//     return {
+//       'date': date,
+//       'time': time,
+//     };
+//   }
+// }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 class Tournament {
   final String id;
   final String name;
@@ -176,16 +265,26 @@ class Tournament {
 class TournamentDetails {
   final String? date;
   final String? time;
+  final String? allowedAge;
+  final List<TimeSlot> slots;
 
   TournamentDetails({
     this.date,
     this.time,
+    this.allowedAge,
+    this.slots = const [],
   });
 
   factory TournamentDetails.fromJson(Map<String, dynamic> json) {
     return TournamentDetails(
       date: json['date'],
       time: json['time'],
+      allowedAge: json['allowedAge'],
+      slots: json['slots'] != null
+          ? (json['slots'] as List)
+              .map((slot) => TimeSlot.fromJson(slot))
+              .toList()
+          : [],
     );
   }
 
@@ -193,6 +292,36 @@ class TournamentDetails {
     return {
       'date': date,
       'time': time,
+      'allowedAge': allowedAge,
+      'slots': slots.map((slot) => slot.toJson()).toList(),
+    };
+  }
+}
+
+class TimeSlot {
+  final String id;
+  final String timeSlot;
+  final bool isBooked;
+
+  TimeSlot({
+    required this.id,
+    required this.timeSlot,
+    required this.isBooked,
+  });
+
+  factory TimeSlot.fromJson(Map<String, dynamic> json) {
+    return TimeSlot(
+      id: json['_id'] ?? '',
+      timeSlot: json['timeSlot'] ?? '',
+      isBooked: json['isBooked'] ?? false,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      '_id': id,
+      'timeSlot': timeSlot,
+      'isBooked': isBooked,
     };
   }
 }

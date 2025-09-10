@@ -56,49 +56,49 @@ class LocationService {
   }
 
   // Get nearby turfs
-  Future<Map<String, dynamic>> getNearbyTurfs(String userId) async {
-    try {
-      final token = await UserPreferences.getToken();
+  // Future<Map<String, dynamic>> getNearbyTurfs(String userId) async {
+  //   try {
+  //     final token = await UserPreferences.getToken();
       
-      final response = await http.get(
-        Uri.parse('$baseUrl/users/nearby-turfs/$userId'),
-        headers: {
-          'Content-Type': 'application/json',
-          if (token != null) 'Authorization': 'Bearer $token',
-        },
-      );
+  //     final response = await http.get(
+  //       Uri.parse('$baseUrl/users/nearby-turfs/$userId'),
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //         if (token != null) 'Authorization': 'Bearer $token',
+  //       },
+  //     );
 
-     print('dataaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa${response.statusCode}');
+  //    print('dataaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa${response.statusCode}');
 
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
+  //     if (response.statusCode == 200) {
+  //       final data = jsonDecode(response.body);
         
-        // Parse turfs from response
-        List<Turf> turfs = [];
-        if (data['success'] == true && data['turfs'] != null) {
-          turfs = (data['turfs'] as List)
-              .map((turfJson) => Turf.fromJson(turfJson))
-              .toList();
-        }
+  //       // Parse turfs from response
+  //       List<Turf> turfs = [];
+  //       if (data['success'] == true && data['turfs'] != null) {
+  //         turfs = (data['turfs'] as List)
+  //             .map((turfJson) => Turf.fromJson(turfJson))
+  //             .toList();
+  //       }
 
-        return {
-          'success': true,
-          'turfs': turfs,
-          'data': data,
-        };
-      } else {
-        return {
-          'success': false,
-          'message': 'Failed to get nearby turfs: ${response.statusCode}',
-          'turfs': <Turf>[],
-        };
-      }
-    } catch (e) {
-      return {
-        'success': false,
-        'message': 'Error getting nearby turfs: $e',
-        'turfs': <Turf>[],
-      };
-    }
-  }
+  //       return {
+  //         'success': true,
+  //         'turfs': turfs,
+  //         'data': data,
+  //       };
+  //     } else {
+  //       return {
+  //         'success': false,
+  //         'message': 'Failed to get nearby turfs: ${response.statusCode}',
+  //         'turfs': <Turf>[],
+  //       };
+  //     }
+  //   } catch (e) {
+  //     return {
+  //       'success': false,
+  //       'message': 'Error getting nearby turfs: $e',
+  //       'turfs': <Turf>[],
+  //     };
+  //   }
+  // }
 }

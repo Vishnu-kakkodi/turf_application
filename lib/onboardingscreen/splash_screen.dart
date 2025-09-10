@@ -429,9 +429,15 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
-        builder: (context) => const OnboardingPageView(),
+        builder: (context) => const LoginScreen(),
       ),
     );
+    // Navigator.pushReplacement(
+    //   context,
+    //   MaterialPageRoute(
+    //     builder: (context) => const OnboardingPageView(),
+    //   ),
+    // );
   }
 
   @override
@@ -473,9 +479,14 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                       letterSpacing: 2,
                     ),
                   ),
+
                 ),
+              
               ),
+
             ),
+            SizedBox(height: 14,),
+            Text('📍  Manjeera Trinity Corporate\nJNTU Road,kukatpally,Hyderabad\n                       50072,India',style: TextStyle(fontWeight: FontWeight.bold),),
             const Spacer(),
             FadeTransition(
               opacity: _buttonController,

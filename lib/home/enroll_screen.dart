@@ -1,512 +1,30 @@
-// import 'package:booking_application/views/details_screen.dart';
-// import 'package:booking_application/views/tournament_details_screen.dart';
-// import 'package:flutter/material.dart';
-
-// class EnrollScreen extends StatelessWidget {
-//   EnrollScreen({super.key});
-
-//   final List<Map<String, dynamic>> sports = [
-//     {
-//       'image':
-//           'https://static.vecteezy.com/system/resources/previews/029/709/704/non_2x/cartoon-illustration-cricket-bat-and-balls-sport-icon-isolated-on-white-background-vector.jpg',
-//       'label': 'Cricket'
-//     },
-//     {
-//       'image':
-//           'https://static.vecteezy.com/system/resources/previews/021/821/069/non_2x/football-ball-cartoon-soccer-ball-isolated-on-yellow-background-illustration-free-vector.jpg',
-//       'label': 'Football'
-//     },
-//     {
-//       'image':
-//           'https://media.istockphoto.com/id/181294594/vector/hockey-sticks-puck.jpg?s=612x612&w=0&k=20&c=E0O-RJX6Af1zPaAEfnKAP6LWMQKGOVfOSBp256YOTKU=',
-//       'label': 'Hockey'
-//     },
-//     {
-//       'image':
-//           'https://atlas-content-cdn.pixelsquid.com/stock-images/cartoon-volleyball-ball-XorJXL9-600.jpg',
-//       'label': 'Volleyball'
-//     },
-//   ];
-
-//   final List<Map<String, String>> venues = [
-//     {
-//       'title': 'Cricket Complex',
-//       'location': 'Kakkanad',
-//       'time': '09 AM - 12 PM open',
-//       'price': '₹500/hr',
-//       'image':
-//           'https://nwscdn.com/media/catalog/product/cache/h900xw900/a/r/artificial-match-wicket-_1__3.jpg',
-//     },
-//     {
-//       'title': 'Football Complex',
-//       'location': 'Kakkanad',
-//       'time': '09 AM - 12 PM open',
-//       'price': '₹500/hr',
-//       'image':
-//           'https://5.imimg.com/data5/SELLER/Default/2023/10/350327019/NU/WB/TZ/38215148/7-a-side-football-turf.jpg',
-//     },
-//     {
-//       'title': 'Cricket Complex',
-//       'location': 'Kakkanad',
-//       'time': '09 AM - 12 PM open',
-//       'price': '₹500/hr',
-//       'image':
-//           'https://nwscdn.com/media/catalog/product/cache/h900xw900/a/r/artificial-match-wicket-_1__3.jpg',
-//     },
-//   ];
-
-//   final List<Map<String, String>> venuess = [
-//     {
-//       'title': 'Cricket Tournament',
-//       'location': 'Kakkanad',
-//       'time': '09 AM - 12 PM open',
-//       'price': '₹500/hr',
-//       'image':
-//           'https://www.livemint.com/lm-img/img/2023/10/13/600x338/Cricket_1696767612753_1697173162336.JPG',
-//     },
-//     {
-//       'title': 'Cricket Tournament',
-//       'location': 'Kakkanad',
-//       'time': '09 AM - 12 PM open',
-//       'price': '₹500/hr',
-//       'image':
-//           'https://www.livemint.com/lm-img/img/2023/10/13/600x338/Cricket_1696767612753_1697173162336.JPG',
-//     },
-//     {
-//       'title': 'Cricket Tournament',
-//       'location': 'Kakkanad',
-//       'time': '09 AM - 12 PM open',
-//       'price': '₹500/hr',
-//       'image':
-//           'https://www.livemint.com/lm-img/img/2023/10/13/600x338/Cricket_1696767612753_1697173162336.JPG',
-//     },
-//   ];
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return DefaultTabController(
-//       length: 2,
-//       child: Scaffold(
-//         backgroundColor: Colors.white,
-//         body: SafeArea(
-//           child: Padding(
-//             padding: const EdgeInsets.symmetric(horizontal: 16),
-//             child: Column(
-//               crossAxisAlignment: CrossAxisAlignment.start,
-//               children: [
-//                 const SizedBox(height: 12),
-//                 const Row(
-//                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//                   children: [
-//                     Row(
-//                       children: [
-//                         CircleAvatar(
-//                           backgroundImage: NetworkImage(
-//                             'https://t3.ftcdn.net/jpg/02/43/12/34/360_F_243123463_zTooub557xEWABDLk0jJklDyLSGl2jrr.jpg',
-//                           ),
-//                         ),
-//                         SizedBox(width: 10),
-//                         Column(
-//                           crossAxisAlignment: CrossAxisAlignment.start,
-//                           children: [
-//                             Text('Hello',
-//                                 style: TextStyle(
-//                                     fontSize: 14, color: Colors.black54)),
-//                             Text('PMS',
-//                                 style: TextStyle(
-//                                     fontWeight: FontWeight.bold, fontSize: 16)),
-//                           ],
-//                         ),
-//                       ],
-//                     ),
-//                     Icon(Icons.notifications_none),
-//                   ],
-//                 ),
-//                 const SizedBox(height: 16),
-//                 TextField(
-//                   decoration: InputDecoration(
-//                     hintText: 'Search',
-//                     prefixIcon: const Icon(Icons.search),
-//                     suffixIcon: const Icon(Icons.tune),
-//                     border: OutlineInputBorder(
-//                       borderRadius: BorderRadius.circular(12),
-//                       borderSide: BorderSide.none,
-//                     ),
-//                     fillColor: Colors.grey[200],
-//                     filled: true,
-//                   ),
-//                 ),
-//                 const SizedBox(height: 20),
-//                 Row(
-//                   // mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//                   children: [
-//                     const Text('Select Game',
-//                         style: TextStyle(
-//                             fontWeight: FontWeight.bold, fontSize: 16)),
-//                     const SizedBox(
-//                       width: 130,
-//                     ),
-//                     const Text('See All',
-//                         style: TextStyle(
-//                             color: Colors.black, fontWeight: FontWeight.bold)),
-//                     IconButton(
-//                         onPressed: () {},
-//                         icon: const Icon(
-//                           Icons.arrow_forward_ios,
-//                           size: 18,
-//                         ))
-//                   ],
-//                 ),
-//                 const SizedBox(height: 12),
-//                 SizedBox(
-//                   height: 90,
-//                   child: ListView.builder(
-//                     scrollDirection: Axis.horizontal,
-//                     itemCount: sports.length,
-//                     itemBuilder: (context, index) {
-//                       return Padding(
-//                         padding: const EdgeInsets.only(right: 48),
-//                         child: Column(
-//                           children: [
-//                             CircleAvatar(
-//                               backgroundColor: Colors.grey[200],
-//                               radius: 25,
-//                               child: ClipOval(
-//                                 child: Image.network(
-//                                   sports[index]['image'],
-//                                   width: 50,
-//                                   height: 50,
-//                                   fit: BoxFit.cover,
-//                                   errorBuilder: (context, error, stackTrace) {
-//                                     return const Icon(
-//                                       Icons.error,
-//                                       color: Colors.red,
-//                                       size: 30,
-//                                     );
-//                                   },
-//                                   loadingBuilder:
-//                                       (context, child, loadingProgress) {
-//                                     if (loadingProgress == null) return child;
-//                                     return const SizedBox(
-//                                       width: 20,
-//                                       height: 20,
-//                                       child: CircularProgressIndicator(
-//                                         strokeWidth: 2,
-//                                       ),
-//                                     );
-//                                   },
-//                                 ),
-//                               ),
-//                             ),
-//                             const SizedBox(height: 6),
-//                             Text(
-//                               sports[index]['label'],
-//                               style: const TextStyle(fontSize: 12),
-//                             ),
-//                           ],
-//                         ),
-//                       );
-//                     },
-//                   ),
-//                 ),
-//                 const SizedBox(height: 10),
-//                 Container(
-//                   decoration: BoxDecoration(
-//                     borderRadius: BorderRadius.circular(30),
-//                     color: Colors.grey[200],
-//                   ),
-//                   child: const TabBar(
-//                     labelColor: Colors.blue,
-//                     unselectedLabelColor: Colors.black,
-//                     // indicator: BoxDecoration(
-//                     //   color: Colors.blue,
-//                     //   borderRadius: BorderRadius.circular(30),
-//                     // ),
-//                     tabs: [
-//                       Tab(text: 'Venue'),
-//                       Tab(text: 'Tournament'),
-//                     ],
-//                   ),
-//                 ),
-//                 const SizedBox(height: 10),
-//                 Expanded(
-//                   child: TabBarView(
-//                     children: [
-//                       ListView.builder(
-//                         itemCount: venues.length,
-//                         itemBuilder: (context, index) {
-//                           final venue = venues[index];
-//                           return Card(
-//                             shape: RoundedRectangleBorder(
-//                                 borderRadius: BorderRadius.circular(12)),
-//                             margin: const EdgeInsets.symmetric(vertical: 10),
-//                             child: Column(
-//                               crossAxisAlignment: CrossAxisAlignment.start,
-//                               children: [
-//                                 ClipRRect(
-//                                   borderRadius: const BorderRadius.vertical(
-//                                       top: Radius.circular(12)),
-//                                   child: Image.network(
-//                                     venue['image']!,
-//                                     height: 150,
-//                                     width: double.infinity,
-//                                     fit: BoxFit.cover,
-//                                   ),
-//                                 ),
-//                                 Padding(
-//                                   padding: const EdgeInsets.all(12.0),
-//                                   child: Column(
-//                                     crossAxisAlignment:
-//                                         CrossAxisAlignment.start,
-//                                     children: [
-//                                       Text(
-//                                         venue['title']!,
-//                                         style: const TextStyle(
-//                                             fontWeight: FontWeight.bold,
-//                                             fontSize: 16),
-//                                       ),
-//                                       const SizedBox(height: 4),
-//                                       Text(
-//                                         venue['location']!,
-//                                         style: const TextStyle(
-//                                             color: Colors.blue, fontSize: 14),
-//                                       ),
-//                                       const SizedBox(height: 4),
-//                                       Text(
-//                                         venue['time']!,
-//                                         style: const TextStyle(
-//                                             color: Colors.blue, fontSize: 14),
-//                                       ),
-//                                       const SizedBox(height: 4),
-//                                       Row(
-//                                         mainAxisAlignment:
-//                                             MainAxisAlignment.spaceBetween,
-//                                         children: [
-//                                           Text(
-//                                             venue['price']!,
-//                                             style: const TextStyle(
-//                                                 fontWeight: FontWeight.bold,
-//                                                 fontSize: 16),
-//                                           ),
-//                                           ElevatedButton(
-//                                             onPressed: () {
-//                                               Navigator.push(context, MaterialPageRoute(builder: (context)=>DetailsScreen()));
-//                                             },
-//                                             style: ElevatedButton.styleFrom(
-//                                               backgroundColor: Colors.blue,
-//                                               shape: RoundedRectangleBorder(
-//                                                 borderRadius:
-//                                                     BorderRadius.circular(20),
-//                                               ),
-//                                             ),
-//                                             child: const Text(
-//                                               'Book Now',
-//                                               style: TextStyle(
-//                                                   color: Colors.white),
-//                                             ),
-//                                           )
-//                                         ],
-//                                       ),
-//                                     ],
-//                                   ),
-//                                 ),
-//                               ],
-//                             ),
-//                           );
-//                         },
-//                       ),
-//                       ListView.builder(
-//                         itemCount: venuess.length,
-//                         itemBuilder: (context, index) {
-//                           final venue = venuess[index];
-//                           return Card(
-//                             shape: RoundedRectangleBorder(
-//                                 borderRadius: BorderRadius.circular(12)),
-//                             margin: const EdgeInsets.symmetric(vertical: 10),
-//                             child: Column(
-//                               crossAxisAlignment: CrossAxisAlignment.start,
-//                               children: [
-//                                 ClipRRect(
-//                                   borderRadius: const BorderRadius.vertical(
-//                                       top: Radius.circular(12)),
-//                                   child: Image.network(
-//                                     venue['image']!,
-//                                     height: 150,
-//                                     width: double.infinity,
-//                                     fit: BoxFit.cover,
-//                                   ),
-//                                 ),
-//                                 Padding(
-//                                   padding: const EdgeInsets.all(12.0),
-//                                   child: Column(
-//                                     crossAxisAlignment:
-//                                         CrossAxisAlignment.start,
-//                                     children: [
-//                                       Text(
-//                                         venue['title']!,
-//                                         style: const TextStyle(
-//                                             fontWeight: FontWeight.bold,
-//                                             fontSize: 16),
-//                                       ),
-//                                       const SizedBox(height: 4),
-//                                       Text(
-//                                         venue['location']!,
-//                                         style: const TextStyle(
-//                                             color: Colors.blue, fontSize: 14),
-//                                       ),
-//                                       const SizedBox(height: 4),
-//                                       Text(
-//                                         venue['time']!,
-//                                         style: const TextStyle(
-//                                             color: Colors.blue, fontSize: 14),
-//                                       ),
-//                                       const SizedBox(height: 4),
-//                                       Row(
-//                                         mainAxisAlignment:
-//                                             MainAxisAlignment.spaceBetween,
-//                                         children: [
-//                                           Text(
-//                                             venue['price']!,
-//                                             style: const TextStyle(
-//                                                 fontWeight: FontWeight.bold,
-//                                                 fontSize: 16),
-//                                           ),
-//                                           ElevatedButton(
-//                                             onPressed: () {
-//                                               Navigator.push(
-//                                                   context,
-//                                                   MaterialPageRoute(
-//                                                       builder: (context) =>
-//                                                           TournamentDetailsScreen()));
-//                                             },
-//                                             style: ElevatedButton.styleFrom(
-//                                               backgroundColor: Colors.blue,
-//                                               shape: RoundedRectangleBorder(
-//                                                 borderRadius:
-//                                                     BorderRadius.circular(20),
-//                                               ),
-//                                             ),
-//                                             child: const Text(
-//                                               'Enroll Now',
-//                                               style: TextStyle(
-//                                                   color: Colors.white),
-//                                             ),
-//                                           )
-//                                         ],
-//                                       ),
-//                                     ],
-//                                   ),
-//                                 ),
-//                               ],
-//                             ),
-//                           );
-//                         },
-//                       ),
-//                       // const Center(child: Text("Tournament Tab Coming Soon")),
-//                     ],
-//                   ),
-//                 ),
-//               ],
-//             ),
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-// }
-
+import 'package:booking_application/category/category_screen.dart';
+import 'package:booking_application/details.dart';
+import 'package:booking_application/helper/storage_helper.dart';
+import 'package:booking_application/modal/registration_model.dart';
 import 'package:booking_application/provider/all_turf_provider.dart';
 import 'package:booking_application/provider/category_provider.dart';
 import 'package:booking_application/provider/tournament_provider.dart';
 import 'package:booking_application/views/details_screen.dart';
+import 'package:booking_application/views/profile/notification_screen.dart';
+import 'package:booking_application/views/profile/profile_screen.dart';
+import 'package:booking_application/views/profile/slider_bar_screen.dart';
 import 'package:booking_application/views/tournament_details_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class EnrollScreen extends StatefulWidget {
-  EnrollScreen({super.key});
+  final int? initialTabIndex; // Add this parameter
+
+  const EnrollScreen({super.key, this.initialTabIndex});
 
   @override
   State<EnrollScreen> createState() => _EnrollScreenState();
 }
 
-class _EnrollScreenState extends State<EnrollScreen> {
-  final List<Map<String, dynamic>> sports = [
-    {
-      'image':
-          'https://static.vecteezy.com/system/resources/previews/029/709/704/non_2x/cartoon-illustration-cricket-bat-and-balls-sport-icon-isolated-on-white-background-vector.jpg',
-      'label': 'Cricket'
-    },
-    {
-      'image':
-          'https://static.vecteezy.com/system/resources/previews/021/821/069/non_2x/football-ball-cartoon-soccer-ball-isolated-on-yellow-background-illustration-free-vector.jpg',
-      'label': 'Football'
-    },
-    {
-      'image':
-          'https://media.istockphoto.com/id/181294594/vector/hockey-sticks-puck.jpg?s=612x612&w=0&k=20&c=E0O-RJX6Af1zPaAEfnKAP6LWMQKGOVfOSBp256YOTKU=',
-      'label': 'Hockey'
-    },
-    {
-      'image':
-          'https://atlas-content-cdn.pixelsquid.com/stock-images/cartoon-volleyball-ball-XorJXL9-600.jpg',
-      'label': 'Volleyball'
-    },
-  ];
-
-  final List<Map<String, String>> venues = [
-    {
-      'title': 'Cricket Complex',
-      'location': 'Kakkanad',
-      'time': '09 AM - 12 PM open',
-      'price': '₹500/hr',
-      'image':
-          'https://nwscdn.com/media/catalog/product/cache/h900xw900/a/r/artificial-match-wicket-_1__3.jpg',
-    },
-    {
-      'title': 'Football Complex',
-      'location': 'Kakkanad',
-      'time': '09 AM - 12 PM open',
-      'price': '₹500/hr',
-      'image':
-          'https://5.imimg.com/data5/SELLER/Default/2023/10/350327019/NU/WB/TZ/38215148/7-a-side-football-turf.jpg',
-    },
-    {
-      'title': 'Cricket Complex',
-      'location': 'Kakkanad',
-      'time': '09 AM - 12 PM open',
-      'price': '₹500/hr',
-      'image':
-          'https://nwscdn.com/media/catalog/product/cache/h900xw900/a/r/artificial-match-wicket-_1__3.jpg',
-    },
-  ];
-
-  final List<Map<String, String>> tournaments = [
-    {
-      'title': 'Cricket Tournament',
-      'location': 'Kakkanad',
-      'time': '09 AM - 12 PM open',
-      'price': '₹500/hr',
-      'image':
-          'https://www.livemint.com/lm-img/img/2023/10/13/600x338/Cricket_1696767612753_1697173162336.JPG',
-    },
-    {
-      'title': 'Football Championship',
-      'location': 'Ernakulam',
-      'time': '10 AM - 01 PM',
-      'price': '₹750/team',
-      'image':
-          'https://www.livemint.com/lm-img/img/2023/10/13/600x338/Cricket_1696767612753_1697173162336.JPG',
-    },
-    {
-      'title': 'Volleyball League',
-      'location': 'Kochi',
-      'time': '02 PM - 05 PM',
-      'price': '₹600/team',
-      'image':
-          'https://www.livemint.com/lm-img/img/2023/10/13/600x338/Cricket_1696767612753_1697173162336.JPG',
-    },
-  ];
+class _EnrollScreenState extends State<EnrollScreen>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController; // Add TabController
 
   final List<Map<String, String>> schedules = [
     {
@@ -614,173 +132,218 @@ class _EnrollScreenState extends State<EnrollScreen> {
   @override
   void initState() {
     super.initState();
+    // Initialize TabController with the initial tab index (default to 0 for Venue)
+    _tabController = TabController(
+      length: 6,
+      vsync: this,
+      initialIndex:
+          widget.initialTabIndex ?? 0, // Use provided index or default to 0
+    );
+
     Provider.of<AllTurfProvider>(context, listen: false).loadTurfs();
     Provider.of<CategoryProvider>(context, listen: false).fetchCategories();
     Provider.of<TournamentProvider>(context, listen: false).loadTournaments();
   }
 
   @override
+  void dispose() {
+    _tabController.dispose(); // Don't forget to dispose the controller
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 6, // Updated to 6 tabs
-      child: Scaffold(
-        backgroundColor: Colors.white,
-        body: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 12),
-                const Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      children: [
-                        CircleAvatar(
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 12),
+              //  Row(
+              //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              //   children: [
+              //     Row(
+              //       children: [
+              //         GestureDetector(
+              //           onTap: () {
+              //             Navigator.push(context, MaterialPageRoute(builder: (context)=>const  ProfileScreen()));
+              //           },
+              //           child:const CircleAvatar(
+              //             backgroundImage: NetworkImage(
+              //               'https://t3.ftcdn.net/jpg/02/43/12/34/360_F_243123463_zTooub557xEWABDLk0jJklDyLSGl2jrr.jpg',
+              //             ),
+              //           ),
+              //         ),
+              //       const  SizedBox(width: 10),
+              //       const  Column(
+              //           crossAxisAlignment: CrossAxisAlignment.start,
+              //           children: [
+              //             Text('Hello',
+              //                 style: TextStyle(
+              //                     fontSize: 14, color: Colors.black54)),
+
+              //             // Text('PMS',
+              //             //     style: TextStyle(
+              //             //         fontWeight: FontWeight.bold, fontSize: 16)),
+              //           ],
+              //         ),
+              //       ],
+              //     ),
+              //     GestureDetector(
+              //       onTap: () {
+              //         Navigator.push(context, MaterialPageRoute(builder: (context)=>const  NotificationScreen()));
+              //       },
+              //       child:const Icon(Icons.notifications_none)),
+              //   ],
+              // ),
+
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const SliderBarScreen()),
+                          );
+                        },
+                        child: const CircleAvatar(
                           backgroundImage: NetworkImage(
                             'https://t3.ftcdn.net/jpg/02/43/12/34/360_F_243123463_zTooub557xEWABDLk0jJklDyLSGl2jrr.jpg',
                           ),
                         ),
-                        SizedBox(width: 10),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('Hello',
-                                style: TextStyle(
-                                    fontSize: 14, color: Colors.black54)),
-                            Text('PMS',
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold, fontSize: 16)),
-                          ],
-                        ),
-                      ],
-                    ),
-                    Icon(Icons.notifications_none),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                TextField(
-                  decoration: InputDecoration(
-                    hintText: 'Search',
-                    prefixIcon: const Icon(Icons.search),
-                    suffixIcon: const Icon(Icons.tune),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide.none,
-                    ),
-                    fillColor: Colors.grey[200],
-                    filled: true,
+                      ),
+                      const SizedBox(width: 10),
+                      FutureBuilder<User?>(
+                        future: UserPreferences.getUser(),
+                        builder: (context, snapshot) {
+                          String username = 'Hello';
+                          if (snapshot.connectionState ==
+                                  ConnectionState.done &&
+                              snapshot.hasData &&
+                              snapshot.data != null) {
+                            username = snapshot.data!.name;
+                          }
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'Hello',
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                              Text(
+                                username,
+                                style: const TextStyle(
+                                    fontSize: 16,
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                            ],
+                          );
+                        },
+                      ),
+                    ],
                   ),
-                ),
-                const SizedBox(height: 20),
-                Row(
-                  children: [
-                    const Text('Select Game',
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 16)),
-                    const SizedBox(width: 130),
-                    const Text('See All',
-                        style: TextStyle(
-                            color: Colors.black, fontWeight: FontWeight.bold)),
-                    IconButton(
-                        onPressed: () {},
-                        icon: const Icon(
-                          Icons.arrow_forward_ios,
-                          size: 18,
-                        ))
-                  ],
-                ),
-                const SizedBox(height: 12),
-                // SizedBox(
-                //   height: 90,
-                //   child: ListView.builder(
-                //     scrollDirection: Axis.horizontal,
-                //     itemCount: sports.length,
-                //     itemBuilder: (context, index) {
-                //       return Padding(
-                //         padding: const EdgeInsets.only(right: 48),
-                //         child: Column(
-                //           children: [
-                //             CircleAvatar(
-                //               backgroundColor: Colors.grey[200],
-                //               radius: 25,
-                //               child: ClipOval(
-                //                 child: Image.network(
-                //                   sports[index]['image'],
-                //                   width: 50,
-                //                   height: 50,
-                //                   fit: BoxFit.cover,
-                //                   errorBuilder: (context, error, stackTrace) {
-                //                     return const Icon(
-                //                       Icons.error,
-                //                       color: Colors.red,
-                //                       size: 30,
-                //                     );
-                //                   },
-                //                   loadingBuilder:
-                //                       (context, child, loadingProgress) {
-                //                     if (loadingProgress == null) return child;
-                //                     return const SizedBox(
-                //                       width: 20,
-                //                       height: 20,
-                //                       child: CircularProgressIndicator(
-                //                         strokeWidth: 2,
-                //                       ),
-                //                     );
-                //                   },
-                //                 ),
-                //               ),
-                //             ),
-                //             const SizedBox(height: 6),
-                //             Text(
-                //               sports[index]['label'],
-                //               style: const TextStyle(fontSize: 12),
-                //             ),
-                //           ],
-                //         ),
-                //       );
-                //     },
-                //   ),
-                // ),
-                Consumer<CategoryProvider>(
-                  builder: (context, provider, child) {
-                    if (provider.isLoading) {
-                      return const SizedBox(
-                        height: 90,
-                        child: Center(child: CircularProgressIndicator()),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const NotificationScreen()),
                       );
-                    }
+                    },
+                    child: const Icon(Icons.notifications_none),
+                  ),
+                ],
+              ),
 
-                    if (provider.errorMessage.isNotEmpty) {
-                      return SizedBox(
-                        height: 90,
-                        child: Center(
-                          child: Text(
-                            provider.errorMessage,
-                            style: const TextStyle(color: Colors.red),
-                          ),
-                        ),
-                      );
-                    }
+              const SizedBox(height: 16),
+              TextField(
+                decoration: InputDecoration(
+                  hintText: 'Search',
+                  prefixIcon: const Icon(Icons.search),
+                  suffixIcon: const Icon(Icons.tune),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
+                  fillColor: Colors.grey[200],
+                  filled: true,
+                ),
+              ),
+              const SizedBox(height: 20),
+              Row(
+                children: [
+                  const Text('Select Game',
+                      style:
+                          TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                  const Spacer(),
+                  const Text('See All',
+                      style: TextStyle(
+                          color: Colors.black, fontWeight: FontWeight.bold)),
+                  //  const   Spacer(),
+                  IconButton(
+                      onPressed: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const CategoryScreen()));
+                      },
+                      icon: const Icon(
+                        Icons.arrow_forward_ios,
+                        size: 18,
+                      ))
+                ],
+              ),
+              const SizedBox(height: 12),
+              Consumer<CategoryProvider>(
+                builder: (context, provider, child) {
+                  if (provider.isLoading) {
+                    return const SizedBox(
+                      height: 90,
+                      child: Center(child: CircularProgressIndicator()),
+                    );
+                  }
 
-                    final sports = provider.categories;
-
+                  if (provider.errorMessage.isNotEmpty) {
                     return SizedBox(
                       height: 90,
-                      child: ListView.builder(
-                        scrollDirection: Axis.horizontal,
-                        itemCount: sports.length,
-                        itemBuilder: (context, index) {
-                          final sport = sports[index];
-                          final imageUrl =
-                              provider.getFullImageUrl(sport.imageUrl);
+                      child: Center(
+                        child: Text(
+                          provider.errorMessage,
+                          style: const TextStyle(color: Colors.red),
+                        ),
+                      ),
+                    );
+                  }
 
-                          return Padding(
-                            padding: const EdgeInsets.only(right: 36),
-                            child: Column(
-                              children: [
-                                CircleAvatar(
+                  final sports = provider.categories;
+
+                  return SizedBox(
+                    height: 90,
+                    child: ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: sports.length,
+                      itemBuilder: (context, index) {
+                        final sport = sports[index];
+                        final imageUrl =
+                            provider.getFullImageUrl(sport.imageUrl);
+
+                        return Padding(
+                          padding: const EdgeInsets.only(right: 36),
+                          child: Column(
+                            children: [
+                              GestureDetector(
+                                onTap: () {
+                                  print('item selected ${sport.name}');
+                                },
+                                child: CircleAvatar(
                                   backgroundColor: Colors.grey[200],
                                   radius: 25,
                                   child: ClipOval(
@@ -811,66 +374,184 @@ class _EnrollScreenState extends State<EnrollScreen> {
                                     ),
                                   ),
                                 ),
-                                const SizedBox(height: 6),
-                                Text(
-                                  sport.name,
-                                  style: const TextStyle(fontSize: 12),
-                                ),
-                              ],
-                            ),
+                              ),
+                              const SizedBox(height: 6),
+                              Text(
+                                sport.name,
+                                style: const TextStyle(fontSize: 12),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                  );
+                },
+              ),
+
+              const SizedBox(height: 10),
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(30),
+                  color: Colors.grey[200],
+                ),
+                child: TabBar(
+                  controller: _tabController, // Use the custom TabController
+                  isScrollable: true,
+                  labelColor: Colors.blue,
+                  unselectedLabelColor: Colors.black,
+                  labelStyle: const TextStyle(fontSize: 12),
+                  tabs: const [
+                    Tab(text: 'Venue'),
+                    Tab(text: 'Tournament'),
+                    Tab(text: 'Schedule'),
+                    Tab(text: 'Coming Up'),
+                    Tab(text: 'Live Matches'),
+                    Tab(text: 'Register'),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 10),
+              Expanded(
+                child: TabBarView(
+                  controller: _tabController, // Use the custom TabController
+                  children: [
+                    Consumer<AllTurfProvider>(
+                      builder: (context, provider, child) {
+                        if (provider.isLoading) {
+                          return const Center(
+                              child: CircularProgressIndicator());
+                        }
+
+                        if (provider.hasError) {
+                          return const Center(
+                              child: Text('Failed to load turfs'));
+                        }
+
+                        final venues = provider.turfs;
+
+                        return ListView.builder(
+                          itemCount: venues.length,
+                          itemBuilder: (context, index) {
+                            final venue = venues[index];
+                            final imageUrl =
+                                'http://31.97.206.144:3081${venue.imageUrls.first}';
+
+                            return Card(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              margin: const EdgeInsets.symmetric(vertical: 10),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  ClipRRect(
+                                    borderRadius: const BorderRadius.vertical(
+                                        top: Radius.circular(12)),
+                                    child: Image.network(
+                                      imageUrl,
+                                      height: 150,
+                                      width: double.infinity,
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.all(12.0),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          venue.name,
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 16,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          venue.location,
+                                          style: const TextStyle(
+                                            color: Colors.blue,
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          venue.openingTime,
+                                          style: const TextStyle(
+                                            color: Colors.blue,
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 4),
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text(
+                                              '₹ ${venue.pricePerHour}/hr',
+                                              style: const TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 16,
+                                              ),
+                                            ),
+                                            ElevatedButton(
+                                              onPressed: () {
+                                                Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        DetailsScreen(
+                                                      turfId: venue.id,
+                                                      image: venue.images
+                                                          .toString(),
+                                                    ),
+                                                  ),
+                                                );
+                                              },
+                                              style: ElevatedButton.styleFrom(
+                                                backgroundColor: Colors.blue,
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(20),
+                                                ),
+                                              ),
+                                              child: const Text(
+                                                'Book Now',
+                                                style: TextStyle(
+                                                    color: Colors.white),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        );
+                      },
+                    ),
+                    Consumer<TournamentProvider>(
+                      builder: (context, provider, _) {
+                        if (provider.isLoading) {
+                          return const Center(
+                            child: CircularProgressIndicator(),
                           );
-                        },
-                      ),
-                    );
-                  },
-                ),
-
-                const SizedBox(height: 10),
-                Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(30),
-                    color: Colors.grey[200],
-                  ),
-                  child: const TabBar(
-                    isScrollable: true, // Make tabs scrollable
-                    labelColor: Colors.blue,
-                    unselectedLabelColor: Colors.black,
-                    labelStyle: TextStyle(fontSize: 12),
-                    tabs: [
-                      Tab(text: 'Venue'),
-                      Tab(text: 'Tournament'),
-                      Tab(text: 'Schedule'),
-                      Tab(text: 'Coming Up'),
-                      Tab(text: 'Live Matches'),
-                      Tab(text: 'Register'),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 10),
-                Expanded(
-                  child: TabBarView(
-                    children: [
-                      Consumer<AllTurfProvider>(
-                        builder: (context, provider, child) {
-                          if (provider.isLoading) {
-                            return const Center(
-                                child: CircularProgressIndicator());
-                          }
-
-                          if (provider.hasError) {
-                            return const Center(
-                                child: Text('Failed to load turfs'));
-                          }
-
-                          final venues = provider.turfs;
+                        } else if (provider.error != null) {
+                          return Center(
+                            child: Text('Error: ${provider.error}'),
+                          );
+                        } else {
+                          final tournaments = provider.tournaments;
 
                           return ListView.builder(
-                            itemCount: venues.length,
+                            itemCount: tournaments.length,
                             itemBuilder: (context, index) {
-                              final venue = venues[index];
-                              final imageUrl =
-                                  'http://31.97.206.144:3081${venue.imageUrls.first}';
-
+                              final tournament = tournaments[index];
                               return Card(
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12),
@@ -882,12 +563,26 @@ class _EnrollScreenState extends State<EnrollScreen> {
                                   children: [
                                     ClipRRect(
                                       borderRadius: const BorderRadius.vertical(
-                                          top: Radius.circular(12)),
+                                        top: Radius.circular(12),
+                                      ),
                                       child: Image.network(
-                                        imageUrl,
+                                        'http://31.97.206.144:3081${tournament.image ?? ''}',
                                         height: 150,
                                         width: double.infinity,
                                         fit: BoxFit.cover,
+                                        errorBuilder:
+                                            (context, error, stackTrace) {
+                                          return Container(
+                                            height: 150,
+                                            width: double.infinity,
+                                            color: Colors.grey[300],
+                                            alignment: Alignment.center,
+                                            child: const Icon(
+                                              Icons.broken_image,
+                                              size: 40,
+                                            ),
+                                          );
+                                        },
                                       ),
                                     ),
                                     Padding(
@@ -897,35 +592,55 @@ class _EnrollScreenState extends State<EnrollScreen> {
                                             CrossAxisAlignment.start,
                                         children: [
                                           Text(
-                                            venue.name,
+                                            tournament.name,
                                             style: const TextStyle(
                                               fontWeight: FontWeight.bold,
                                               fontSize: 16,
                                             ),
                                           ),
                                           const SizedBox(height: 4),
+                                          if (tournament.description !=
+                                              null) ...[
+                                            const SizedBox(height: 4),
+                                          ],
                                           Text(
-                                            venue.location,
+                                            tournament.location != null
+                                                ? 'Location: ${tournament.location}'
+                                                : 'Location: Not provided',
                                             style: const TextStyle(
                                               color: Colors.blue,
                                               fontSize: 14,
                                             ),
                                           ),
                                           const SizedBox(height: 4),
-                                          Text(
-                                            venue.openingTime,
-                                            style: const TextStyle(
-                                              color: Colors.blue,
-                                              fontSize: 14,
+                                          if (tournament.details?.date !=
+                                              null) ...[
+                                            Text(
+                                              'Date: ${tournament.details!.date}',
+                                              style: const TextStyle(
+                                                color: Colors.green,
+                                                fontSize: 14,
+                                              ),
                                             ),
-                                          ),
-                                          const SizedBox(height: 4),
+                                            const SizedBox(height: 4),
+                                          ],
+                                          if (tournament.details?.time !=
+                                              null) ...[
+                                            Text(
+                                              'Time: ${tournament.details!.time}',
+                                              style: const TextStyle(
+                                                color: Colors.green,
+                                                fontSize: 14,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 4),
+                                          ],
                                           Row(
                                             mainAxisAlignment:
                                                 MainAxisAlignment.spaceBetween,
                                             children: [
                                               Text(
-                                                '₹ ${venue.pricePerHour}/hr',
+                                                '₹${tournament.price}',
                                                 style: const TextStyle(
                                                   fontWeight: FontWeight.bold,
                                                   fontSize: 16,
@@ -934,12 +649,35 @@ class _EnrollScreenState extends State<EnrollScreen> {
                                               ElevatedButton(
                                                 onPressed: () {
                                                   Navigator.push(
-                                                    context,
-                                                    MaterialPageRoute(
-                                                      builder: (context) =>
-                                                          DetailsScreen(),
-                                                    ),
-                                                  );
+                                                      context,
+                                                      MaterialPageRoute(
+                                                          builder: (context) =>
+                                                              EnrollDetails()));
+
+                                                  // Navigator.push(
+                                                  //   context,
+                                                  //   MaterialPageRoute(
+                                                  //     builder: (context) =>
+                                                  //         TournamentDetailsScreen(
+                                                  //       tournamentId:
+                                                  //           tournament.id,
+                                                  //       imageUrl:
+                                                  //           tournament.image,
+                                                  //       price: tournament
+                                                  //           .price
+                                                  //           .toString(),
+                                                  //       date: tournament
+                                                  //               .details
+                                                  //               ?.date ??
+                                                  //           '',
+                                                  //       time: tournament
+                                                  //               .details
+                                                  //               ?.time ??
+                                                  //           '',
+                                                  //           slot: tournament.details?.slots.toString(),
+                                                  //     ),
+                                                  //   ),
+                                                  // );
                                                 },
                                                 style: ElevatedButton.styleFrom(
                                                   backgroundColor: Colors.blue,
@@ -950,7 +688,7 @@ class _EnrollScreenState extends State<EnrollScreen> {
                                                   ),
                                                 ),
                                                 child: const Text(
-                                                  'Book Now',
+                                                  'Enroll Now',
                                                   style: TextStyle(
                                                       color: Colors.white),
                                                 ),
@@ -965,371 +703,20 @@ class _EnrollScreenState extends State<EnrollScreen> {
                               );
                             },
                           );
-                        },
-                      ),
+                        }
+                      },
+                    ),
 
-                      // Venue Tab
-                      // ListView.builder(
-                      //   itemCount: venues.length,
-                      //   itemBuilder: (context, index) {
-                      //     final venue = venues[index];
-                      //     return Card(
-                      //       shape: RoundedRectangleBorder(
-                      //           borderRadius: BorderRadius.circular(12)),
-                      //       margin: const EdgeInsets.symmetric(vertical: 10),
-                      //       child: Column(
-                      //         crossAxisAlignment: CrossAxisAlignment.start,
-                      //         children: [
-                      //           ClipRRect(
-                      //             borderRadius: const BorderRadius.vertical(
-                      //                 top: Radius.circular(12)),
-                      //             child: Image.network(
-                      //               venue['image']!,
-                      //               height: 150,
-                      //               width: double.infinity,
-                      //               fit: BoxFit.cover,
-                      //             ),
-                      //           ),
-                      //           Padding(
-                      //             padding: const EdgeInsets.all(12.0),
-                      //             child: Column(
-                      //               crossAxisAlignment:
-                      //                   CrossAxisAlignment.start,
-                      //               children: [
-                      //                 Text(
-                      //                   venue['title']!,
-                      //                   style: const TextStyle(
-                      //                       fontWeight: FontWeight.bold,
-                      //                       fontSize: 16),
-                      //                 ),
-                      //                 const SizedBox(height: 4),
-                      //                 Text(
-                      //                   venue['location']!,
-                      //                   style: const TextStyle(
-                      //                       color: Colors.blue, fontSize: 14),
-                      //                 ),
-                      //                 const SizedBox(height: 4),
-                      //                 Text(
-                      //                   venue['time']!,
-                      //                   style: const TextStyle(
-                      //                       color: Colors.blue, fontSize: 14),
-                      //                 ),
-                      //                 const SizedBox(height: 4),
-                      //                 Row(
-                      //                   mainAxisAlignment:
-                      //                       MainAxisAlignment.spaceBetween,
-                      //                   children: [
-                      //                     Text(
-                      //                       venue['price']!,
-                      //                       style: const TextStyle(
-                      //                           fontWeight: FontWeight.bold,
-                      //                           fontSize: 16),
-                      //                     ),
-                      //                     ElevatedButton(
-                      //                       onPressed: () {
-                      //                         Navigator.push(
-                      //                             context,
-                      //                             MaterialPageRoute(
-                      //                                 builder: (context) =>
-                      //                                     DetailsScreen()));
-                      //                       },
-                      //                       style: ElevatedButton.styleFrom(
-                      //                         backgroundColor: Colors.blue,
-                      //                         shape: RoundedRectangleBorder(
-                      //                           borderRadius:
-                      //                               BorderRadius.circular(20),
-                      //                         ),
-                      //                       ),
-                      //                       child: const Text(
-                      //                         'Book Now',
-                      //                         style: TextStyle(
-                      //                             color: Colors.white),
-                      //                       ),
-                      //                     )
-                      //                   ],
-                      //                 ),
-                      //               ],
-                      //             ),
-                      //           ),
-                      //         ],
-                      //       ),
-                      //     );
-                      //   },
-                      // ),
-                      // Tournament Tab
-                      // ListView.builder(
-                      //   itemCount: tournaments.length,
-                      //   itemBuilder: (context, index) {
-                      //     final tournament = tournaments[index];
-                      //     return Card(
-                      //       shape: RoundedRectangleBorder(
-                      //           borderRadius: BorderRadius.circular(12)),
-                      //       margin: const EdgeInsets.symmetric(vertical: 10),
-                      //       child: Column(
-                      //         crossAxisAlignment: CrossAxisAlignment.start,
-                      //         children: [
-                      //           ClipRRect(
-                      //             borderRadius: const BorderRadius.vertical(
-                      //                 top: Radius.circular(12)),
-                      //             child: Image.network(
-                      //               tournament['image']!,
-                      //               height: 150,
-                      //               width: double.infinity,
-                      //               fit: BoxFit.cover,
-                      //             ),
-                      //           ),
-                      //           Padding(
-                      //             padding: const EdgeInsets.all(12.0),
-                      //             child: Column(
-                      //               crossAxisAlignment:
-                      //                   CrossAxisAlignment.start,
-                      //               children: [
-                      //                 Text(
-                      //                   tournament['title']!,
-                      //                   style: const TextStyle(
-                      //                       fontWeight: FontWeight.bold,
-                      //                       fontSize: 16),
-                      //                 ),
-                      //                 const SizedBox(height: 4),
-                      //                 Text(
-                      //                   tournament['location']!,
-                      //                   style: const TextStyle(
-                      //                       color: Colors.blue, fontSize: 14),
-                      //                 ),
-                      //                 const SizedBox(height: 4),
-                      //                 Text(
-                      //                   tournament['time']!,
-                      //                   style: const TextStyle(
-                      //                       color: Colors.blue, fontSize: 14),
-                      //                 ),
-                      //                 const SizedBox(height: 4),
-                      //                 Row(
-                      //                   mainAxisAlignment:
-                      //                       MainAxisAlignment.spaceBetween,
-                      //                   children: [
-                      //                     Text(
-                      //                       tournament['price']!,
-                      //                       style: const TextStyle(
-                      //                           fontWeight: FontWeight.bold,
-                      //                           fontSize: 16),
-                      //                     ),
-                      //                     ElevatedButton(
-                      //                       onPressed: () {
-                      //                         Navigator.push(
-                      //                             context,
-                      //                             MaterialPageRoute(
-                      //                                 builder: (context) =>
-                      //                                     TournamentDetailsScreen()));
-                      //                       },
-                      //                       style: ElevatedButton.styleFrom(
-                      //                         backgroundColor: Colors.blue,
-                      //                         shape: RoundedRectangleBorder(
-                      //                           borderRadius:
-                      //                               BorderRadius.circular(20),
-                      //                         ),
-                      //                       ),
-                      //                       child: const Text(
-                      //                         'Enroll Now',
-                      //                         style: TextStyle(
-                      //                             color: Colors.white),
-                      //                       ),
-                      //                     )
-                      //                   ],
-                      //                 ),
-                      //               ],
-                      //             ),
-                      //           ),
-                      //         ],
-                      //       ),
-                      //     );
-                      //   },
-                      // ),
-
-                      Consumer<TournamentProvider>(
-                        builder: (context, provider, _) {
-                          if (provider.isLoading) {
-                            return const Center(
-                              child: CircularProgressIndicator(),
-                            );
-                          } else if (provider.error != null) {
-                            return Center(
-                              child: Text('Error: ${provider.error}'),
-                            );
-                          } else {
-                            final tournaments = provider.tournaments;
-
-                            return ListView.builder(
-                              itemCount: tournaments.length,
-                              itemBuilder: (context, index) {
-                                final tournament = tournaments[index];
-                                return Card(
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  margin:
-                                      const EdgeInsets.symmetric(vertical: 10),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      ClipRRect(
-                                        borderRadius:
-                                            const BorderRadius.vertical(
-                                          top: Radius.circular(12),
-                                        ),
-                                        child: Image.network(
-                                          'http://31.97.206.144:3081${tournament.image ?? ''}',
-                                          height: 150,
-                                          width: double.infinity,
-                                          fit: BoxFit.cover,
-                                          errorBuilder:
-                                              (context, error, stackTrace) {
-                                            return Container(
-                                              height: 150,
-                                              width: double.infinity,
-                                              color: Colors.grey[300],
-                                              alignment: Alignment.center,
-                                              child: const Icon(
-                                                Icons.broken_image,
-                                                size: 40,
-                                              ),
-                                            );
-                                          },
-                                        ),
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsets.all(12.0),
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              tournament.name,
-                                              style: const TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 16,
-                                              ),
-                                            ),
-                                            const SizedBox(height: 4),
-                                            if (tournament.description !=
-                                                null) ...[
-                                              // Text(
-                                              //   tournament.description!,
-                                              //   style: const TextStyle(
-                                              //     color: Colors.grey,
-                                              //     fontSize: 14,
-                                              //   ),
-                                              // ),
-                                              const SizedBox(height: 4),
-                                            ],
-                                            Text(
-                                              tournament.location != null
-                                                  ? 'Location: ${tournament.location}'
-                                                  : 'Location: Not provided',
-                                              style: const TextStyle(
-                                                color: Colors.blue,
-                                                fontSize: 14,
-                                              ),
-                                            ),
-                                            const SizedBox(height: 4),
-                                            if (tournament.details?.date !=
-                                                null) ...[
-                                              Text(
-                                                'Date: ${tournament.details!.date}',
-                                                style: const TextStyle(
-                                                  color: Colors.green,
-                                                  fontSize: 14,
-                                                ),
-                                              ),
-                                              const SizedBox(height: 4),
-                                            ],
-                                            if (tournament.details?.time !=
-                                                null) ...[
-                                              Text(
-                                                'Time: ${tournament.details!.time}',
-                                                style: const TextStyle(
-                                                  color: Colors.green,
-                                                  fontSize: 14,
-                                                ),
-                                              ),
-                                              const SizedBox(height: 4),
-                                            ],
-                                            Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment
-                                                      .spaceBetween,
-                                              children: [
-                                                Text(
-                                                  '₹${tournament.price}',
-                                                  style: const TextStyle(
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize: 16,
-                                                  ),
-                                                ),
-                                                ElevatedButton(
-                                                  onPressed: () {
-                                                    Navigator.push(
-                                                      context,
-                                                      MaterialPageRoute(
-                                                        builder: (context) =>
-                                                            TournamentDetailsScreen(
-                                                          tournamentId:
-                                                              tournament.id,
-                                                          imageUrl:
-                                                              tournament.image,
-                                                          price: tournament
-                                                              .price
-                                                              .toString(),
-                                                          date: tournament
-                                                                  .details
-                                                                  ?.date ??
-                                                              '',
-                                                          time: tournament
-                                                                  .details
-                                                                  ?.time ??
-                                                              '',
-                                                          // tournament: tournament,
-                                                        ),
-                                                      ),
-                                                    );
-                                                  },
-                                                  style:
-                                                      ElevatedButton.styleFrom(
-                                                    backgroundColor:
-                                                        Colors.blue,
-                                                    shape:
-                                                        RoundedRectangleBorder(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              20),
-                                                    ),
-                                                  ),
-                                                  child: const Text(
-                                                    'Enroll Now',
-                                                    style: TextStyle(
-                                                        color: Colors.white),
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              },
-                            );
-                          }
-                        },
-                      ),
-
-                      // Schedule Tab
-                      ListView.builder(
-                        itemCount: schedules.length,
-                        itemBuilder: (context, index) {
-                          final schedule = schedules[index];
-                          return Card(
+                    // Schedule Tab
+                    ListView.builder(
+                      itemCount: schedules.length,
+                      itemBuilder: (context, index) {
+                        final schedule = schedules[index];
+                        return GestureDetector(
+                          onTap: () {
+                            print('selected name ${schedule['title']}');
+                          },
+                          child: Card(
                             shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12)),
                             margin: const EdgeInsets.symmetric(vertical: 8),
@@ -1413,378 +800,374 @@ class _EnrollScreenState extends State<EnrollScreen> {
                                 ],
                               ),
                             ),
-                          );
-                        },
-                      ),
-                      // Coming Up Tab
-                      ListView.builder(
-                        itemCount: comingUp.length,
-                        itemBuilder: (context, index) {
-                          final event = comingUp[index];
-                          return Card(
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12)),
-                            margin: const EdgeInsets.symmetric(vertical: 8),
-                            child: Padding(
-                              padding: const EdgeInsets.all(16.0),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Expanded(
-                                        child: Text(
-                                          event['title']!,
-                                          style: const TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 16),
-                                        ),
-                                      ),
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 8, vertical: 4),
-                                        decoration: BoxDecoration(
-                                          color: Colors.orange.withOpacity(0.2),
-                                          borderRadius:
-                                              BorderRadius.circular(12),
-                                        ),
-                                        child: Text(
-                                          'Upcoming',
-                                          style: const TextStyle(
-                                              color: Colors.orange,
-                                              fontSize: 12,
-                                              fontWeight: FontWeight.bold),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Row(
-                                    children: [
-                                      const Icon(Icons.calendar_today,
-                                          size: 14, color: Colors.grey),
-                                      const SizedBox(width: 4),
-                                      Text(
-                                        event['date']!,
-                                        style: const TextStyle(
-                                            color: Colors.grey, fontSize: 12),
-                                      ),
-                                      const SizedBox(width: 16),
-                                      const Icon(Icons.access_time,
-                                          size: 14, color: Colors.grey),
-                                      const SizedBox(width: 4),
-                                      Text(
-                                        event['time']!,
-                                        style: const TextStyle(
-                                            color: Colors.grey, fontSize: 12),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Row(
-                                    children: [
-                                      const Icon(Icons.location_on,
-                                          size: 14, color: Colors.blue),
-                                      const SizedBox(width: 4),
-                                      Text(
-                                        event['location']!,
-                                        style: const TextStyle(
-                                            color: Colors.blue, fontSize: 12),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            'Prize: ${event['prize']}',
-                                            style: const TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                                color: Colors.green),
-                                          ),
-                                          Text(
-                                            'Deadline: ${event['registrationDeadline']}',
-                                            style: const TextStyle(
-                                                fontSize: 11,
-                                                color: Colors.red),
-                                          ),
-                                        ],
-                                      ),
-                                      ElevatedButton(
-                                        onPressed: () {
-                                          // Add navigation or action
-                                        },
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: Colors.green,
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(20),
-                                          ),
-                                        ),
-                                        child: const Text(
-                                          'Notify Me',
-                                          style: TextStyle(color: Colors.white),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                      // Live Matches Tab
-                      ListView.builder(
-                        itemCount: liveMatches.length,
-                        itemBuilder: (context, index) {
-                          final match = liveMatches[index];
-                          return Card(
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12)),
-                            margin: const EdgeInsets.symmetric(vertical: 8),
-                            child: Padding(
-                              padding: const EdgeInsets.all(16.0),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text(
-                                        match['title']!,
+                          ),
+                        );
+                      },
+                    ),
+                    // Coming Up Tab
+                    ListView.builder(
+                      itemCount: comingUp.length,
+                      itemBuilder: (context, index) {
+                        final event = comingUp[index];
+                        return Card(
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12)),
+                          margin: const EdgeInsets.symmetric(vertical: 8),
+                          child: Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        event['title']!,
                                         style: const TextStyle(
                                             fontWeight: FontWeight.bold,
                                             fontSize: 16),
                                       ),
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 8, vertical: 4),
-                                        decoration: BoxDecoration(
-                                          color: Colors.red.withOpacity(0.2),
-                                          borderRadius:
-                                              BorderRadius.circular(12),
-                                        ),
-                                        child: Row(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            Container(
-                                              width: 8,
-                                              height: 8,
-                                              decoration: const BoxDecoration(
-                                                color: Colors.red,
-                                                shape: BoxShape.circle,
-                                              ),
-                                            ),
-                                            const SizedBox(width: 4),
-                                            const Text(
-                                              'LIVE',
-                                              style: TextStyle(
-                                                  color: Colors.red,
-                                                  fontSize: 12,
-                                                  fontWeight: FontWeight.bold),
-                                            ),
-                                          ],
-                                        ),
+                                    ),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 8, vertical: 4),
+                                      decoration: BoxDecoration(
+                                        color: Colors.orange.withOpacity(0.2),
+                                        borderRadius: BorderRadius.circular(12),
                                       ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Text(
-                                    match['teams']!,
-                                    style: const TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w600),
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Text(
-                                    'Score: ${match['score']}',
-                                    style: const TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.blue),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  if (match['overs'] != null)
+                                      child: const Text(
+                                        'Upcoming',
+                                        style: TextStyle(
+                                            color: Colors.orange,
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 8),
+                                Row(
+                                  children: [
+                                    const Icon(Icons.calendar_today,
+                                        size: 14, color: Colors.grey),
+                                    const SizedBox(width: 4),
                                     Text(
-                                      'Overs: ${match['overs']}',
+                                      event['date']!,
                                       style: const TextStyle(
-                                          fontSize: 12, color: Colors.grey),
+                                          color: Colors.grey, fontSize: 12),
                                     ),
-                                  Text(
-                                    '${match['status']} - ${match['time']}',
-                                    style: const TextStyle(
-                                        fontSize: 12, color: Colors.grey),
-                                  ),
-                                  const SizedBox(height: 12),
-                                  ElevatedButton(
-                                    onPressed: () {
-                                      // Add navigation to live match details
-                                    },
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.red,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(20),
-                                      ),
+                                    const SizedBox(width: 16),
+                                    const Icon(Icons.access_time,
+                                        size: 14, color: Colors.grey),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      event['time']!,
+                                      style: const TextStyle(
+                                          color: Colors.grey, fontSize: 12),
                                     ),
-                                    child: const Text(
-                                      'Watch Live',
-                                      style: TextStyle(color: Colors.white),
+                                  ],
+                                ),
+                                const SizedBox(height: 4),
+                                Row(
+                                  children: [
+                                    const Icon(Icons.location_on,
+                                        size: 14, color: Colors.blue),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      event['location']!,
+                                      style: const TextStyle(
+                                          color: Colors.blue, fontSize: 12),
                                     ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                      // Register Tab
-                      // Register Tab - Continuation from where it was cut off
-                      ListView.builder(
-                        itemCount: registrations.length,
-                        itemBuilder: (context, index) {
-                          final registration = registrations[index];
-                          return Card(
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12)),
-                            margin: const EdgeInsets.symmetric(vertical: 8),
-                            child: Padding(
-                              padding: const EdgeInsets.all(16.0),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Expanded(
-                                        child: Text(
-                                          registration['title']!,
+                                  ],
+                                ),
+                                const SizedBox(height: 8),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'Prize: ${event['prize']}',
                                           style: const TextStyle(
                                               fontWeight: FontWeight.bold,
-                                              fontSize: 16),
+                                              color: Colors.green),
                                         ),
-                                      ),
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 8, vertical: 4),
-                                        decoration: BoxDecoration(
-                                          color: Colors.blue.withOpacity(0.2),
-                                          borderRadius:
-                                              BorderRadius.circular(12),
-                                        ),
-                                        child: Text(
-                                          registration['category']!,
+                                        Text(
+                                          'Deadline: ${event['registrationDeadline']}',
                                           style: const TextStyle(
-                                              color: Colors.blue,
-                                              fontSize: 12,
-                                              fontWeight: FontWeight.bold),
+                                              fontSize: 11, color: Colors.red),
+                                        ),
+                                      ],
+                                    ),
+                                    ElevatedButton(
+                                      onPressed: () {
+                                        print(
+                                            'selected coming up: ${event['title']}');
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Colors.green,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(20),
                                         ),
                                       ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Text(
-                                    registration['description']!,
-                                    style: const TextStyle(
-                                        fontSize: 13, color: Colors.grey),
-                                  ),
-                                  const SizedBox(height: 12),
-                                  Row(
-                                    children: [
-                                      const Icon(Icons.calendar_today,
-                                          size: 14, color: Colors.grey),
-                                      const SizedBox(width: 4),
-                                      Text(
-                                        'Starts: ${registration['startDate']}',
-                                        style: const TextStyle(
-                                            color: Colors.grey, fontSize: 12),
+                                      child: const Text(
+                                        'Notify Me',
+                                        style: TextStyle(color: Colors.white),
                                       ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Row(
-                                    children: [
-                                      const Icon(Icons.group,
-                                          size: 14, color: Colors.grey),
-                                      const SizedBox(width: 4),
-                                      Text(
-                                        'Max Teams: ${registration['maxTeams']}',
-                                        style: const TextStyle(
-                                            color: Colors.grey, fontSize: 12),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                    // Live Matches Tab
+                    ListView.builder(
+                      itemCount: liveMatches.length,
+                      itemBuilder: (context, index) {
+                        final match = liveMatches[index];
+                        return Card(
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12)),
+                          margin: const EdgeInsets.symmetric(vertical: 8),
+                          child: Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      match['title']!,
+                                      style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16),
+                                    ),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 8, vertical: 4),
+                                      decoration: BoxDecoration(
+                                        color: Colors.red.withOpacity(0.2),
+                                        borderRadius: BorderRadius.circular(12),
                                       ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 12),
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
                                         children: [
-                                          Text(
-                                            'Fee: ${registration['registrationFee']}',
-                                            style: const TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 16,
-                                                color: Colors.black),
+                                          Container(
+                                            width: 8,
+                                            height: 8,
+                                            decoration: const BoxDecoration(
+                                              color: Colors.red,
+                                              shape: BoxShape.circle,
+                                            ),
                                           ),
-                                          Text(
-                                            'Deadline: ${registration['deadline']}',
-                                            style: const TextStyle(
-                                                fontSize: 11,
-                                                color: Colors.red),
+                                          const SizedBox(width: 4),
+                                          const Text(
+                                            'LIVE',
+                                            style: TextStyle(
+                                                color: Colors.red,
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.bold),
                                           ),
                                         ],
                                       ),
-                                      ElevatedButton(
-                                        onPressed: () {
-                                          // Add registration action
-                                          ScaffoldMessenger.of(context)
-                                              .showSnackBar(
-                                            SnackBar(
-                                              content: Text(
-                                                  'Registering for ${registration['title']}'),
-                                              backgroundColor: Colors.blue,
-                                            ),
-                                          );
-                                        },
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: Colors.blue,
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(20),
-                                          ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  match['teams']!,
+                                  style: const TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w600),
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  'Score: ${match['score']}',
+                                  style: const TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.blue),
+                                ),
+                                const SizedBox(height: 4),
+                                if (match['overs'] != null)
+                                  Text(
+                                    'Overs: ${match['overs']}',
+                                    style: const TextStyle(
+                                        fontSize: 12, color: Colors.grey),
+                                  ),
+                                Text(
+                                  '${match['status']} - ${match['time']}',
+                                  style: const TextStyle(
+                                      fontSize: 12, color: Colors.grey),
+                                ),
+                                const SizedBox(height: 12),
+                                ElevatedButton(
+                                  onPressed: () {
+                                    // Add navigation to live match details
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.red,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                  ),
+                                  child: const Text(
+                                    'Watch Live',
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                    // Register Tab
+                    // Register Tab - Continuation from where it was cut off
+                    ListView.builder(
+                      itemCount: registrations.length,
+                      itemBuilder: (context, index) {
+                        final registration = registrations[index];
+                        return Card(
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12)),
+                          margin: const EdgeInsets.symmetric(vertical: 8),
+                          child: Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        registration['title']!,
+                                        style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 16),
+                                      ),
+                                    ),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 8, vertical: 4),
+                                      decoration: BoxDecoration(
+                                        color: Colors.blue.withOpacity(0.2),
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      child: Text(
+                                        registration['category']!,
+                                        style: const TextStyle(
+                                            color: Colors.blue,
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  registration['description']!,
+                                  style: const TextStyle(
+                                      fontSize: 13, color: Colors.grey),
+                                ),
+                                const SizedBox(height: 12),
+                                Row(
+                                  children: [
+                                    const Icon(Icons.calendar_today,
+                                        size: 14, color: Colors.grey),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      'Starts: ${registration['startDate']}',
+                                      style: const TextStyle(
+                                          color: Colors.grey, fontSize: 12),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 4),
+                                Row(
+                                  children: [
+                                    const Icon(Icons.group,
+                                        size: 14, color: Colors.grey),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      'Max Teams: ${registration['maxTeams']}',
+                                      style: const TextStyle(
+                                          color: Colors.grey, fontSize: 12),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 12),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'Fee: ${registration['registrationFee']}',
+                                          style: const TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 16,
+                                              color: Colors.black),
                                         ),
-                                        child: const Text(
-                                          'Register Now',
-                                          style: TextStyle(color: Colors.white),
+                                        Text(
+                                          'Deadline: ${registration['deadline']}',
+                                          style: const TextStyle(
+                                              fontSize: 11, color: Colors.red),
+                                        ),
+                                      ],
+                                    ),
+                                    ElevatedButton(
+                                      onPressed: () {
+                                        // Add registration action
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
+                                          SnackBar(
+                                            content: Text(
+                                                'Registering for ${registration['title']}'),
+                                            backgroundColor: Colors.blue,
+                                          ),
+                                        );
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Colors.blue,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(20),
                                         ),
                                       ),
-                                    ],
-                                  ),
-                                ],
-                              ),
+                                      child: const Text(
+                                        'Register Now',
+                                        style: TextStyle(color: Colors.white),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
                             ),
-                          );
-                        },
-                      ),
-                    ],
-                  ),
+                          ),
+                        );
+                      },
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),

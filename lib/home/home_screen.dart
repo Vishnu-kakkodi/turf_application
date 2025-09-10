@@ -1,17 +1,22 @@
 import 'package:booking_application/category/category_screen.dart';
 import 'package:booking_application/category/cricket_screen.dart';
+import 'package:booking_application/details.dart';
+import 'package:booking_application/helper/storage_helper.dart';
 import 'package:booking_application/home/enroll_screen.dart';
-import 'package:booking_application/match_details.dart';
+import 'package:booking_application/modal/registration_model.dart';
 import 'package:booking_application/provider/category_provider.dart';
-import 'package:booking_application/provider/location_provider.dart';
+import 'package:booking_application/provider/tournament_category_provider.dart';
 import 'package:booking_application/provider/upcoming_tournament_provider.dart';
 import 'package:booking_application/views/details_screen.dart';
 import 'package:booking_application/views/live_screen.dart';
 import 'package:booking_application/views/profile/notification_screen.dart';
 import 'package:booking_application/views/profile/profile_screen.dart';
+import 'package:booking_application/views/profile/slider_bar_screen.dart';
 import 'package:booking_application/widgets/courosel_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
+import '../provider/nearby_turf_provider.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -21,6 +26,10 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  String _selectedCategory = 'cricket';
+  String _selectedTournamentCategory = 'Cricket'; // Add this for tournaments
+  String? _currentUserId;
+
   final List<Map<String, dynamic>> cricketComplexes = [
     {
       'name': 'Cricket Complex',
@@ -85,9 +94,55 @@ class _HomeScreenState extends State<HomeScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<CategoryProvider>().fetchCategories();
       context.read<UpcomingTournamentProvider>().fetchUpcomingTournament();
-      Provider.of<LocationProvider>(context, listen: false)
-          .updateLocationAndGetTurfs();
+      // Initialize tournament category provider
+      context
+          .read<TournamentCategoryProvider>()
+          .fetchTournamentsByCategory(_selectedTournamentCategory);
+      _loadNearbyTurfs();
     });
+  }
+
+  void _loadNearbyTurfs() async {
+    final user = await UserPreferences.getUser();
+    if (user != null && user.id != null) {
+      _currentUserId = user.id!;
+      if (mounted) {
+        Provider.of<LocationProvider>(context, listen: false)
+            .fetchNearbyTurfs(userId: user.id!, category: _selectedCategory);
+      }
+    } else {
+      print('User not found or user ID is null');
+      if (mounted) {
+        Provider.of<LocationProvider>(context, listen: false).clearData();
+      }
+    }
+  }
+
+  // Method to handle category selection
+  void _onCategorySelected(String categoryName) {
+    if (_currentUserId != null) {
+      setState(() {
+        _selectedCategory = categoryName.toLowerCase();
+        // Update tournament category when turf category changes
+        _selectedTournamentCategory = _capitalizeFirstLetter(categoryName);
+      });
+
+      // Fetch turfs for the selected category
+      Provider.of<LocationProvider>(context, listen: false).fetchNearbyTurfs(
+        userId: _currentUserId!,
+        category: _selectedCategory,
+      );
+
+      // Fetch tournaments for the selected category
+      Provider.of<TournamentCategoryProvider>(context, listen: false)
+          .fetchTournamentsByCategory(_selectedTournamentCategory);
+    }
+  }
+
+  // Helper method to capitalize first letter
+  String _capitalizeFirstLetter(String text) {
+    if (text.isEmpty) return text;
+    return text[0].toUpperCase() + text.substring(1).toLowerCase();
   }
 
   @override
@@ -99,53 +154,99 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: GestureDetector(
-          onTap: () {
-            Navigator.push(context,
-                MaterialPageRoute(builder: (context) => ProfileScreen()));
-          },
-          child: const CircleAvatar(
-            radius: 50,
-            backgroundImage: NetworkImage(
-                'https://t3.ftcdn.net/jpg/02/43/12/34/360_F_243123463_zTooub557xEWABDLk0jJklDyLSGl2jrr.jpg'),
-            // child: const Icon(Icons.menu, color: Colors.white),
-          ),
+        appBar: AppBar(
+  backgroundColor: Colors.white,
+  elevation: 0,
+  leading: GestureDetector(
+    onTap: () {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const SliderBarScreen(),
         ),
-        title: const Text(
-          'Hello',
-          style: TextStyle(
-            color: Colors.black,
-            fontSize: 18,
-            fontWeight: FontWeight.w500,
-          ),
+      );
+    },
+    child: const Padding(
+      padding: EdgeInsets.all(8.0),
+      child: CircleAvatar(
+        radius: 50,
+        backgroundImage: NetworkImage(
+          'https://t3.ftcdn.net/jpg/02/43/12/34/360_F_243123463_zTooub557xEWABDLk0jJklDyLSGl2jrr.jpg',
         ),
-        actions: [
-          Container(
-            margin: const EdgeInsets.all(12),
-            width: 38,
-            height: 40,
-            decoration: BoxDecoration(
-                border: Border.all(
+      ),
+    ),
+  ),
+
+  title: FutureBuilder<User?>(
+    future: UserPreferences.getUser(),
+    builder: (context, snapshot) {
+      String username = 'Hello';
+      if (snapshot.connectionState == ConnectionState.done &&
+          snapshot.hasData &&
+          snapshot.data != null) {
+        username = snapshot.data!.name;
+      }
+
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            username,
+            style: const TextStyle(
+              color: Colors.black,
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const SizedBox(height: 2),
+          Row(
+            children: const [
+              Icon(Icons.location_on, color: Colors.red, size: 16),
+              SizedBox(width: 4),
+              Text(
+                'Hyderabad, India', // 👈 Manual location here
+                style: TextStyle(
                   color: Colors.grey,
-                  width: 1.0,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w400,
                 ),
-                // color: Colors.grey[300],
-                shape: BoxShape.rectangle,
-                borderRadius: BorderRadius.circular(12)),
-            child: GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => NotificationScreen()));
-                },
-                child: const Icon(Icons.notifications, color: Colors.black)),
+              ),
+            ],
           ),
         ],
+      );
+    },
+  ),
+
+  actions: [
+    Container(
+      margin: const EdgeInsets.all(12),
+      width: 38,
+      height: 40,
+      decoration: BoxDecoration(
+        border: Border.all(
+          color: Colors.grey,
+          width: 1.0,
+        ),
+        shape: BoxShape.rectangle,
+        borderRadius: BorderRadius.circular(12),
       ),
+      child: GestureDetector(
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const NotificationScreen(),
+            ),
+          );
+        },
+        child: const Icon(Icons.notifications, color: Colors.black),
+      ),
+    ),
+  ],
+),
+    
+
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -159,55 +260,11 @@ class _HomeScreenState extends State<HomeScreen> {
                   border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12))),
             ),
-            const SizedBox(
-              height: 18,
-            ),
+            const SizedBox(height: 18),
 
             SoccerCarousel(),
 
             const SizedBox(height: 24),
-
-            // Select Game Section
-            // Row(
-            //   // mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            //   children: [
-            //     const Text(
-            //       'Select Game',
-            //       style: TextStyle(
-            //         fontSize: 18,
-            //         fontWeight: FontWeight.w600,
-            //       ),
-            //     ),
-            //     SizedBox(
-            //       width: 120,
-            //     ),
-            //     TextButton(
-            //       onPressed: () {
-            //         Navigator.push(
-            //             context,
-            //             MaterialPageRoute(
-            //                 builder: (context) => CategoryScreen()));
-            //       },
-            //       child: const Text(
-            //         'See All',
-            //         style: TextStyle(
-            //           color: Colors.black,
-            //           fontSize: 14,
-            //         ),
-            //       ),
-            //     ),
-            //     Icon(
-            //       Icons.arrow_forward_ios,
-            //       size: 19,
-            //     )
-            //   ],
-            // ),
-
-            // const SizedBox(height: 12),
-
-            // // Sports Icons Row
-            // SportSelector(),
-            // const SizedBox(height: 24),
 
             Row(
               children: [
@@ -220,11 +277,39 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 const SizedBox(width: 130),
                 TextButton(
-                  onPressed: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const CategoryScreen()));
+                  onPressed: () async {
+                    final result = await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const CategoryScreen()),
+                    );
+
+                    if (result != null && result is Map<String, dynamic>) {
+                      final selectedCategory =
+                          result['selectedCategory'] as String?;
+                      final userId = result['userId'] as String?;
+
+                      if (selectedCategory != null && userId != null) {
+                        setState(() {
+                          _selectedCategory = selectedCategory;
+                          _currentUserId = userId;
+                          _selectedTournamentCategory =
+                              _capitalizeFirstLetter(selectedCategory);
+                        });
+
+                        Provider.of<LocationProvider>(context, listen: false)
+                            .fetchNearbyTurfs(
+                          userId: userId,
+                          category: selectedCategory,
+                        );
+
+                        // Fetch tournaments for the selected category
+                        Provider.of<TournamentCategoryProvider>(context,
+                                listen: false)
+                            .fetchTournamentsByCategory(
+                                _selectedTournamentCategory);
+                      }
+                    }
                   },
                   child: const Text(
                     'See All',
@@ -243,7 +328,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
             const SizedBox(height: 12),
 
-// Categories Display using Consumer
             Consumer<CategoryProvider>(
               builder: (context, categoryProvider, child) {
                 if (categoryProvider.isLoading) {
@@ -252,7 +336,6 @@ class _HomeScreenState extends State<HomeScreen> {
                   );
                 }
 
-                // Show error message
                 if (categoryProvider.errorMessage.isNotEmpty) {
                   return const Center(
                     child: Text(
@@ -262,7 +345,6 @@ class _HomeScreenState extends State<HomeScreen> {
                   );
                 }
 
-                // Show empty state
                 if (categoryProvider.categories.isEmpty) {
                   return const Center(
                     child: Text(
@@ -272,7 +354,6 @@ class _HomeScreenState extends State<HomeScreen> {
                   );
                 }
 
-                // Display categories horizontally (limited to first 4)
                 final displayCategories =
                     categoryProvider.categories.take(4).toList();
 
@@ -280,19 +361,23 @@ class _HomeScreenState extends State<HomeScreen> {
                   scrollDirection: Axis.horizontal,
                   child: Row(
                     children: displayCategories.map((category) {
+                      bool isSelected =
+                          _selectedCategory == category.name.toLowerCase();
+
                       return Padding(
                         padding: const EdgeInsets.only(right: 16.0),
                         child: GestureDetector(
                           onTap: () {
-                            // Handle category selection
-                            // You can navigate to a specific screen or perform an action
                             print('Selected category: ${category.name}');
+                            _onCategorySelected(category.name);
                           },
                           child: Column(
                             children: [
                               CircleAvatar(
                                 radius: 27,
-                                backgroundColor: Colors.grey[200],
+                                backgroundColor: isSelected
+                                    ? Colors.blue[100]
+                                    : Colors.grey[200],
                                 child: ClipOval(
                                   child: Image.network(
                                     categoryProvider
@@ -323,7 +408,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                       return Icon(
                                         Icons.sports,
                                         size: 35,
-                                        color: Colors.grey[600],
+                                        color: isSelected
+                                            ? Colors.blue[600]
+                                            : Colors.grey[600],
                                       );
                                     },
                                   ),
@@ -334,9 +421,12 @@ class _HomeScreenState extends State<HomeScreen> {
                                 width: 70,
                                 child: Text(
                                   category.name,
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 12,
                                     fontWeight: FontWeight.w500,
+                                    color: isSelected
+                                        ? Colors.blue[600]
+                                        : Colors.black,
                                   ),
                                   textAlign: TextAlign.center,
                                   maxLines: 2,
@@ -357,8 +447,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
             GestureDetector(
               onTap: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => LiveScreen()));
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const LiveScreen()));
               },
               child: Container(
                 padding: const EdgeInsets.all(16),
@@ -401,7 +493,6 @@ class _HomeScreenState extends State<HomeScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  // textAlign: TextAlign.center,
                                   'Premier League',
                                   style: TextStyle(
                                     fontSize: 14,
@@ -439,11 +530,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       ],
                     ),
                     const SizedBox(height: 16),
-
-                    // Match Score Section
                     Row(
                       children: [
-                        // Newcastle
                         Expanded(
                           child: Column(
                             children: [
@@ -456,7 +544,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 child: ClipRRect(
                                   borderRadius: BorderRadius.circular(8),
                                   child: Image.network(
-                                    'https://upload.wikimedia.org/wikipedia/en/thumb/5/56/Newcastle_United_Logo.svg/1200px-Newcastle_United_Logo.svg.png', // Replace with your Newcastle logo path
+                                    'https://upload.wikimedia.org/wikipedia/en/thumb/5/56/Newcastle_United_Logo.svg/1200px-Newcastle_United_Logo.svg.png',
                                     width: 50,
                                     height: 50,
                                     fit: BoxFit.cover,
@@ -481,8 +569,6 @@ class _HomeScreenState extends State<HomeScreen> {
                             ],
                           ),
                         ),
-
-                        // Score
                         const Expanded(
                           child: Column(
                             children: [
@@ -504,8 +590,6 @@ class _HomeScreenState extends State<HomeScreen> {
                             ],
                           ),
                         ),
-
-                        // Chelsea
                         Expanded(
                           child: Column(
                             children: [
@@ -518,7 +602,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 child: ClipRRect(
                                   borderRadius: BorderRadius.circular(8),
                                   child: Image.network(
-                                    'https://upload.wikimedia.org/wikipedia/en/thumb/c/cc/Chelsea_FC.svg/1200px-Chelsea_FC.svg.png', // Replace with your Chelsea logo path
+                                    'https://upload.wikimedia.org/wikipedia/en/thumb/c/cc/Chelsea_FC.svg/1200px-Chelsea_FC.svg.png',
                                     width: 50,
                                     height: 50,
                                     fit: BoxFit.cover,
@@ -551,7 +635,6 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             const SizedBox(height: 24),
 
-            // Upcoming Matches
             const Text(
               'Upcoming Matches',
               style: TextStyle(
@@ -562,180 +645,50 @@ class _HomeScreenState extends State<HomeScreen> {
 
             const SizedBox(height: 12),
             _buildUpcomingMatch(),
-            // _buildUpcomingMatch(
-            //     'Premier League', 'Newcastle', 'Chelsea', '7:45 PM'),
 
             const SizedBox(height: 24),
 
-            // Upcoming Tournament
-            const Text(
-              'Upcoming Tournament',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-              ),
+            // Updated Upcoming Tournament Section with Category-based tournaments
+            Row(
+              children: [
+                Text(
+                  'Upcoming  Tournament',
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const Spacer(),
+                TextButton(
+                  onPressed: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => EnrollScreen(
+                                  initialTabIndex: 1,
+                                )));
+                  },
+                  child: const Text(
+                    'View All',
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 14,
+                    ),
+                  ),
+                ),
+                // const Icon(
+                //   Icons.arrow_forward_ios,
+                //   size: 18,
+                // )
+              ],
             ),
 
             const SizedBox(height: 12),
-            // Container(
-            //   margin: const EdgeInsets.all(16),
-            //   child: Column(
-            //     crossAxisAlignment: CrossAxisAlignment.start,
-            //     children: [
-            //       Container(
-            //         width: double.infinity,
-            //         height: 120,
-            //         decoration: BoxDecoration(
-            //           borderRadius: BorderRadius.circular(12),
-            //         ),
-            //         child: Stack(
-            //           children: [
-            //             // Background image covering the entire container
-            //             Positioned.fill(
-            //               child: ClipRRect(
-            //                 borderRadius: BorderRadius.circular(12),
-            //                 child: Image.network(
-            //                   'https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80',
-            //                   fit: BoxFit.cover,
-            //                   errorBuilder: (context, error, stackTrace) {
-            //                     return Container(
-            //                       decoration: BoxDecoration(
-            //                         gradient: const LinearGradient(
-            //                           colors: [
-            //                             Color(0xFF1E88E5),
-            //                             Color(0xFF4CAF50)
-            //                           ],
-            //                           begin: Alignment.centerLeft,
-            //                           end: Alignment.centerRight,
-            //                         ),
-            //                         borderRadius: BorderRadius.circular(12),
-            //                       ),
-            //                       child: const Center(
-            //                         child: Icon(
-            //                           Icons.sports_cricket,
-            //                           color: Colors.white,
-            //                           size: 40,
-            //                         ),
-            //                       ),
-            //                     );
-            //                   },
-            //                 ),
-            //               ),
-            //             ),
-            //             Positioned.fill(
-            //               child: Container(
-            //                 decoration: BoxDecoration(
-            //                   // border: Border.all(),
-            //                   borderRadius: BorderRadius.circular(12),
-            //                   gradient: LinearGradient(
-            //                     colors: [
-            //                       Colors.black.withOpacity(0.4),
-            //                       Colors.transparent,
-            //                       Colors.black.withOpacity(0.3),
-            //                     ],
-            //                     begin: Alignment.centerLeft,
-            //                     end: Alignment.centerRight,
-            //                   ),
-            //                 ),
-            //               ),
-            //             ),
-            //           ],
-            //         ),
-            //       ),
-            //       const SizedBox(height: 12),
-            //       const Row(
-            //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            //         children: [
-            //           Text(
-            //             'Cricket Tournament',
-            //             style: TextStyle(
-            //               fontWeight: FontWeight.bold,
-            //               fontSize: 16,
-            //               color: Colors.black87,
-            //             ),
-            //           ),
-            //           Text(
-            //             '₹500',
-            //             style: TextStyle(
-            //               fontWeight: FontWeight.bold,
-            //               fontSize: 18,
-            //               color: Colors.black87,
-            //             ),
-            //           ),
-            //         ],
-            //       ),
-            //       const SizedBox(height: 8),
-            //       const Row(
-            //         children: [
-            //           Icon(
-            //             Icons.location_on,
-            //             color: Color(0xFF1E88E5),
-            //             size: 18,
-            //           ),
-            //           SizedBox(width: 4),
-            //           Text(
-            //             'Kakinada',
-            //             style: TextStyle(
-            //               color: Colors.black54,
-            //               fontSize: 14,
-            //             ),
-            //           ),
-            //         ],
-            //       ),
-            //       const SizedBox(height: 8),
-            //       const Row(
-            //         children: [
-            //           Icon(
-            //             Icons.access_time,
-            //             color: Color(0xFF1E88E5),
-            //             size: 18,
-            //           ),
-            //           SizedBox(width: 4),
-            //           Text(
-            //             '09 AM-12 PM',
-            //             style: TextStyle(
-            //               color: Colors.black54,
-            //               fontSize: 14,
-            //             ),
-            //           ),
-            //         ],
-            //       ),
-            //       const SizedBox(height: 12),
-            //       Row(
-            //         mainAxisAlignment: MainAxisAlignment.end,
-            //         children: [
-            //           ElevatedButton(
-            //             onPressed: () {
-            //               Navigator.push(
-            //                   context,
-            //                   MaterialPageRoute(
-            //                       builder: (context) => EnrollScreen()));
-            //             },
-            //             style: ElevatedButton.styleFrom(
-            //               backgroundColor: const Color(0xFF1E88E5),
-            //               foregroundColor: Colors.white,
-            //               padding: const EdgeInsets.symmetric(
-            //                   horizontal: 24, vertical: 10),
-            //               shape: RoundedRectangleBorder(
-            //                 borderRadius: BorderRadius.circular(20),
-            //               ),
-            //             ),
-            //             child: const Text(
-            //               'Enroll Now',
-            //               style: TextStyle(
-            //                 fontWeight: FontWeight.w600,
-            //                 fontSize: 14,
-            //               ),
-            //             ),
-            //           ),
-            //         ],
-            //       ),
-            //     ],
-            //   ),
-            // ),
-            Consumer<UpcomingTournamentProvider>(
-              builder: (context, provider, child) {
-                if (provider.isLoading) {
+
+            // Updated Consumer to use TournamentCategoryProvider
+            Consumer<TournamentCategoryProvider>(
+              builder: (context, tournamentProvider, child) {
+                if (tournamentProvider.isLoading) {
                   return Container(
                     margin: const EdgeInsets.all(16),
                     height: 250,
@@ -747,17 +700,19 @@ class _HomeScreenState extends State<HomeScreen> {
                   );
                 }
 
-                if (provider.hasError) {
+                if (tournamentProvider.errorMessage != null) {
                   return Container(
                     margin: const EdgeInsets.all(16),
                     child: Column(
                       children: [
-                        Text(
-                          'Error: ${provider.errorMessage}',
-                          style: const TextStyle(color: Colors.red),
-                        ),
+                        // Text(
+                        //   'Error: ${tournamentProvider.errorMessage}',
+                        //   style: const TextStyle(color: Colors.red),
+                        // ),
                         ElevatedButton(
-                          onPressed: () => provider.fetchUpcomingTournament(),
+                          onPressed: () =>
+                              tournamentProvider.fetchTournamentsByCategory(
+                                  _selectedTournamentCategory),
                           child: const Text('Retry'),
                         ),
                       ],
@@ -765,29 +720,35 @@ class _HomeScreenState extends State<HomeScreen> {
                   );
                 }
 
-                // if (!provider.hasData) {
-                //   return Container(
-                //     margin: const EdgeInsets.all(16),
-                //     child: ElevatedButton(
-                //       onPressed: () => provider.fetchUpcomingTournament(),
-                //       child: const Text('Load Tournament'),
-                //     ),
-                //   );
-                // }
-                // if (provider.tournament == null) {
-                //   return Container(
-                //     margin: const EdgeInsets.all(16),
-                //     child: ElevatedButton(
-                //       onPressed: () => provider.fetchUpcomingTournament(),
-                //       child: const Text('Load Tournament'),
-                //     ),
-                //   );
-                // }
-
-                final tournament = provider.tournament!;
-                if (tournament == null) {
-                  return Center(child: Text('No upcoming tournament'));
+                if (tournamentProvider.tournaments.isEmpty) {
+                  return Container(
+                    margin: const EdgeInsets.all(16),
+                    height: 200,
+                    child: Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.sports,
+                            size: 48,
+                            color: Colors.grey[400],
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'No $_selectedTournamentCategory tournaments available',
+                            style: TextStyle(
+                              color: Colors.grey[600],
+                              fontSize: 16,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
                 }
+
+                // Display first tournament or create a horizontal list for multiple tournaments
+                final tournament = tournamentProvider.tournaments.first;
                 final baseImageUrl = 'http://31.97.206.144:3081';
 
                 return Container(
@@ -807,9 +768,10 @@ class _HomeScreenState extends State<HomeScreen> {
                               child: ClipRRect(
                                 borderRadius: BorderRadius.circular(12),
                                 child: Image.network(
-                                  tournament.image.isNotEmpty
-                                      ? '$baseImageUrl${tournament.image}'
-                                      : 'https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80',
+                                  // tournament.image.isNotEmpty
+                                  //     ? '$baseImageUrl${tournament.image}'
+                                  //     :
+                                  'https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80',
                                   fit: BoxFit.cover,
                                   errorBuilder: (context, error, stackTrace) {
                                     return Container(
@@ -859,16 +821,20 @@ class _HomeScreenState extends State<HomeScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(
-                            tournament.name,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                              color: Colors.black87,
+                          Expanded(
+                            child: Text(
+                              // tournament.name ?? 'Tournament Name',
+                              '$_selectedTournamentCategory Championship',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                                color: Colors.black87,
+                              ),
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
                           Text(
-                            '₹${tournament.price}',
+                            '₹${tournament.price ?? 500}',
                             style: const TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 18,
@@ -878,17 +844,17 @@ class _HomeScreenState extends State<HomeScreen> {
                         ],
                       ),
                       const SizedBox(height: 8),
-                      const Row(
+                      Row(
                         children: [
-                          Icon(
+                          const Icon(
                             Icons.location_on,
                             color: Color(0xFF1E88E5),
                             size: 18,
                           ),
-                          SizedBox(width: 4),
+                          const SizedBox(width: 4),
                           Text(
-                            'Kakinada',
-                            style: TextStyle(
+                            tournament.location ?? 'Kakinada',
+                            style: const TextStyle(
                               color: Colors.black54,
                               fontSize: 14,
                             ),
@@ -896,23 +862,24 @@ class _HomeScreenState extends State<HomeScreen> {
                         ],
                       ),
                       const SizedBox(height: 8),
-                      // Row(
-                      //   children: [
-                      //     const Icon(
-                      //       Icons.access_time,
-                      //       color: Color(0xFF1E88E5),
-                      //       size: 18,
-                      //     ),
-                      //     const SizedBox(width: 4),
-                      //     Text(
-                      //       tournament.timeSlot,
-                      //       style: const TextStyle(
-                      //         color: Colors.black54,
-                      //         fontSize: 14,
-                      //       ),
-                      //     ),
-                      //   ],
-                      // ),
+                      if (tournament.details?.date != null)
+                        Row(
+                          children: [
+                            const Icon(
+                              Icons.calendar_today,
+                              color: Color(0xFF1E88E5),
+                              size: 18,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              tournament.details!.date,
+                              style: const TextStyle(
+                                color: Colors.black54,
+                                fontSize: 14,
+                              ),
+                            ),
+                          ],
+                        ),
                       const SizedBox(height: 12),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.end,
@@ -922,7 +889,12 @@ class _HomeScreenState extends State<HomeScreen> {
                               Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                      builder: (context) => EnrollScreen()));
+                                      builder: (context) =>
+                                          const EnrollDetails()));
+                              // Navigator.push(
+                              //     context,
+                              //     MaterialPageRoute(
+                              //         builder: (context) => EnrollScreen(initialTabIndex: 1,)));
                             },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFF1E88E5),
@@ -943,16 +915,28 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                         ],
                       ),
+
+                      // Show tournament count if more than one
+                      if (tournamentProvider.tournaments.length > 1)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 8.0),
+                          child: Text(
+                            '${tournamentProvider.tournaments.length - 1} more ${_selectedTournamentCategory.toLowerCase()} tournaments available',
+                            style: TextStyle(
+                              color: Colors.grey[600],
+                              fontSize: 12,
+                            ),
+                          ),
+                        ),
                     ],
                   ),
                 );
               },
             ),
+
             const SizedBox(height: 24),
 
-            // Select Game For Turf Booking
             Row(
-              // mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 const Text(
                   'Select Game For Turf Booking',
@@ -962,15 +946,32 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
                 const Spacer(),
-                // SizedBox(
-                //   width: 2,
-                // ),
                 TextButton(
-                  onPressed: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => CategoryScreen()));
+                  onPressed: () async {
+                    final result = await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const CategoryScreen()),
+                    );
+
+                    if (result != null && result is Map<String, dynamic>) {
+                      final selectedCategory =
+                          result['selectedCategory'] as String?;
+                      final userId = result['userId'] as String?;
+
+                      if (selectedCategory != null && userId != null) {
+                        setState(() {
+                          _selectedCategory = selectedCategory;
+                          _currentUserId = userId;
+                        });
+
+                        Provider.of<LocationProvider>(context, listen: false)
+                            .fetchNearbyTurfs(
+                          userId: userId,
+                          category: selectedCategory,
+                        );
+                      }
+                    }
                   },
                   child: const Text(
                     'See All',
@@ -988,270 +989,220 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
 
             const SizedBox(height: 12),
-            SportSelector(),
-            // Second Sports Icons Row
-            // Row(
-            //   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            //   children: [
-            //     _buildSportIcon(Icons.sports_cricket, 'Cricket'),
-            //     _buildSportIcon(Icons.sports_soccer, 'Football'),
-            //     _buildSportIcon(Icons.sports_volleyball, 'Volleyball'),
-            //     _buildSportIcon(Icons.sports_hockey, 'Hockey'),
-            //   ],
-            // ),
-            SportSelector(),
+
+            // Second category selector for turf booking
+            Consumer<CategoryProvider>(
+              builder: (context, categoryProvider, child) {
+                if (categoryProvider.isLoading) {
+                  return const Center(
+                    child: CircularProgressIndicator(),
+                  );
+                }
+
+                if (categoryProvider.errorMessage.isNotEmpty) {
+                  return const Center(
+                    child: Text(
+                      'Error loading categories',
+                      style: TextStyle(color: Colors.red),
+                    ),
+                  );
+                }
+
+                if (categoryProvider.categories.isEmpty) {
+                  return const Center(
+                    child: Text(
+                      'No categories available',
+                      style: TextStyle(color: Colors.grey),
+                    ),
+                  );
+                }
+
+                final displayCategories =
+                    categoryProvider.categories.take(4).toList();
+
+                return SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: displayCategories.map((category) {
+                      bool isSelected =
+                          _selectedCategory == category.name.toLowerCase();
+
+                      return Padding(
+                        padding: const EdgeInsets.only(right: 16.0),
+                        child: GestureDetector(
+                          onTap: () {
+                            print('Selected category: ${category.name}');
+                            _onCategorySelected(category.name);
+                          },
+                          child: Column(
+                            children: [
+                              CircleAvatar(
+                                radius: 27,
+                                backgroundColor: isSelected
+                                    ? Colors.blue[100]
+                                    : Colors.grey[200],
+                                child: ClipOval(
+                                  child: Image.network(
+                                    categoryProvider
+                                        .getFullImageUrl(category.imageUrl),
+                                    width: 70,
+                                    height: 70,
+                                    fit: BoxFit.cover,
+                                    loadingBuilder:
+                                        (context, child, loadingProgress) {
+                                      if (loadingProgress == null) return child;
+                                      return SizedBox(
+                                        width: 35,
+                                        height: 35,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                          value: loadingProgress
+                                                      .expectedTotalBytes !=
+                                                  null
+                                              ? loadingProgress
+                                                      .cumulativeBytesLoaded /
+                                                  loadingProgress
+                                                      .expectedTotalBytes!
+                                              : null,
+                                        ),
+                                      );
+                                    },
+                                    errorBuilder: (context, error, stackTrace) {
+                                      return Icon(
+                                        Icons.sports,
+                                        size: 35,
+                                        color: isSelected
+                                            ? Colors.blue[600]
+                                            : Colors.grey[600],
+                                      );
+                                    },
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Container(
+                                width: 70,
+                                child: Text(
+                                  category.name,
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w500,
+                                    color: isSelected
+                                        ? Colors.blue[600]
+                                        : Colors.black,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                );
+              },
+            ),
 
             const SizedBox(height: 24),
-           Row(
-  children: [
-    const Text(
-      'Nearby Turf',
-      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-    ),
-    const Spacer(), // Pushes the rest to the right
-    GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => CategoryScreen()),
-        );
-      },
-      child: Row(
-        children: const [
-          Text(
-            'See all',
-            style: TextStyle(color: Colors.black),
-          ),
-          SizedBox(width: 4), // Small space between text and icon
-          Icon(
-            Icons.arrow_forward_ios,
-            size: 18,
-          ),
-        ],
-      ),
-    ),
-  ],
-),
 
-            // Nearby Turf
-            // const Text(
-            //   'Nearby Turf',
-            //   style: TextStyle(
-            //     fontSize: 18,
-            //     fontWeight: FontWeight.w600,
-            //   ),
-            // ),
+            Row(
+              children: [
+                Text(
+                  'Nearby Turf',
+                  style: const TextStyle(
+                      fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                const Spacer(),
+                GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const CategoryScreen()),
+                    );
+                  },
+                  child: const Row(
+                    children: [
+                      Text(
+                        'See all',
+                        style: TextStyle(color: Colors.black),
+                      ),
+                      SizedBox(width: 4),
+                      Icon(
+                        Icons.arrow_forward_ios,
+                        size: 18,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
 
             const SizedBox(height: 12),
-
-            // SizedBox(
-            //   height: 220,
-            //   child: ListView.builder(
-            //     scrollDirection: Axis.horizontal,
-            //     itemCount: cricketComplexes.length,
-            //     padding: const EdgeInsets.symmetric(horizontal: 16),
-            //     itemBuilder: (context, index) {
-            //       final complex = cricketComplexes[index];
-            //       return Container(
-            //         width: 280,
-            //         margin: const EdgeInsets.only(right: 16),
-            //         decoration: BoxDecoration(
-            //           color: Colors.white,
-            //           borderRadius: BorderRadius.circular(12),
-            //           boxShadow: [
-            //             BoxShadow(
-            //               color: Colors.grey.withOpacity(0.2),
-            //               spreadRadius: 1,
-            //               blurRadius: 4,
-            //               offset: const Offset(0, 2),
-            //             ),
-            //           ],
-            //         ),
-            //         child: Column(
-            //           children: [
-            //             // Image section
-            //             ClipRRect(
-            //               borderRadius: const BorderRadius.only(
-            //                 topLeft: Radius.circular(12),
-            //                 topRight: Radius.circular(12),
-            //               ),
-            //               child: Container(
-            //                 height: 95,
-            //                 width: double.infinity,
-            //                 child: Image.network(
-            //                   complex['image'],
-            //                   fit: BoxFit.cover,
-            //                   errorBuilder: (context, error, stackTrace) {
-            //                     return Container(
-            //                       color: Colors.green[100],
-            //                       child: const Center(
-            //                         child: Icon(
-            //                           Icons.sports_cricket,
-            //                           color: Colors.green,
-            //                           size: 30,
-            //                         ),
-            //                       ),
-            //                     );
-            //                   },
-            //                 ),
-            //               ),
-            //             ),
-
-            //             // Content section
-            //             Expanded(
-            //               child: Padding(
-            //                 padding: const EdgeInsets.all(12),
-            //                 child: Column(
-            //                   crossAxisAlignment: CrossAxisAlignment.start,
-            //                   children: [
-            //                     // Title and price row
-            //                     Row(
-            //                       mainAxisAlignment:
-            //                           MainAxisAlignment.spaceBetween,
-            //                       children: [
-            //                         Text(
-            //                           complex['name'],
-            //                           style: const TextStyle(
-            //                             fontSize: 14,
-            //                             fontWeight: FontWeight.w600,
-            //                             color: Colors.black87,
-            //                           ),
-            //                         ),
-            //                         Text(
-            //                           complex['price'],
-            //                           style: const TextStyle(
-            //                             fontSize: 14,
-            //                             fontWeight: FontWeight.w600,
-            //                             color: Colors.black87,
-            //                           ),
-            //                         ),
-            //                       ],
-            //                     ),
-
-            //                     const SizedBox(height: 4),
-
-            //                     // Location row
-            //                     Row(
-            //                       children: [
-            //                         Icon(
-            //                           Icons.location_on,
-            //                           size: 12,
-            //                           color: Colors.blue[600],
-            //                         ),
-            //                         const SizedBox(width: 2),
-            //                         const Text(
-            //                           'Kokinada',
-            //                           style: TextStyle(
-            //                             fontSize: 11,
-            //                             color: Colors.grey,
-            //                           ),
-            //                         ),
-            //                       ],
-            //                     ),
-
-            //                     const SizedBox(height: 2),
-
-            //                     // Timing row
-            //                     Row(
-            //                       children: [
-            //                         Icon(
-            //                           Icons.access_time,
-            //                           size: 12,
-            //                           color: Colors.blue[600],
-            //                         ),
-            //                         const SizedBox(width: 2),
-            //                         const Text(
-            //                           '09 AM - 12 PM open',
-            //                           style: TextStyle(
-            //                             fontSize: 11,
-            //                             color: Colors.grey,
-            //                           ),
-            //                         ),
-            //                       ],
-            //                     ),
-
-            //                     const Spacer(),
-
-            //                     // Book Now button
-            //                     Container(
-            //                       width: double.infinity,
-            //                       height: 28,
-            //                       child: ElevatedButton(
-            //                         onPressed: () {
-            //                           Navigator.push(
-            //                               context,
-            //                               MaterialPageRoute(
-            //                                   builder: (context) =>
-            //                                       DetailsScreen()));
-            //                         },
-            //                         style: ElevatedButton.styleFrom(
-            //                           backgroundColor: Colors.blue[600],
-            //                           foregroundColor: Colors.white,
-            //                           shape: RoundedRectangleBorder(
-            //                             borderRadius: BorderRadius.circular(20),
-            //                           ),
-            //                           elevation: 1,
-            //                           padding: EdgeInsets.zero,
-            //                         ),
-            //                         child: const Text(
-            //                           'Book Now',
-            //                           style: TextStyle(
-            //                             fontSize: 12,
-            //                             fontWeight: FontWeight.w500,
-            //                           ),
-            //                         ),
-            //                       ),
-            //                     ),
-            //                   ],
-            //                 ),
-            //               ),
-            //             ),
-            //           ],
-            //         ),
-            //       );
-            //     },
-            //   ),
-            // ),
 
             SizedBox(
               height: 220,
               child: Consumer<LocationProvider>(
                 builder: (context, locationProvider, child) {
-                  // Show loading indicator
                   if (locationProvider.isLoading) {
                     return const Center(
                       child: CircularProgressIndicator(),
                     );
                   }
 
-                  // Show error message
                   if (locationProvider.errorMessage != null) {
                     return Center(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.error, color: Colors.red),
-                          Text(
-                            locationProvider.errorMessage!,
-                            style: TextStyle(color: Colors.red, fontSize: 12),
-                            textAlign: TextAlign.center,
+                          // Text(
+                          //   'Error: ${locationProvider.errorMessage}',
+                          //   style: const TextStyle(color: Colors.red),
+                          //   textAlign: TextAlign.center,
+                          // ),
+                          const SizedBox(height: 8),
+                          ElevatedButton(
+                            onPressed: () {
+                              if (_currentUserId != null) {
+                                locationProvider.fetchNearbyTurfs(
+                                  userId: _currentUserId!,
+                                  category: _selectedCategory,
+                                );
+                              }
+                            },
+                            child: const Text('Retry'),
                           ),
                         ],
                       ),
                     );
                   }
 
-                  // Show empty state
                   if (locationProvider.nearbyTurfs.isEmpty) {
-                    return const Center(
-                      child: Text(
-                        'No nearby turfs found',
-                        style: TextStyle(color: Colors.grey),
+                    return Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.sports_cricket,
+                            size: 48,
+                            color: Colors.grey[400],
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'No ${_selectedCategory} turfs found nearby',
+                            style: TextStyle(
+                              color: Colors.grey[600],
+                              fontSize: 14,
+                            ),
+                          ),
+                        ],
                       ),
                     );
                   }
 
-                  // Show turfs list
                   return ListView.builder(
                     scrollDirection: Axis.horizontal,
                     itemCount: locationProvider.nearbyTurfs.length,
@@ -1275,7 +1226,6 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                         child: Column(
                           children: [
-                            // Image section
                             ClipRRect(
                               borderRadius: const BorderRadius.only(
                                 topLeft: Radius.circular(12),
@@ -1314,15 +1264,12 @@ class _HomeScreenState extends State<HomeScreen> {
                                       ),
                               ),
                             ),
-
-                            // Content section
                             Expanded(
                               child: Padding(
                                 padding: const EdgeInsets.all(12),
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    // Title and price row
                                     Row(
                                       mainAxisAlignment:
                                           MainAxisAlignment.spaceBetween,
@@ -1348,10 +1295,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                         ),
                                       ],
                                     ),
-
                                     const SizedBox(height: 4),
-
-                                    // Location row
                                     Row(
                                       children: [
                                         Icon(
@@ -1372,10 +1316,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                         ),
                                       ],
                                     ),
-
                                     const SizedBox(height: 2),
-
-                                    // Timing row
                                     Row(
                                       children: [
                                         Icon(
@@ -1396,10 +1337,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                         ),
                                       ],
                                     ),
-
                                     const Spacer(),
-
-                                    // Book Now button
                                     Container(
                                       width: double.infinity,
                                       height: 28,
@@ -1409,7 +1347,11 @@ class _HomeScreenState extends State<HomeScreen> {
                                             context,
                                             MaterialPageRoute(
                                               builder: (context) =>
-                                                  DetailsScreen(),
+                                                  DetailsScreen(
+                                                turfId: turf.id,
+                                                userId: _currentUserId,
+                                                image: turf.images[0],
+                                              ),
                                             ),
                                           );
                                         },
@@ -1447,9 +1389,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
             const SizedBox(height: 12),
 
-            // Recommended Section
             Row(
-              // mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 const Text(
                   'Recommended',
@@ -1458,7 +1398,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-          const Spacer(),
+                const Spacer(),
                 TextButton(
                   onPressed: () {
                     Navigator.push(
@@ -1483,7 +1423,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
             const SizedBox(height: 12),
 
-            // Horizontal ListView.builder for Recommended cards
             SizedBox(
               height: 200,
               child: ListView.builder(
@@ -1497,7 +1436,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     complex['price'],
                     complex['location'],
                     complex['image'],
-                    context, // ← Add this
+                    context,
                   );
                 },
               ),
@@ -1548,7 +1487,6 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       child: Column(
         children: [
-          // Header
           Padding(
             padding: const EdgeInsets.all(16),
             child: Row(
@@ -1581,12 +1519,10 @@ class _HomeScreenState extends State<HomeScreen> {
               ],
             ),
           ),
-
-          // Match Details Card
           GestureDetector(
             onTap: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => MatchDetails()));
+              // Navigator.push(context,
+              //     MaterialPageRoute(builder: (context) => MatchDetails()));
             },
             child: Container(
               margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
@@ -1598,7 +1534,6 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               child: Row(
                 children: [
-                  // Newcastle (Left Side)
                   Expanded(
                     child: Column(
                       children: [
@@ -1611,7 +1546,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(6),
                             child: Image.network(
-                              'https://upload.wikimedia.org/wikipedia/en/thumb/5/56/Newcastle_United_Logo.svg/1200px-Newcastle_United_Logo.svg.png', // Replace with your Newcastle logo path
+                              'https://upload.wikimedia.org/wikipedia/en/thumb/5/56/Newcastle_United_Logo.svg/1200px-Newcastle_United_Logo.svg.png',
                               width: 32,
                               height: 32,
                               fit: BoxFit.cover,
@@ -1637,8 +1572,6 @@ class _HomeScreenState extends State<HomeScreen> {
                       ],
                     ),
                   ),
-
-                  // Time Display (Center)
                   const Column(
                     children: [
                       Text(
@@ -1649,19 +1582,9 @@ class _HomeScreenState extends State<HomeScreen> {
                           color: Colors.red,
                         ),
                       ),
-                      const SizedBox(height: 4),
-                      // Container(
-                      //   width: 8,
-                      //   height: 8,
-                      //   decoration: const BoxDecoration(
-                      //     color: Colors.red,
-                      //     shape: BoxShape.circle,
-                      //   ),
-                      // ),
+                      SizedBox(height: 4),
                     ],
                   ),
-
-                  // Chelsea (Right Side)
                   Expanded(
                     child: Column(
                       children: [
@@ -1674,7 +1597,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(6),
                             child: Image.network(
-                              'https://upload.wikimedia.org/wikipedia/en/thumb/c/cc/Chelsea_FC.svg/1200px-Chelsea_FC.svg.png', // Replace with your Chelsea logo path
+                              'https://upload.wikimedia.org/wikipedia/en/thumb/c/cc/Chelsea_FC.svg/1200px-Chelsea_FC.svg.png',
                               width: 32,
                               height: 32,
                               fit: BoxFit.cover,
@@ -1709,136 +1632,12 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // Widget _buildRecommendedCard(
-  //     String title, String price, String location, String imageUrl) {
-  //   return Container(
-  //     width: 140,
-  //     margin: const EdgeInsets.only(right: 12),
-  //     decoration: BoxDecoration(
-  //       color: Colors.white,
-  //       borderRadius: BorderRadius.circular(12),
-  //       boxShadow: [
-  //         BoxShadow(
-  //           color: Colors.grey.withOpacity(0.1),
-  //           spreadRadius: 1,
-  //           blurRadius: 4,
-  //           offset: const Offset(0, 2),
-  //         ),
-  //       ],
-  //     ),
-  //     child: Column(
-  //       crossAxisAlignment: CrossAxisAlignment.start,
-  //       children: [
-  //         // Image section
-  //         ClipRRect(
-  //           borderRadius: const BorderRadius.only(
-  //             topLeft: Radius.circular(12),
-  //             topRight: Radius.circular(12),
-  //           ),
-  //           child: GestureDetector(
-  //             onTap: () {
-  //               Navigator.push(context,
-  //                   MaterialPageRoute(builder: (context) => DetailsScreen()));
-  //             },
-  //             child: Container(
-  //               height: 100,
-  //               width: double.infinity,
-  //               child: Image.network(
-  //                 imageUrl,
-  //                 fit: BoxFit.cover,
-  //                 errorBuilder: (context, error, stackTrace) {
-  //                   return Container(
-  //                     decoration: BoxDecoration(
-  //                       color: Colors.green[100],
-  //                       borderRadius: const BorderRadius.only(
-  //                         topLeft: Radius.circular(12),
-  //                         topRight: Radius.circular(12),
-  //                       ),
-  //                     ),
-  //                     child: const Center(
-  //                       child: Icon(
-  //                         Icons.sports_cricket,
-  //                         color: Colors.green,
-  //                         size: 30,
-  //                       ),
-  //                     ),
-  //                   );
-  //                 },
-  //               ),
-  //             ),
-  //           ),
-  //         ),
-
-  //         // Content section
-  //         Expanded(
-  //           child: Padding(
-  //             padding: const EdgeInsets.all(12),
-  //             child: Column(
-  //               crossAxisAlignment: CrossAxisAlignment.start,
-  //               children: [
-  //                 // Title
-  //                 Text(
-  //                   title,
-  //                   style: const TextStyle(
-  //                     fontSize: 14,
-  //                     fontWeight: FontWeight.w600,
-  //                     color: Colors.black87,
-  //                   ),
-  //                   maxLines: 1,
-  //                   overflow: TextOverflow.ellipsis,
-  //                 ),
-
-  //                 const SizedBox(height: 4),
-
-  //                 // Location row
-  //                 Row(
-  //                   children: [
-  //                     Icon(
-  //                       Icons.location_on,
-  //                       size: 12,
-  //                       color: Colors.blue[600],
-  //                     ),
-  //                     const SizedBox(width: 4),
-  //                     Expanded(
-  //                       child: Text(
-  //                         location,
-  //                         style: TextStyle(
-  //                           fontSize: 12,
-  //                           color: Colors.grey[600],
-  //                         ),
-  //                         maxLines: 1,
-  //                         overflow: TextOverflow.ellipsis,
-  //                       ),
-  //                     ),
-  //                   ],
-  //                 ),
-
-  //                 const Spacer(),
-
-  //                 // Price
-  //                 Text(
-  //                   price,
-  //                   style: const TextStyle(
-  //                     fontSize: 14,
-  //                     fontWeight: FontWeight.w600,
-  //                     color: Colors.black87,
-  //                   ),
-  //                 ),
-  //               ],
-  //             ),
-  //           ),
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  // }
-
   Widget _buildRecommendedCard(String title, String price, String location,
       String imageUrl, BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
 
     return Container(
-      width: screenWidth * 0.38, // Responsive card width
+      width: screenWidth * 0.38,
       margin: const EdgeInsets.only(right: 12),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -1855,7 +1654,6 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Image section
           ClipRRect(
             borderRadius: const BorderRadius.only(
               topLeft: Radius.circular(12),
@@ -1863,11 +1661,15 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             child: GestureDetector(
               onTap: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => DetailsScreen()));
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => DetailsScreen(
+                              userId: _currentUserId,
+                            )));
               },
               child: Container(
-                height: screenWidth * 0.25, // Responsive image height
+                height: screenWidth * 0.25,
                 width: double.infinity,
                 child: Image.network(
                   imageUrl,
@@ -1895,16 +1697,12 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
           ),
-
-          // Content section
           Expanded(
             child: Padding(
-              padding:
-                  EdgeInsets.all(screenWidth * 0.025), // Responsive padding
+              padding: EdgeInsets.all(screenWidth * 0.025),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Title
                   Text(
                     title,
                     style: TextStyle(
@@ -1915,10 +1713,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-
                   SizedBox(height: screenWidth * 0.01),
-
-                  // Location row
                   Row(
                     children: [
                       Icon(
@@ -1940,10 +1735,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ],
                   ),
-
                   const Spacer(),
-
-                  // Price
                   Text(
                     price,
                     style: TextStyle(
@@ -2003,7 +1795,6 @@ class SportSelector extends StatelessWidget {
             child: _buildSportItem(
               imageUrl: sports[index]['image'],
               label: sports[index]['label'],
-              // isSelected: selectedIndex == index,
             ),
           );
         },
