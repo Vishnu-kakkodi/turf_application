@@ -7,11 +7,14 @@ import 'package:booking_application/provider/category_provider.dart';
 import 'package:booking_application/provider/getall_booking_provider.dart';
 import 'package:booking_application/provider/location_provider.dart';
 import 'package:booking_application/provider/login_provider.dart';
+import 'package:booking_application/provider/match_game_provider.dart';
+import 'package:booking_application/provider/match_provider.dart';
 import 'package:booking_application/provider/my_turf_booking_provider.dart';
 import 'package:booking_application/provider/navbar_provider.dart';
 import 'package:booking_application/provider/nearby_turf_provider.dart';
 import 'package:booking_application/provider/notification_provider.dart';
 import 'package:booking_application/provider/registration_provider.dart';
+import 'package:booking_application/provider/single_match_provider.dart';
 import 'package:booking_application/provider/single_tournament_provider.dart';
 import 'package:booking_application/provider/tournament_category_provider.dart';
 import 'package:booking_application/provider/tournament_provider.dart';
@@ -49,7 +52,12 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_)=>LocationProvider()),
         ChangeNotifierProvider(create: (_)=>BookTournamentProvider()),
         ChangeNotifierProvider(create: (_)=>TournamentCategoryProvider()),
-        ChangeNotifierProvider(create: (_)=>GetAllBookingProvider())
+        ChangeNotifierProvider(create: (_)=>GetAllBookingProvider()),
+        ChangeNotifierProvider(create: (_)=>MatchProvider()),
+                ChangeNotifierProvider(create: (_)=>MatchGameProvider()),
+                                ChangeNotifierProvider(create: (_)=>SingleMatchGameProvider())
+
+
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,

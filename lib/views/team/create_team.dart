@@ -1,740 +1,252 @@
-// // ignore_for_file: deprecated_member_use
-
-// import 'package:booking_application/views/team/create_new_team.dart';
-// import 'package:flutter/material.dart';
-
-// class CreateTeam extends StatefulWidget {
-//   const CreateTeam({super.key});
-
-//   @override
-//   State<CreateTeam> createState() => _CreateTeamState();
-// }
-
-// class _CreateTeamState extends State<CreateTeam> {
-//   String? selectedPlayerForMatch1;
-//   String? selectedPlayerForMatch2;
-//   String? selectedPlayerForMatch3;
-
-//   // Sample match data
-//   final List<Map<String, dynamic>> matches = [
-//     {
-//       'id': 1,
-//       'name': 'Championship Final',
-//       'sport': 'Football',
-//       'date': '2024-09-15',
-//       'time': '6:00 PM',
-//       'location': 'City Stadium',
-//       'type': 'Tournament',
-//       'maxParticipants': 22,
-//       'description': 'Annual championship final match between top teams.',
-//       'link': 'https://example.com/match/1',
-//       'players': ['Alex Rodriguez', 'Sarah Johnson', 'Michael Chen', 'Emma Wilson', 'David Martinez']
-//     },
-//     {
-//       'id': 2,
-//       'name': 'Cricket League Match',
-//       'sport': 'Cricket',
-//       'date': '2024-09-20',
-//       'time': '2:00 PM',
-//       'location': 'Sports Complex',
-//       'type': 'League',
-//       'maxParticipants': 22,
-//       'description': 'Regular season league match for points.',
-//       'link': 'https://example.com/match/2',
-//       'players': ['Lisa Thompson', 'Chris Anderson', 'Maya Patel', 'James Brown', 'Sofia Garcia']
-//     },
-//     {
-//       'id': 3,
-//       'name': 'Basketball Friendly',
-//       'sport': 'Basketball',
-//       'date': '2024-09-25',
-//       'time': '7:00 PM',
-//       'location': 'Indoor Court',
-//       'type': 'Friendly Match',
-//       'maxParticipants': 10,
-//       'description': 'Casual basketball game for practice and fun.',
-//       'link': 'https://example.com/match/3',
-//       'players': ['Alex Rodriguez', 'Michael Chen', 'David Martinez', 'Chris Anderson', 'James Brown']
-//     },
-//   ];
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       backgroundColor: Colors.grey[50],
-//       appBar: AppBar(
-//         elevation: 0,
-//         backgroundColor: Colors.white,
-//         leading: IconButton(
-//           icon: const Icon(Icons.arrow_back_ios, color: Colors.black),
-//           onPressed: () => Navigator.pop(context),
-//         ),
-//         title: const Text(
-//           'Available Matches',
-//           style: TextStyle(
-//             color: Colors.black,
-//             fontSize: 20,
-//             fontWeight: FontWeight.bold,
-//           ),
-//         ),
-//         centerTitle: true,
-//       ),
-//       body: Column(
-//         children: [
-//           Expanded(
-//             child: ListView.builder(
-//               padding: const EdgeInsets.all(20),
-//               itemCount: matches.length,
-//               itemBuilder: (context, index) {
-//                 final match = matches[index];
-//                 return _buildMatchCard(match, index);
-//               },
-//             ),
-//           ),
-
-//           // Create New Team Button
-//           Container(
-//             padding: const EdgeInsets.all(20),
-//             decoration: BoxDecoration(
-//               color: Colors.white,
-//               boxShadow: [
-//                 BoxShadow(
-//                   color: Colors.black.withOpacity(0.05),
-//                   blurRadius: 10,
-//                   offset: const Offset(0, -2),
-//                 ),
-//               ],
-//             ),
-//             child: SizedBox(
-//               width: double.infinity,
-//               height: 55,
-//               child: ElevatedButton(
-//                 onPressed: _createNewTeam,
-//                 style: ElevatedButton.styleFrom(
-//                   backgroundColor: const Color(0xFF00BF8F),
-//                   elevation: 2,
-//                   shadowColor: const Color(0xFF00BF8F).withOpacity(0.3),
-//                   shape: RoundedRectangleBorder(
-//                     borderRadius: BorderRadius.circular(12),
-//                   ),
-//                 ),
-//                 child:const Row(
-//                   mainAxisAlignment: MainAxisAlignment.center,
-//                   children: [
-//                      Icon(
-//                       Icons.add_circle_outline,
-//                       color: Colors.white,
-//                       size: 20,
-//                     ),
-//                      SizedBox(width: 8),
-//                      Text(
-//                       'Create New Team',
-//                       style: TextStyle(
-//                         color: Colors.white,
-//                         fontSize: 18,
-//                         fontWeight: FontWeight.bold,
-//                       ),
-//                     ),
-//                   ],
-//                 ),
-//               ),
-//             ),
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-
-//   Widget _buildMatchCard(Map<String, dynamic> match, int index) {
-//     return Container(
-//       margin: const EdgeInsets.only(bottom: 16),
-//       decoration: BoxDecoration(
-//         color: Colors.white,
-//         borderRadius: BorderRadius.circular(16),
-//         boxShadow: [
-//           BoxShadow(
-//             color: Colors.black.withOpacity(0.08),
-//             blurRadius: 15,
-//             offset: const Offset(0, 4),
-//           ),
-//         ],
-//       ),
-//       child: Column(
-//         crossAxisAlignment: CrossAxisAlignment.start,
-//         children: [
-//           // Match Header
-//           Container(
-//             padding: const EdgeInsets.all(20),
-//             decoration: BoxDecoration(
-//               gradient: LinearGradient(
-//                 begin: Alignment.topLeft,
-//                 end: Alignment.bottomRight,
-//                 colors: [
-//                   _getSportColor(match['sport']),
-//                   _getSportColor(match['sport']).withOpacity(0.8),
-//                 ],
-//               ),
-//               borderRadius: const BorderRadius.only(
-//                 topLeft: Radius.circular(16),
-//                 topRight: Radius.circular(16),
-//               ),
-//             ),
-//             child: Row(
-//               children: [
-//                 Container(
-//                   padding: const EdgeInsets.all(8),
-//                   decoration: BoxDecoration(
-//                     color: Colors.white.withOpacity(0.2),
-//                     borderRadius: BorderRadius.circular(10),
-//                   ),
-//                   child: Icon(
-//                     _getSportIcon(match['sport']),
-//                     color: Colors.white,
-//                     size: 20,
-//                   ),
-//                 ),
-//                 const SizedBox(width: 12),
-//                 Expanded(
-//                   child: Column(
-//                     crossAxisAlignment: CrossAxisAlignment.start,
-//                     children: [
-//                       Text(
-//                         match['name'],
-//                         style: const TextStyle(
-//                           fontSize: 18,
-//                           fontWeight: FontWeight.bold,
-//                           color: Colors.white,
-//                         ),
-//                       ),
-//                       Text(
-//                         '${match['sport']} • ${match['type']}',
-//                         style: TextStyle(
-//                           fontSize: 14,
-//                           color: Colors.white.withOpacity(0.9),
-//                         ),
-//                       ),
-//                     ],
-//                   ),
-//                 ),
-//                 Container(
-//                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-//                   decoration: BoxDecoration(
-//                     color: Colors.white.withOpacity(0.2),
-//                     borderRadius: BorderRadius.circular(20),
-//                   ),
-//                   child: Text(
-//                     '${match['maxParticipants']} max',
-//                     style: const TextStyle(
-//                       fontSize: 12,
-//                       fontWeight: FontWeight.w600,
-//                       color: Colors.white,
-//                     ),
-//                   ),
-//                 ),
-//               ],
-//             ),
-//           ),
-
-//           // Match Details
-//           Padding(
-//             padding: const EdgeInsets.all(20),
-//             child: Column(
-//               crossAxisAlignment: CrossAxisAlignment.start,
-//               children: [
-//                 // Date, Time, Location
-//                 Row(
-//                   children: [
-//                     Expanded(
-//                       child: _buildInfoRow(Icons.calendar_today, 'Date', match['date']),
-//                     ),
-//                     const SizedBox(width: 16),
-//                     Expanded(
-//                       child: _buildInfoRow(Icons.access_time, 'Time', match['time']),
-//                     ),
-//                   ],
-//                 ),
-//                 const SizedBox(height: 12),
-//                 _buildInfoRow(Icons.location_on, 'Location', match['location']),
-                
-//                 const SizedBox(height: 16),
-                
-//                 // Description
-//                 Text(
-//                   'Description',
-//                   style: TextStyle(
-//                     fontSize: 14,
-//                     fontWeight: FontWeight.w600,
-//                     color: Colors.grey[700],
-//                   ),
-//                 ),
-//                 const SizedBox(height: 4),
-//                 Text(
-//                   match['description'],
-//                   style: TextStyle(
-//                     fontSize: 14,
-//                     color: Colors.grey[600],
-//                     height: 1.4,
-//                   ),
-//                 ),
-
-//                 const SizedBox(height: 20),
-
-//                 // Player Dropdown
-//                 Text(
-//                   'Select Player for this Match',
-//                   style: TextStyle(
-//                     fontSize: 14,
-//                     fontWeight: FontWeight.w600,
-//                     color: Colors.grey[700],
-//                   ),
-//                 ),
-//                 const SizedBox(height: 8),
-//                 Container(
-//                   decoration: BoxDecoration(
-//                     borderRadius: BorderRadius.circular(12),
-//                     border: Border.all(color: Colors.grey[300]!),
-//                   ),
-//                   child: DropdownButtonFormField<String>(
-//                     value: _getSelectedPlayer(index),
-//                     decoration: InputDecoration(
-//                       prefixIcon: Icon(Icons.person, color: Colors.grey[500]),
-//                       border: InputBorder.none,
-//                       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-//                       hintText: 'Choose a player...',
-//                     ),
-//                     items: match['players'].map<DropdownMenuItem<String>>((player) {
-//                       return DropdownMenuItem<String>(
-//                         value: player,
-//                         child: Row(
-//                           children: [
-//                             CircleAvatar(
-//                               radius: 12,
-//                               backgroundColor: _getSportColor(match['sport']).withOpacity(0.1),
-//                               child: Text(
-//                                 player[0].toUpperCase(),
-//                                 style: TextStyle(
-//                                   fontSize: 10,
-//                                   fontWeight: FontWeight.bold,
-//                                   color: _getSportColor(match['sport']),
-//                                 ),
-//                               ),
-//                             ),
-//                             const SizedBox(width: 8),
-//                             Text(player),
-//                           ],
-//                         ),
-//                       );
-//                     }).toList(),
-//                     onChanged: (String? newValue) {
-//                       setState(() {
-//                         _setSelectedPlayer(index, newValue);
-//                       });
-//                     },
-//                   ),
-//                 ),
-
-//                 // TextFormField(
-//                 //   decoration: InputDecoration(
-//                 //     border: OutlineInputBorder(
-
-//                 //     ),
-//                 //     labelText: 'Add Player'
-//                 //   ),
-//                 // ),
-
-//                 const SizedBox(height: 20),
-
-//                 // Action Buttons
-//                 Row(
-//                   children: [
-//                     Expanded(
-//                       child: OutlinedButton.icon(
-//                         onPressed: () => _openMatchLink(match['link']),
-//                         icon: const Icon(Icons.link, size: 16),
-//                         label: const Text('Copy'),
-//                         style: OutlinedButton.styleFrom(
-//                           padding: const EdgeInsets.symmetric(vertical: 12),
-//                           side: BorderSide(color: _getSportColor(match['sport'])),
-//                           foregroundColor: _getSportColor(match['sport']),
-//                           shape: RoundedRectangleBorder(
-//                             borderRadius: BorderRadius.circular(10),
-//                           ),
-//                         ),
-//                       ),
-//                     ),
-//                     const SizedBox(width: 12),
-//                     Expanded(
-//                       child: ElevatedButton.icon(
-//                         onPressed: _getSelectedPlayer(index) != null 
-//                             ? () => _joinMatch(match, _getSelectedPlayer(index)!)
-//                             : null,
-//                         icon: const Icon(Icons.sports, size: 16),
-//                         label: const Text('Join Match'),
-//                         style: ElevatedButton.styleFrom(
-//                           padding: const EdgeInsets.symmetric(vertical: 12),
-//                           backgroundColor: _getSportColor(match['sport']),
-//                           foregroundColor: Colors.white,
-//                           shape: RoundedRectangleBorder(
-//                             borderRadius: BorderRadius.circular(10),
-//                           ),
-//                         ),
-//                       ),
-//                     ),
-//                   ],
-//                 ),
-//               ],
-//             ),
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-
-//   Widget _buildInfoRow(IconData icon, String label, String value) {
-//     return Row(
-//       crossAxisAlignment: CrossAxisAlignment.start,
-//       children: [
-//         Icon(icon, size: 16, color: Colors.grey[500]),
-//         const SizedBox(width: 8),
-//         Expanded(
-//           child: Column(
-//             crossAxisAlignment: CrossAxisAlignment.start,
-//             children: [
-//               Text(
-//                 label,
-//                 style: TextStyle(
-//                   fontSize: 12,
-//                   color: Colors.grey[500],
-//                   fontWeight: FontWeight.w500,
-//                 ),
-//               ),
-//               Text(
-//                 value,
-//                 style: const TextStyle(
-//                   fontSize: 14,
-//                   color: Colors.black87,
-//                   fontWeight: FontWeight.w600,
-//                 ),
-//               ),
-//             ],
-//           ),
-//         ),
-//       ],
-//     );
-//   }
-
-//   Color _getSportColor(String sport) {
-//     switch (sport.toLowerCase()) {
-//       case 'football':
-//         return const Color(0xFF4CAF50);
-//       case 'cricket':
-//         return const Color(0xFF2196F3);
-//       case 'basketball':
-//         return const Color(0xFFFF9800);
-//       case 'tennis':
-//         return const Color(0xFF9C27B0);
-//       case 'volleyball':
-//         return const Color(0xFFE91E63);
-//       default:
-//         return const Color(0xFF00BF8F);
-//     }
-//   }
-
-//   IconData _getSportIcon(String sport) {
-//     switch (sport.toLowerCase()) {
-//       case 'football':
-//         return Icons.sports_soccer;
-//       case 'cricket':
-//         return Icons.sports_cricket;
-//       case 'basketball':
-//         return Icons.sports_basketball;
-//       case 'tennis':
-//         return Icons.sports_tennis;
-//       case 'volleyball':
-//         return Icons.sports_volleyball;
-//       default:
-//         return Icons.sports;
-//     }
-//   }
-
-//   String? _getSelectedPlayer(int matchIndex) {
-//     switch (matchIndex) {
-//       case 0:
-//         return selectedPlayerForMatch1;
-//       case 1:
-//         return selectedPlayerForMatch2;
-//       case 2:
-//         return selectedPlayerForMatch3;
-//       default:
-//         return null;
-//     }
-//   }
-
-//   void _setSelectedPlayer(int matchIndex, String? player) {
-//     switch (matchIndex) {
-//       case 0:
-//         selectedPlayerForMatch1 = player;
-//         break;
-//       case 1:
-//         selectedPlayerForMatch2 = player;
-//         break;
-//       case 2:
-//         selectedPlayerForMatch3 = player;
-//         break;
-//     }
-//   }
-
-//   void _openMatchLink(String link) {
-//     // Simulate opening a web link
-//     ScaffoldMessenger.of(context).showSnackBar(
-//       SnackBar(
-//         content: Row(
-//           children: [
-//             const Icon(Icons.link, color: Colors.white, size: 20),
-//             const SizedBox(width: 8),
-//             Expanded(child: Text('Opening: $link')),
-//           ],
-//         ),
-//         backgroundColor: const Color(0xFF2196F3),
-//         behavior: SnackBarBehavior.floating,
-//         shape: RoundedRectangleBorder(
-//           borderRadius: BorderRadius.circular(10),
-//         ),
-//       ),
-//     );
-//   }
-
-//   void _joinMatch(Map<String, dynamic> match, String playerName) {
-//     showDialog(
-//       context: context,
-//       builder: (BuildContext context) {
-//         return AlertDialog(
-//           shape: RoundedRectangleBorder(
-//             borderRadius: BorderRadius.circular(16),
-//           ),
-//           title: Row(
-//             children: [
-//               Icon(
-//                 Icons.check_circle,
-//                 color: _getSportColor(match['sport']),
-//                 size: 28,
-//               ),
-//               const SizedBox(width: 10),
-//               const Text('Match Joined!'),
-//             ],
-//           ),
-//           content: Text(
-//             'Player "$playerName" has successfully joined "${match['name']}".\n\nYou will receive match updates and notifications.',
-//           ),
-//           actions: [
-//             TextButton(
-//               onPressed: () => Navigator.of(context).pop(),
-//               child: Text(
-//                 'Great!',
-//                 style: TextStyle(
-//                   color: _getSportColor(match['sport']),
-//                   fontWeight: FontWeight.bold,
-//                 ),
-//               ),
-//             ),
-//           ],
-//         );
-//       },
-//     );
-//   }
-
-//   void _createNewTeam() {
-//     Navigator.push(
-//       context,
-//       MaterialPageRoute(
-//         builder: (context) => const CreateNewTeam(),
-//       ),
-//     );
-//   }
-// }
-
-
-
-
-
-
-
-
-
-
-
-
-
-// ignore_for_file: deprecated_member_use
-
-import 'package:booking_application/views/team/create_new_team.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class CreateTeam extends StatefulWidget {
-  const CreateTeam({super.key});
+  final String userId;
+  
+  const CreateTeam({super.key, required this.userId});
 
   @override
   State<CreateTeam> createState() => _CreateTeamState();
 }
 
-class _CreateTeamState extends State<CreateTeam> {
-  String? selectedPlayerForMatch1;
-  String? selectedPlayerForMatch2;
-  String? selectedPlayerForMatch3;
-
-  // Controllers for add player text fields
-  final TextEditingController _addPlayerController1 = TextEditingController();
-  final TextEditingController _addPlayerController2 = TextEditingController();
-  final TextEditingController _addPlayerController3 = TextEditingController();
-
-  // Sample match data
-  final List<Map<String, dynamic>> matches = [
-    {
-      'id': 1,
-      'name': 'Championship Final',
-      'sport': 'Football',
-      'date': '2024-09-15',
-      'time': '6:00 PM',
-      'location': 'City Stadium',
-      'type': 'Tournament',
-      'maxParticipants': 22,
-      'description': 'Annual championship final match between top teams.',
-      'link': 'https://example.com/match/1',
-      'players': ['Alex Rodriguez', 'Sarah Johnson', 'Michael Chen', 'Emma Wilson', 'David Martinez']
-    },
-    {
-      'id': 2,
-      'name': 'Cricket League Match',
-      'sport': 'Cricket',
-      'date': '2024-09-20',
-      'time': '2:00 PM',
-      'location': 'Sports Complex',
-      'type': 'League',
-      'maxParticipants': 22,
-      'description': 'Regular season league match for points.',
-      'link': 'https://example.com/match/2',
-      'players': ['Lisa Thompson', 'Chris Anderson', 'Maya Patel', 'James Brown', 'Sofia Garcia']
-    },
-    {
-      'id': 3,
-      'name': 'Basketball Friendly',
-      'sport': 'Basketball',
-      'date': '2024-09-25',
-      'time': '7:00 PM',
-      'location': 'Indoor Court',
-      'type': 'Friendly Match',
-      'maxParticipants': 10,
-      'description': 'Casual basketball game for practice and fun.',
-      'link': 'https://example.com/match/3',
-      'players': ['Alex Rodriguez', 'Michael Chen', 'David Martinez', 'Chris Anderson', 'James Brown']
-    },
+class _CreateTeamState extends State<CreateTeam> with TickerProviderStateMixin {
+  final _formKey = GlobalKey<FormState>();
+  final TextEditingController _teamNameController = TextEditingController();
+  late AnimationController _animationController;
+  late Animation<double> _fadeAnimation;
+  
+  // Dropdown values
+  String? selectedCategoryId;
+  String? selectedTournamentId;
+  
+  // Lists for dropdowns
+  List<Map<String, dynamic>> categories = [];
+  List<Map<String, dynamic>> tournaments = [];
+  
+  // Players list
+  List<Map<String, String>> players = [
+    {'name': '', 'role': '', 'subRole': '', 'designation': ''}
   ];
-
+  
+  // Loading states
+  bool isLoadingCategories = false;
+  bool isLoadingTournaments = false;
+  bool isCreatingTeam = false;
+  
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 800),
+      vsync: this,
+    );
+    _fadeAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeInOut,
+    ));
+    
+    _animationController.forward();
+    _loadCategories();
+    _loadTournaments();
+  }
+  
   @override
   void dispose() {
-    _addPlayerController1.dispose();
-    _addPlayerController2.dispose();
-    _addPlayerController3.dispose();
+    _teamNameController.dispose();
+    _animationController.dispose();
     super.dispose();
   }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.grey[50],
-      appBar: AppBar(
-        elevation: 0,
-        backgroundColor: Colors.white,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: Colors.black),
-          onPressed: () => Navigator.pop(context),
+  
+  Future<void> _loadCategories() async {
+    setState(() {
+      isLoadingCategories = true;
+    });
+    
+    try {
+      final response = await http.get(
+        Uri.parse('http://31.97.206.144:3081/category/categories'),
+      );
+      
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data['success']) {
+          setState(() {
+            categories = List<Map<String, dynamic>>.from(data['categories']);
+          });
+        }
+      } else {
+        _showErrorSnackBar('Failed to load categories');
+      }
+    } catch (e) {
+      _showErrorSnackBar('Error loading categories: $e');
+    } finally {
+      setState(() {
+        isLoadingCategories = false;
+      });
+    }
+  }
+  
+  Future<void> _loadTournaments() async {
+    setState(() {
+      isLoadingTournaments = true;
+    });
+    
+    try {
+      final response = await http.get(
+        Uri.parse('http://31.97.206.144:3081/turnament/gettournaments'),
+      );
+      
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data['success']) {
+          setState(() {
+            tournaments = List<Map<String, dynamic>>.from(data['tournaments']);
+          });
+        }
+      } else {
+        _showErrorSnackBar('Failed to load tournaments');
+      }
+    } catch (e) {
+      _showErrorSnackBar('Error loading tournaments: $e');
+    } finally {
+      setState(() {
+        isLoadingTournaments = false;
+      });
+    }
+  }
+  
+  void _addPlayer() {
+    setState(() {
+      players.add({'name': '', 'role': '', 'subRole': '', 'designation': ''});
+    });
+  }
+  
+  void _removePlayer(int index) {
+    if (players.length > 1) {
+      setState(() {
+        players.removeAt(index);
+      });
+    }
+  }
+  
+  Future<void> _createTeam() async {
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
+    
+    // Validate players
+    for (int i = 0; i < players.length; i++) {
+      if (players[i]['name']!.trim().isEmpty || 
+          players[i]['role']!.trim().isEmpty ||
+          players[i]['subRole']!.trim().isEmpty ||
+          players[i]['designation']!.trim().isEmpty) {
+        _showErrorSnackBar('Please fill all player details');
+        return;
+      }
+    }
+    
+    if (selectedCategoryId == null || selectedTournamentId == null) {
+      _showErrorSnackBar('Please select category and tournament');
+      return;
+    }
+    
+    setState(() {
+      isCreatingTeam = true;
+    });
+    
+    try {
+      final payload = {
+        "teamName": _teamNameController.text.trim(),
+        "categoryId": selectedCategoryId,
+        "tournamentId": selectedTournamentId,
+        "players": players.map((player) => {
+          "name": player['name']!.trim(),
+          "role": player['role']!.trim(),
+          "subRole": player['subRole']!.trim(),
+          "designation": player['designation']!.trim()
+        }).toList(),
+      };
+      
+      final response = await http.post(
+        Uri.parse('http://31.97.206.144:3081/users/createteams/${widget.userId}'),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: json.encode(payload),
+      );
+      
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        _showSuccessSnackBar('Team created successfully!');
+        Navigator.pop(context, true);
+      } else {
+        final errorData = json.decode(response.body);
+        _showErrorSnackBar(errorData['message'] ?? 'Failed to create team');
+      }
+    } catch (e) {
+      _showErrorSnackBar('Error creating team: $e');
+    } finally {
+      setState(() {
+        isCreatingTeam = false;
+      });
+    }
+  }
+  
+  void _showErrorSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            const Icon(Icons.error_outline, color: Colors.white),
+            const SizedBox(width: 8),
+            Expanded(child: Text(message)),
+          ],
         ),
-        title: const Text(
-          'Available Matches',
-          style: TextStyle(
-            color: Colors.black,
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        centerTitle: true,
+        backgroundColor: const Color(0xFFE53E3E),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        margin: const EdgeInsets.all(16),
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.all(20),
-              itemCount: matches.length,
-              itemBuilder: (context, index) {
-                final match = matches[index];
-                return _buildMatchCard(match, index);
-              },
-            ),
-          ),
-
-          // Create New Team Button
-          Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
-                  blurRadius: 10,
-                  offset: const Offset(0, -2),
-                ),
-              ],
-            ),
-            child: SizedBox(
-              width: double.infinity,
-              height: 55,
-              child: ElevatedButton(
-                onPressed: _createNewTeam,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF00BF8F),
-                  elevation: 2,
-                  shadowColor: const Color(0xFF00BF8F).withOpacity(0.3),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                child:const Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                     Icon(
-                      Icons.add_circle_outline,
-                      color: Colors.white,
-                      size: 20,
-                    ),
-                     SizedBox(width: 8),
-                     Text(
-                      'Create New Team',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ],
+    );
+  }
+  
+  void _showSuccessSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            const Icon(Icons.check_circle_outline, color: Colors.white),
+            const SizedBox(width: 8),
+            Expanded(child: Text(message)),
+          ],
+        ),
+        backgroundColor: const Color(0xFF38A169),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        margin: const EdgeInsets.all(16),
       ),
     );
   }
 
-  Widget _buildMatchCard(Map<String, dynamic> match, int index) {
+  Widget _buildSectionCard({
+    required String title,
+    required IconData icon,
+    required Widget child,
+    Color? iconColor,
+  }) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 16),
+      margin: const EdgeInsets.only(bottom: 24),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.08),
-            blurRadius: 15,
+            color: Colors.black.withOpacity(0.06),
+            blurRadius: 12,
             offset: const Offset(0, 4),
           ),
         ],
@@ -742,16 +254,14 @@ class _CreateTeamState extends State<CreateTeam> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Match Header
           Container(
+            width: double.infinity,
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
               gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
                 colors: [
-                  _getSportColor(match['sport']),
-                  _getSportColor(match['sport']).withOpacity(0.8),
+                  (iconColor ?? const Color(0xFF4F46E5)).withOpacity(0.1),
+                  (iconColor ?? const Color(0xFF4F46E5)).withOpacity(0.05),
                 ],
               ),
               borderRadius: const BorderRadius.only(
@@ -764,489 +274,554 @@ class _CreateTeamState extends State<CreateTeam> {
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(10),
+                    color: iconColor ?? const Color(0xFF4F46E5),
+                    borderRadius: BorderRadius.circular(8),
                   ),
                   child: Icon(
-                    _getSportIcon(match['sport']),
+                    icon,
                     color: Colors.white,
                     size: 20,
                   ),
                 ),
                 const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        match['name'],
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
-                      Text(
-                        '${match['sport']} • ${match['type']}',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.white.withOpacity(0.9),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Text(
-                    '${match['maxParticipants']} max',
-                    style: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                    ),
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF1F2937),
                   ),
                 ),
               ],
             ),
           ),
-
-          // Match Details
           Padding(
             padding: const EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Date, Time, Location
-                Row(
-                  children: [
-                    Expanded(
-                      child: _buildInfoRow(Icons.calendar_today, 'Date', match['date']),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: _buildInfoRow(Icons.access_time, 'Time', match['time']),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                _buildInfoRow(Icons.location_on, 'Location', match['location']),
-                
-                const SizedBox(height: 16),
-                
-                // Description
-                Text(
-                  'Description',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.grey[700],
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  match['description'],
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey[600],
-                    height: 1.4,
-                  ),
-                ),
-
-                const SizedBox(height: 20),
-
-                // Add New Player Section
-                Text(
-                  'Add New Player',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.grey[700],
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    Expanded(
-                      child: Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: Colors.grey[300]!),
-                        ),
-                        child: TextFormField(
-                          controller: _getAddPlayerController(index),
-                          decoration: InputDecoration(
-                            border: InputBorder.none,
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                            hintText: 'Enter player name...',
-                            hintStyle: TextStyle(color: Colors.grey[500]),
-                            prefixIcon: Icon(Icons.person_add, color: Colors.grey[500]),
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Container(
-                      decoration: BoxDecoration(
-                        color: _getSportColor(match['sport']),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: IconButton(
-                        onPressed: () => _addPlayer(index),
-                        icon: const Icon(Icons.add, color: Colors.white),
-                        tooltip: 'Add Player',
-                      ),
-                    ),
-                  ],
-                ),
-
-                const SizedBox(height: 20),
-
-                // Player Dropdown
-                Text(
-                  'Select Player for this Match',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.grey[700],
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.grey[300]!),
-                  ),
-                  child: DropdownButtonFormField<String>(
-                    value: _getSelectedPlayer(index),
-                    decoration: InputDecoration(
-                      prefixIcon: Icon(Icons.person, color: Colors.grey[500]),
-                      border: InputBorder.none,
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                      hintText: 'Choose a player...',
-                    ),
-                    items: match['players'].map<DropdownMenuItem<String>>((player) {
-                      return DropdownMenuItem<String>(
-                        value: player,
-                        child: Row(
-                          children: [
-                            CircleAvatar(
-                              radius: 12,
-                              backgroundColor: _getSportColor(match['sport']).withOpacity(0.1),
-                              child: Text(
-                                player[0].toUpperCase(),
-                                style: TextStyle(
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.bold,
-                                  color: _getSportColor(match['sport']),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            Text(player),
-                          ],
-                        ),
-                      );
-                    }).toList(),
-                    onChanged: (String? newValue) {
-                      setState(() {
-                        _setSelectedPlayer(index, newValue);
-                      });
-                    },
-                  ),
-                ),
-
-                const SizedBox(height: 20),
-
-                // Action Buttons
-                Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedButton.icon(
-                        onPressed: () => _openMatchLink(match['link']),
-                        icon: const Icon(Icons.link, size: 16),
-                        label: const Text('Copy'),
-                        style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          side: BorderSide(color: _getSportColor(match['sport'])),
-                          foregroundColor: _getSportColor(match['sport']),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: ElevatedButton.icon(
-                        onPressed: _getSelectedPlayer(index) != null 
-                            ? () => _joinMatch(match, _getSelectedPlayer(index)!)
-                            : null,
-                        icon: const Icon(Icons.sports, size: 16),
-                        label: const Text('Join Match'),
-                        style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          backgroundColor: _getSportColor(match['sport']),
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
+            child: child,
           ),
         ],
       ),
     );
   }
 
-  Widget _buildInfoRow(IconData icon, String label, String value) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Icon(icon, size: 16, color: Colors.grey[500]),
-        const SizedBox(width: 8),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                label,
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey[500],
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              Text(
-                value,
-                style: const TextStyle(
-                  fontSize: 14,
-                  color: Colors.black87,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ],
-          ),
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String label,
+    required IconData icon,
+    String? Function(String?)? validator,
+    TextInputType? keyboardType,
+  }) {
+    return TextFormField(
+      controller: controller,
+      keyboardType: keyboardType,
+      style: const TextStyle(
+        fontSize: 16,
+        color: Color(0xFF1F2937),
+      ),
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: TextStyle(
+          color: Colors.grey[600],
+          fontSize: 14,
         ),
+        prefixIcon: Icon(
+          icon,
+          color: const Color(0xFF6B7280),
+          size: 20,
+        ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.grey[300]!),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.grey[300]!),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Color(0xFF4F46E5), width: 2),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Color(0xFFE53E3E)),
+        ),
+        filled: true,
+        fillColor: const Color(0xFFF9FAFB),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      ),
+      validator: validator,
+    );
+  }
+
+  Widget _buildDropdown<T>({
+    required String label,
+    required IconData icon,
+    required T? value,
+    required List<DropdownMenuItem<T>> items,
+    required void Function(T?) onChanged,
+    required String? Function(T?) validator,
+    bool isLoading = false,
+  }) {
+    return Column(
+      children: [
+        DropdownButtonFormField<T>(
+          value: value,
+          style: const TextStyle(
+            fontSize: 16,
+            color: Color(0xFF1F2937),
+          ),
+          decoration: InputDecoration(
+            labelText: label,
+            labelStyle: TextStyle(
+              color: Colors.grey[600],
+              fontSize: 14,
+            ),
+            prefixIcon: Icon(
+              icon,
+              color: const Color(0xFF6B7280),
+              size: 20,
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: Colors.grey[300]!),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: Colors.grey[300]!),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: Color(0xFF4F46E5), width: 2),
+            ),
+            filled: true,
+            fillColor: const Color(0xFFF9FAFB),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+          ),
+          items: isLoading ? [] : items,
+          onChanged: isLoading ? null : onChanged,
+          validator: validator,
+          dropdownColor: Colors.white,
+          icon: const Icon(Icons.keyboard_arrow_down, color: Color(0xFF6B7280)),
+          isExpanded: true,
+          menuMaxHeight: 300,
+        ),
+        if (isLoading)
+          Padding(
+            padding: const EdgeInsets.only(top: 12),
+            child: Row(
+              children: [
+                const SizedBox(
+                  width: 16,
+                  height: 16,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF4F46E5)),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  'Loading...',
+                  style: TextStyle(
+                    color: Colors.grey[600],
+                    fontSize: 12,
+                  ),
+                ),
+              ],
+            ),
+          ),
       ],
     );
   }
 
-  TextEditingController _getAddPlayerController(int matchIndex) {
-    switch (matchIndex) {
-      case 0:
-        return _addPlayerController1;
-      case 1:
-        return _addPlayerController2;
-      case 2:
-        return _addPlayerController3;
-      default:
-        return TextEditingController();
-    }
-  }
-
-  void _addPlayer(int matchIndex) {
-    final controller = _getAddPlayerController(matchIndex);
-    final playerName = controller.text.trim();
-    
-    if (playerName.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Row(
-            children: [
-              Icon(Icons.warning, color: Colors.white, size: 20),
-              SizedBox(width: 8),
-              Text('Please enter a player name'),
-            ],
-          ),
-          backgroundColor: Colors.orange,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-        ),
-      );
-      return;
-    }
-
-    // Check if player already exists
-    if (matches[matchIndex]['players'].contains(playerName)) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Row(
-            children: [
-              Icon(Icons.info, color: Colors.white, size: 20),
-              SizedBox(width: 8),
-              Text('Player already exists in this match'),
-            ],
-          ),
-          backgroundColor: Colors.blue,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-        ),
-      );
-      return;
-    }
-
-    setState(() {
-      matches[matchIndex]['players'].add(playerName);
-      controller.clear();
-    });
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Row(
-          children: [
-            const Icon(Icons.check_circle, color: Colors.white, size: 20),
-            const SizedBox(width: 8),
-            Text('Player "$playerName" added successfully!'),
-          ],
-        ),
-        backgroundColor: const Color(0xFF4CAF50),
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
+  Widget _buildPlayerCard(int index) {
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 300),
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF8FAFC),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
       ),
-    );
-  }
-
-  Color _getSportColor(String sport) {
-    switch (sport.toLowerCase()) {
-      case 'football':
-        return const Color(0xFF4CAF50);
-      case 'cricket':
-        return const Color(0xFF2196F3);
-      case 'basketball':
-        return const Color(0xFFFF9800);
-      case 'tennis':
-        return const Color(0xFF9C27B0);
-      case 'volleyball':
-        return const Color(0xFFE91E63);
-      default:
-        return const Color(0xFF00BF8F);
-    }
-  }
-
-  IconData _getSportIcon(String sport) {
-    switch (sport.toLowerCase()) {
-      case 'football':
-        return Icons.sports_soccer;
-      case 'cricket':
-        return Icons.sports_cricket;
-      case 'basketball':
-        return Icons.sports_basketball;
-      case 'tennis':
-        return Icons.sports_tennis;
-      case 'volleyball':
-        return Icons.sports_volleyball;
-      default:
-        return Icons.sports;
-    }
-  }
-
-  String? _getSelectedPlayer(int matchIndex) {
-    switch (matchIndex) {
-      case 0:
-        return selectedPlayerForMatch1;
-      case 1:
-        return selectedPlayerForMatch2;
-      case 2:
-        return selectedPlayerForMatch3;
-      default:
-        return null;
-    }
-  }
-
-  void _setSelectedPlayer(int matchIndex, String? player) {
-    switch (matchIndex) {
-      case 0:
-        selectedPlayerForMatch1 = player;
-        break;
-      case 1:
-        selectedPlayerForMatch2 = player;
-        break;
-      case 2:
-        selectedPlayerForMatch3 = player;
-        break;
-    }
-  }
-
-  void _openMatchLink(String link) {
-    // Simulate opening a web link
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Row(
-          children: [
-            const Icon(Icons.link, color: Colors.white, size: 20),
-            const SizedBox(width: 8),
-            Expanded(child: Text('Opening: $link')),
-          ],
-        ),
-        backgroundColor: const Color(0xFF2196F3),
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
-      ),
-    );
-  }
-
-  void _joinMatch(Map<String, dynamic> match, String playerName) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          title: Row(
+      child: Column(
+        children: [
+          Row(
             children: [
-              Icon(
-                Icons.check_circle,
-                color: _getSportColor(match['sport']),
-                size: 28,
-              ),
-              const SizedBox(width: 10),
-              const Text('Match Joined!'),
-            ],
-          ),
-          content: Text(
-            'Player "$playerName" has successfully joined "${match['name']}".\n\nYou will receive match updates and notifications.',
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: Text(
-                'Great!',
-                style: TextStyle(
-                  color: _getSportColor(match['sport']),
-                  fontWeight: FontWeight.bold,
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF4F46E5),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  'Player ${index + 1}',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 12,
+                  ),
                 ),
               ),
-            ),
-          ],
-        );
-      },
+              const Spacer(),
+              if (players.length > 1)
+                IconButton(
+                  onPressed: () => _removePlayer(index),
+                  icon: const Icon(
+                    Icons.remove_circle_outline,
+                    color: Color(0xFFE53E3E),
+                    size: 20,
+                  ),
+                  tooltip: 'Remove Player',
+                ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: TextFormField(
+                  initialValue: players[index]['name'],
+                  style: const TextStyle(fontSize: 14),
+                  decoration: InputDecoration(
+                    labelText: 'Name',
+                    labelStyle: const TextStyle(fontSize: 12),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(color: Colors.grey[300]!),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(color: Colors.grey[300]!),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: const BorderSide(color: Color(0xFF4F46E5)),
+                    ),
+                    filled: true,
+                    fillColor: Colors.white,
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 12,
+                    ),
+                  ),
+                  onChanged: (value) {
+                    players[index]['name'] = value;
+                  },
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: TextFormField(
+                  initialValue: players[index]['role'],
+                  style: const TextStyle(fontSize: 14),
+                  decoration: InputDecoration(
+                    labelText: 'Role',
+                    labelStyle: const TextStyle(fontSize: 12),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(color: Colors.grey[300]!),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(color: Colors.grey[300]!),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: const BorderSide(color: Color(0xFF4F46E5)),
+                    ),
+                    filled: true,
+                    fillColor: Colors.white,
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 12,
+                    ),
+                  ),
+                  onChanged: (value) {
+                    players[index]['role'] = value;
+                  },
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: TextFormField(
+                  initialValue: players[index]['subRole'],
+                  style: const TextStyle(fontSize: 14),
+                  decoration: InputDecoration(
+                    labelText: 'Sub Role',
+                    labelStyle: const TextStyle(fontSize: 12),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(color: Colors.grey[300]!),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(color: Colors.grey[300]!),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: const BorderSide(color: Color(0xFF4F46E5)),
+                    ),
+                    filled: true,
+                    fillColor: Colors.white,
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 12,
+                    ),
+                  ),
+                  onChanged: (value) {
+                    players[index]['subRole'] = value;
+                  },
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: TextFormField(
+                  initialValue: players[index]['designation'],
+                  style: const TextStyle(fontSize: 14),
+                  decoration: InputDecoration(
+                    labelText: 'Designation',
+                    labelStyle: const TextStyle(fontSize: 12),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(color: Colors.grey[300]!),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(color: Colors.grey[300]!),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: const BorderSide(color: Color(0xFF4F46E5)),
+                    ),
+                    filled: true,
+                    fillColor: Colors.white,
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 12,
+                    ),
+                  ),
+                  onChanged: (value) {
+                    players[index]['designation'] = value;
+                  },
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
+  
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFFF1F5F9),
+      appBar: AppBar(
+        title: const Text(
+          'Create Team',
+          style: TextStyle(
+            fontWeight: FontWeight.w600,
+            fontSize: 20,
+          ),
+        ),
+        backgroundColor: Colors.white,
+        foregroundColor: const Color(0xFF1F2937),
+        elevation: 0,
+        centerTitle: true,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios),
+          onPressed: () => Navigator.pop(context),
+        ),
+      ),
+      body: FadeTransition(
+        opacity: _fadeAnimation,
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(20),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              children: [
+                // Team Information Section
+                _buildSectionCard(
+                  title: 'Team Information',
+                  icon: Icons.groups,
+                  child: _buildTextField(
+                    controller: _teamNameController,
+                    label: 'Team Name',
+                    icon: Icons.group,
+                    validator: (value) {
+                      if (value == null || value.trim().isEmpty) {
+                        return 'Please enter team name';
+                      }
+                      return null;
+                    },
+                  ),
+                ),
 
-  void _createNewTeam() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const CreateNewTeam(),
+                // Category & Tournament Section
+                _buildSectionCard(
+                  title: 'Category & Tournament',
+                  icon: Icons.emoji_events,
+                  iconColor: const Color(0xFF059669),
+                  child: Column(
+                    children: [
+                      _buildDropdown<String>(
+                        label: 'Select Category',
+                        icon: Icons.category,
+                        value: selectedCategoryId,
+                        items: categories.map((category) {
+                          return DropdownMenuItem<String>(
+                            value: category['_id'],
+                            child: Container(
+                              width: double.infinity,
+                              child: Text(
+                                category['name'],
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                        onChanged: (String? value) {
+                          setState(() {
+                            selectedCategoryId = value;
+                          });
+                        },
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please select a category';
+                          }
+                          return null;
+                        },
+                        isLoading: isLoadingCategories,
+                      ),
+                      const SizedBox(height: 20),
+                      _buildDropdown<String>(
+                        label: 'Select Tournament',
+                        icon: Icons.emoji_events,
+                        value: selectedTournamentId,
+                        items: tournaments.map((tournament) {
+                          return DropdownMenuItem<String>(
+                            value: tournament['_id'],
+                            child: Container(
+                              width: double.infinity,
+                              child: Text(
+                                tournament['name'],
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                        onChanged: (String? value) {
+                          setState(() {
+                            selectedTournamentId = value;
+                          });
+                        },
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please select a tournament';
+                          }
+                          return null;
+                        },
+                        isLoading: isLoadingTournaments,
+                      ),
+                    ],
+                  ),
+                ),
+
+                // Players Section
+                _buildSectionCard(
+                  title: 'Team Players (${players.length})',
+                  icon: Icons.sports,
+                  iconColor: const Color(0xFFDC2626),
+                  child: Column(
+                    children: [
+                      ListView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: players.length,
+                        itemBuilder: (context, index) => _buildPlayerCard(index),
+                      ),
+                      const SizedBox(height: 16),
+                      SizedBox(
+                        width: double.infinity,
+                        child: OutlinedButton.icon(
+                          onPressed: _addPlayer,
+                          icon: const Icon(Icons.add, size: 18),
+                          label: const Text('Add Another Player'),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: const Color(0xFF059669),
+                            side: const BorderSide(color: Color(0xFF059669)),
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 32),
+
+                // Create Team Button
+                SizedBox(
+                  width: double.infinity,
+                  height: 56,
+                  child: ElevatedButton(
+                    onPressed: isCreatingTeam ? null : _createTeam,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF4F46E5),
+                      foregroundColor: Colors.white,
+                      disabledBackgroundColor: Colors.grey[400],
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      elevation: 0,
+                    ),
+                    child: isCreatingTeam
+                        ? const Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  color: Colors.white,
+                                  strokeWidth: 2,
+                                ),
+                              ),
+                              SizedBox(width: 12),
+                              Text(
+                                'Creating Team...',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          )
+                        : const Text(
+                            'Create Team',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                  ),
+                ),
+
+                const SizedBox(height: 20),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }

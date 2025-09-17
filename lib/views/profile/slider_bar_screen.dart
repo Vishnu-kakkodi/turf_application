@@ -1,9 +1,12 @@
+import 'package:booking_application/helper/storage_helper.dart';
+import 'package:booking_application/provider/user_profile_provider.dart';
 import 'package:booking_application/referearn/refer_earn.dart';
 import 'package:booking_application/views/team/match_history.dart';
 import 'package:booking_application/views/team/create_team.dart';
 import 'package:booking_application/views/team/player_leader_board.dart';
 import 'package:booking_application/views/team/player_stats.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class SliderBarScreen extends StatefulWidget {
   const SliderBarScreen({super.key});
@@ -13,6 +16,23 @@ class SliderBarScreen extends StatefulWidget {
 }
 
 class _SliderBarScreenState extends State<SliderBarScreen> {
+
+  String? userId;
+
+    @override
+  void initState() {
+    super.initState();
+loadUserId();
+  }
+
+
+  void loadUserId() async{
+          final currentUser = await UserPreferences.getUser();
+          setState(() {
+            userId = currentUser?.id.toString();
+          });
+
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -99,7 +119,7 @@ class _SliderBarScreenState extends State<SliderBarScreen> {
                         Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => const CreateMatch()));
+                                builder: (context) => const MatchesScreen()));
                       },
                       child: _buildMenuItem(
                         icon: Icons.sports_cricket,
@@ -114,7 +134,7 @@ class _SliderBarScreenState extends State<SliderBarScreen> {
                         Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => const CreateTeam()));
+                                builder: (context) =>  CreateTeam(userId: userId.toString(),)));
                       },
                       child: _buildMenuItem(
                         icon: Icons.group,

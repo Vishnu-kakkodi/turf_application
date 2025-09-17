@@ -1,2031 +1,767 @@
+
+import 'package:booking_application/views/team/match_history.dart';
 import 'package:flutter/material.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 class CreateMatchForm extends StatefulWidget {
-  const CreateMatchForm({super.key});
+  final String userId;
+  
+  const CreateMatchForm({super.key, required this.userId});
 
   @override
-  State<CreateMatchForm> createState() => _CreateMatchState();
+  State<CreateMatchForm> createState() => _CreateMatchFormState();
 }
 
-class _CreateMatchState extends State<CreateMatchForm>
-    with TickerProviderStateMixin {
+class _CreateMatchFormState extends State<CreateMatchForm> {
   final _formKey = GlobalKey<FormState>();
+  final _scrollController = ScrollController();
+  
+  // Controllers
   final _matchNameController = TextEditingController();
-  final _locationController = TextEditingController();
-  final _amountController = TextEditingController();
-  final _descriptionController = TextEditingController();
-  final _playerNameController = TextEditingController();
-  final _playertwoNameController = TextEditingController();
-  final _manualPlayerNameController = TextEditingController();
-  final _manualPlayertwoNameController = TextEditingController();
-  final _team1Controller = TextEditingController();
-  final _team2Controller = TextEditingController();
+  final _matchTypeController = TextEditingController();
   final _maxParticipantsController = TextEditingController();
-
-  // Add controllers for manual team name entry
-  final _team1NameController = TextEditingController();
-  final _team2NameController = TextEditingController();
-  final _newPlayerController = TextEditingController();
-  final _searchController = TextEditingController();
-
-  final _team1ActualNameController = TextEditingController();
-  final _team2ActualNameController = TextEditingController();
-
-  late AnimationController _fadeController;
-  late AnimationController _slideController;
-  late Animation<double> _fadeAnimation;
-  late Animation<Offset> _slideAnimation;
-
-  String? selectedSport;
-  String? selectedMatchType;
-  DateTime? selectedDate;
-  TimeOfDay? selectedTime;
-  bool isTeamSelected = false;
-  bool isPlayerSelected = false;
-  bool _isLoading = false;
-
-  final List<String> sports = [
-    'Football',
-    'Basketball',
-    'Cricket',
-    'Tennis',
-    'Volleyball',
-    'Badminton',
-    'Hockey',
-    'Baseball',
-    'Rugby',
-    'Swimming',
-  ];
-
-  final List<String> matchTypes = [
-    'Friendly Match',
-    'Tournament',
-    'League',
-    'Championship',
-    'Practice Session',
-    'Scrimmage',
-  ];
-
-  List<String> teamPlayers = [
-    'Alex Rodriguez',
-    'Sarah Johnson',
-    'Michael Chen',
-    'Emma Wilson',
-    'David Martinez',
-    'Lisa Thompson',
-    'Chris Anderson',
-    'Maya Patel',
-    'James Brown',
-    'Sofia Garcia',
-  ];
-
-  List<String> filteredPlayers = [];
+  final _locationController = TextEditingController();
+  final _priceController = TextEditingController();
+  final _descriptionController = TextEditingController();
+  
+  // Dropdown values
+  String? _selectedCategoryId;
+  String? _selectedTournamentId;
+  String? _selectedTeam1Id;
+  String? _selectedTeam2Id;
+  String? _selectedMatchMode;
+  
+  // Date and Time
+  DateTime? _selectedDate;
+  TimeOfDay? _selectedTime;
+  
+  // Data lists
+  List<dynamic> _categories = [];
+  List<dynamic> _tournaments = [];
+  List<dynamic> _teams = [];
+  
+  // Loading states
+  bool _isLoadingCategories = false;
+  bool _isLoadingTournaments = false;
+  bool _isLoadingTeams = false;
+  bool _isCreatingMatch = false;
+  
+  final List<String> _matchModes = ['Team', 'Individual', 'Mixed'];
+  final List<String> _matchTypes = ['T20', 'ODI', 'Test', 'League', 'Knockout', "Friendly"];
 
   @override
   void initState() {
     super.initState();
-    filteredPlayers = List.from(teamPlayers);
-
-    _fadeController = AnimationController(
-      duration: const Duration(milliseconds: 800),
-      vsync: this,
-    );
-    _slideController = AnimationController(
-      duration: const Duration(milliseconds: 600),
-      vsync: this,
-    );
-
-    _fadeAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _fadeController,
-      curve: Curves.easeInOut,
-    ));
-
-    _slideAnimation = Tween<Offset>(
-      begin: const Offset(0, 0.3),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _slideController,
-      curve: Curves.easeOutCubic,
-    ));
-
-    _fadeController.forward();
-    _slideController.forward();
+    _loadCategories();
+    _loadTournaments();
   }
 
   @override
   void dispose() {
-    _fadeController.dispose();
-    _slideController.dispose();
     _matchNameController.dispose();
-    _locationController.dispose();
-    _amountController.dispose();
-    _descriptionController.dispose();
-    _playerNameController.dispose();
-    _team1Controller.dispose();
-    _team2Controller.dispose();
-    _team1NameController.dispose();
-    _team2NameController.dispose();
+    _matchTypeController.dispose();
     _maxParticipantsController.dispose();
-    _newPlayerController.dispose();
-    _searchController.dispose();
-    _manualPlayerNameController.dispose();
-    _team1ActualNameController.dispose();
-    _team2ActualNameController.dispose();
+    _locationController.dispose();
+    _priceController.dispose();
+    _descriptionController.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
-  Future<void> _selectDate(BuildContext context) async {
+  Future<void> _loadCategories() async {
+    setState(() => _isLoadingCategories = true);
+    try {
+      final response = await http.get(Uri.parse('http://31.97.206.144:3081/category/categories'));
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        setState(() {
+          _categories = data['categories'] ?? [];
+        });
+      }
+    } catch (e) {
+      _showSnackBar('Error loading categories: $e', isError: true);
+    } finally {
+      setState(() => _isLoadingCategories = false);
+    }
+  }
+
+Future<void> _loadTournaments() async {
+  setState(() => _isLoadingTournaments = true);
+  try {
+    final response = await http.get(
+      Uri.parse('http://31.97.206.144:3081/turnament/gettournaments'),
+    );
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+
+      if (data['success'] == true && data['tournaments'] != null) {
+        setState(() {
+          _tournaments = List<Map<String, dynamic>>.from(data['tournaments']);
+        });
+      } else {
+        _showSnackBar('No tournaments found', isError: true);
+      }
+    } else {
+      _showSnackBar('Failed to load tournaments (status: ${response.statusCode})',
+          isError: true);
+    }
+  } catch (e) {
+    _showSnackBar('Error loading tournaments: $e', isError: true);
+  } finally {
+    setState(() => _isLoadingTournaments = false);
+  }
+}
+
+
+  Future<void> _loadTeamsForTournament(String tournamentId) async {
+    setState(() => _isLoadingTeams = true);
+    try {
+      final response = await http.get(
+        Uri.parse('http://31.97.206.144:3081/users/tournamentsteams/$tournamentId')
+      );
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        setState(() {
+          _teams = data['tournament']['teams'] ?? [];
+          _selectedTeam1Id = null;
+          _selectedTeam2Id = null;
+        });
+      }
+    } catch (e) {
+      _showSnackBar('Error loading teams: $e', isError: true);
+    } finally {
+      setState(() => _isLoadingTeams = false);
+    }
+  }
+
+  Future<void> _CreateMatchForm() async {
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
+    
+    if (_selectedDate == null || _selectedTime == null) {
+      _showSnackBar('Please select date and time', isError: true);
+      return;
+    }
+
+    setState(() => _isCreatingMatch = true);
+    
+    try {
+      final matchData = {
+        'matchName': _matchNameController.text.trim(),
+        'categoryId': _selectedCategoryId,
+        'matchType': _matchTypeController.text.trim(),
+        'tournamentId': _selectedTournamentId,
+        'schedule': {
+          'date': '${_selectedDate!.year}-${_selectedDate!.month.toString().padLeft(2, '0')}-${_selectedDate!.day.toString().padLeft(2, '0')}',
+          'time': '${_selectedTime!.hour.toString().padLeft(2, '0')}:${_selectedTime!.minute.toString().padLeft(2, '0')}'
+        },
+        'teams': [_selectedTeam1Id, _selectedTeam2Id],
+        'maxParticipants': int.parse(_maxParticipantsController.text),
+        'location': _locationController.text.trim(),
+        'price': double.parse(_priceController.text),
+        'description': _descriptionController.text.trim(),
+        'matchMode': _selectedMatchMode,
+      };
+
+      final response = await http.post(
+        Uri.parse('http://31.97.206.144:3081/users/creatematch/${widget.userId}'),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode(matchData),
+      );
+
+      print("Response Body: ${response.body}");
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        _showSnackBar('Match created successfully!');
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>MatchesScreen()));
+      } else {
+        _showSnackBar('Failed to create match', isError: true);
+      }
+    } catch (e) {
+      _showSnackBar('Error creating match: $e', isError: true);
+    } finally {
+      setState(() => _isCreatingMatch = false);
+    }
+  }
+
+  void _showSnackBar(String message, {bool isError = false}) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: isError ? Colors.red : Colors.green,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
+  Future<void> _selectDate() async {
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: DateTime.now(),
+      initialDate: _selectedDate ?? DateTime.now(),
       firstDate: DateTime.now(),
-      lastDate: DateTime.now().add(const Duration(days: 365)),
+      lastDate: DateTime(2030),
       builder: (context, child) {
         return Theme(
           data: Theme.of(context).copyWith(
-            colorScheme: Theme.of(context).colorScheme.copyWith(
-                  primary: const Color(0xFF2E5BBA),
-                ),
+            colorScheme: ColorScheme.light(
+              primary: Theme.of(context).primaryColor,
+            ),
           ),
           child: child!,
         );
       },
     );
-    if (picked != null && picked != selectedDate) {
-      setState(() {
-        selectedDate = picked;
-      });
+    if (picked != null && picked != _selectedDate) {
+      setState(() => _selectedDate = picked);
     }
   }
 
-  Future<void> _selectTime(BuildContext context) async {
+  Future<void> _selectTime() async {
     final TimeOfDay? picked = await showTimePicker(
       context: context,
-      initialTime: TimeOfDay.now(),
+      initialTime: _selectedTime ?? TimeOfDay.now(),
       builder: (context, child) {
         return Theme(
           data: Theme.of(context).copyWith(
-            colorScheme: Theme.of(context).colorScheme.copyWith(
-                  primary: const Color(0xFF2E5BBA),
-                ),
+            colorScheme: ColorScheme.light(
+              primary: Theme.of(context).primaryColor,
+            ),
           ),
           child: child!,
         );
       },
     );
-    if (picked != null && picked != selectedTime) {
-      setState(() {
-        selectedTime = picked;
-      });
+    if (picked != null && picked != _selectedTime) {
+      setState(() => _selectedTime = picked);
     }
   }
 
-  void _filterPlayers(String query) {
-    setState(() {
-      if (query.isEmpty) {
-        filteredPlayers = List.from(teamPlayers);
-      } else {
-        filteredPlayers = teamPlayers
-            .where(
-                (player) => player.toLowerCase().contains(query.toLowerCase()))
-            .toList();
-      }
-    });
-  }
-
-  void _showPlayerDropdown(TextEditingController controller, String teamName) {
-    _searchController.clear();
-    filteredPlayers = List.from(teamPlayers);
-
-    showDialog(
-      context: context,
-      barrierDismissible: true,
-      builder: (BuildContext context) {
-        return StatefulBuilder(
-          builder: (BuildContext context, StateSetter setDialogState) {
-            return Dialog(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
-              ),
-              elevation: 10,
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20),
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      Colors.white,
-                      Colors.grey.shade50,
-                    ],
-                  ),
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.grey[50],
+      appBar: AppBar(
+        title: const Text(
+          'Create Match',
+          style: TextStyle(
+            fontWeight: FontWeight.w600,
+            fontSize: 20,
+          ),
+        ),
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black87,
+        elevation: 0,
+        shadowColor: Colors.black12,
+        surfaceTintColor: Colors.transparent,
+      ),
+      body: Form(
+        key: _formKey,
+        child: Scrollbar(
+          controller: _scrollController,
+          child: SingleChildScrollView(
+            controller: _scrollController,
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _buildSectionCard(
+                  title: 'Basic Information',
+                  icon: Icons.info_outline,
+                  children: [
+                    _buildTextField(
+                      controller: _matchNameController,
+                      label: 'Match Name',
+                      hint: 'Enter match name',
+                      icon: Icons.sports_cricket,
+                      validator: (value) => value?.isEmpty == true ? 'Match name is required' : null,
+                    ),
+                    const SizedBox(height: 20),
+                    _buildDropdownField<String>(
+                      value: _selectedCategoryId,
+                      label: 'Category',
+                      hint: 'Select category',
+                      icon: Icons.category,
+                      items: _categories.map((category) => DropdownMenuItem<String>(
+                        value: category['_id'],
+                        child: Text(category['name']),
+                      )).toList(),
+                      onChanged: (value) => setState(() => _selectedCategoryId = value),
+                      validator: (value) => value == null ? 'Category is required' : null,
+                      isLoading: _isLoadingCategories,
+                    ),
+                    const SizedBox(height: 20),
+                    _buildDropdownField<String>(
+                      value: _matchTypeController.text.isEmpty ? null : _matchTypeController.text,
+                      label: 'Match Type',
+                      hint: 'Select match type',
+                      icon: Icons.sports,
+                      items: _matchTypes.map((type) => DropdownMenuItem<String>(
+                        value: type,
+                        child: Text(type),
+                      )).toList(),
+                      onChanged: (value) => setState(() => _matchTypeController.text = value ?? ''),
+                      validator: (value) => value == null ? 'Match type is required' : null,
+                    ),
+                  ],
                 ),
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
+                const SizedBox(height: 24),
+                _buildSectionCard(
+                  title: 'Tournament & Teams',
+                  icon: Icons.group,
                   children: [
                     Row(
                       children: [
-                        Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF2E5BBA).withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: const Icon(
-                            Icons.group_add,
-                            color: Color(0xFF2E5BBA),
-                            size: 24,
-                          ),
-                        ),
-                        const SizedBox(width: 12),
                         Expanded(
-                          child: Text(
-                            'Select Players for $teamName',
-                            style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFF2D3748),
-                            ),
+                          child: _buildDropdownField<String>(
+                            value: _selectedTournamentId,
+                            label: 'Tournament',
+                            hint: 'Select tournament',
+                            icon: Icons.emoji_events,
+                            items: _tournaments.map((tournament) => DropdownMenuItem<String>(
+                              value: tournament['_id'],
+                              child: Text(tournament['name']),
+                            )).toList(),
+                            onChanged: (value) {
+                              setState(() => _selectedTournamentId = value);
+                              if (value != null) {
+                                _loadTeamsForTournament(value);
+                              }
+                            },
+                            validator: (value) => value == null ? 'Tournament is required' : null,
+                            isLoading: _isLoadingTournaments,
                           ),
                         ),
                       ],
                     ),
                     const SizedBox(height: 20),
-
-                    // Search Field
-                    Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: Colors.grey.shade300),
-                      ),
-                      child: TextField(
-                        controller: _searchController,
-                        onChanged: (value) {
-                          setDialogState(() {
-                            _filterPlayers(value);
-                          });
-                        },
-                        decoration: InputDecoration(
-                          hintText: 'Search players...',
-                          prefixIcon: const Icon(Icons.search,
-                              color: Color(0xFF2E5BBA)),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide.none,
-                          ),
-                          filled: true,
-                          fillColor: Colors.grey.shade50,
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 12,
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-
-                    SizedBox(
-                      width: double.maxFinite,
-                      height: 250,
-                      child: ListView.builder(
-                        itemCount: filteredPlayers.length,
-                        itemBuilder: (context, index) {
-                          return Container(
-                            margin: const EdgeInsets.only(bottom: 8),
-                            child: Material(
-                              color: Colors.transparent,
-                              child: InkWell(
-                                borderRadius: BorderRadius.circular(12),
-                                onTap: () {
-                                  setState(() {
-                                    if (controller.text.isEmpty) {
-                                      controller.text = filteredPlayers[index];
-                                    } else {
-                                      controller.text +=
-                                          ', ${filteredPlayers[index]}';
-                                    }
-                                  });
-                                  Navigator.of(context).pop();
-                                },
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 16,
-                                    vertical: 12,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(12),
-                                    border: Border.all(
-                                      color: Colors.grey.shade200,
-                                    ),
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      CircleAvatar(
-                                        radius: 18,
-                                        backgroundColor: const Color(0xFF2E5BBA)
-                                            .withOpacity(0.1),
-                                        child: Text(
-                                          filteredPlayers[index][0]
-                                              .toUpperCase(),
-                                          style: const TextStyle(
-                                            color: Color(0xFF2E5BBA),
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      ),
-                                      const SizedBox(width: 12),
-                                      Expanded(
-                                        child: Text(
-                                          filteredPlayers[index],
-                                          style: const TextStyle(
-                                            fontSize: 16,
-                                            color: Color(0xFF2D3748),
-                                          ),
-                                        ),
-                                      ),
-                                      // Show a small indicator if this is a newly added player
-                                      if (![
-                                        'Alex Rodriguez',
-                                        'Sarah Johnson',
-                                        'Michael Chen',
-                                        'Emma Wilson',
-                                        'David Martinez',
-                                        'Lisa Thompson',
-                                        'Chris Anderson',
-                                        'Maya Patel',
-                                        'James Brown',
-                                        'Sofia Garcia'
-                                      ].contains(filteredPlayers[index]))
-                                        Container(
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 8, vertical: 4),
-                                          decoration: BoxDecoration(
-                                            color:
-                                                Colors.green.withOpacity(0.1),
-                                            borderRadius:
-                                                BorderRadius.circular(12),
-                                          ),
-                                          child: const Text(
-                                            'New',
-                                            style: TextStyle(
-                                              color: Colors.green,
-                                              fontSize: 10,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                        ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                    const SizedBox(height: 16),
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
                       children: [
-                        TextButton(
-                          onPressed: () => Navigator.of(context).pop(),
-                          child: const Text(
-                            'Close',
-                            style: TextStyle(
-                              color: Color(0xFF2E5BBA),
-                              fontWeight: FontWeight.w600,
-                            ),
+                        Expanded(
+                          child: _buildDropdownField<String>(
+                            value: _selectedTeam1Id,
+                            label: 'Team 1',
+                            hint: 'Select first team',
+                            icon: Icons.group,
+                            items: _teams.map((team) => DropdownMenuItem<String>(
+                              value: team['_id'],
+                              child: Text(team['teamName']),
+                            )).toList(),
+                            onChanged: (value) => setState(() => _selectedTeam1Id = value),
+                            validator: (value) => value == null ? 'Team 1 is required' : null,
+                            isLoading: _isLoadingTeams,
                           ),
                         ),
                       ],
                     ),
-                  ],
-                ),
-              ),
-            );
-          },
-        );
-      },
-    );
-  }
-
-  void _showAddPlayerDialog() {
-    _newPlayerController.clear();
-    showDialog(
-      context: context,
-      barrierDismissible: true,
-      builder: (BuildContext context) {
-        return Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          elevation: 10,
-          child: Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(20),
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  Colors.white,
-                  Colors.grey.shade50,
-                ],
-              ),
-            ),
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF2E5BBA).withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: const Icon(
-                        Icons.person_add,
-                        color: Color(0xFF2E5BBA),
-                        size: 24,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    const Text(
-                      'Add New Player',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF2D3748),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 20),
-                TextField(
-                  controller: _newPlayerController,
-                  autofocus: true,
-                  decoration: InputDecoration(
-                    hintText: 'Enter player name',
-                    prefixIcon:
-                        const Icon(Icons.person, color: Color(0xFF2E5BBA)),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: Colors.grey.shade300),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide:
-                          const BorderSide(color: Color(0xFF2E5BBA), width: 2),
-                    ),
-                    filled: true,
-                    fillColor: Colors.grey.shade50,
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 12,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    TextButton(
-                      onPressed: () => Navigator.of(context).pop(),
-                      child: const Text(
-                        'Cancel',
-                        style: TextStyle(
-                          color: Colors.grey,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Container(
-                      decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [
-                            Color(0xFF2E5BBA),
-                            Color(0xFF1A4480),
-                          ],
-                        ),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: ElevatedButton(
-                        onPressed: () {
-                          if (_newPlayerController.text.trim().isNotEmpty) {
-                            final newPlayerName =
-                                _newPlayerController.text.trim();
-                            setState(() {
-                              _playerNameController.text = newPlayerName;
-                              if (!teamPlayers.contains(newPlayerName)) {
-                                teamPlayers.add(newPlayerName);
-                                teamPlayers.sort();
-                              }
-                            });
-                            Navigator.of(context).pop();
-
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Row(
-                                  children: [
-                                    const Icon(Icons.check_circle,
-                                        color: Colors.white, size: 20),
-                                    const SizedBox(width: 8),
-                                    Text(
-                                      'Added "$newPlayerName"',
-                                      style: const TextStyle(fontSize: 14),
-                                    ),
-                                  ],
-                                ),
-                                backgroundColor: Colors.green,
-                                behavior: SnackBarBehavior.floating,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                duration: const Duration(seconds: 2),
-                              ),
-                            );
-                          }
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.transparent,
-                          shadowColor: Colors.transparent,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        child: const Text(
-                          'Add',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  // Method to show preview popup
-  void _showPreviewDialog() {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          elevation: 15,
-          child: Container(
-            constraints: const BoxConstraints(maxHeight: 600),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(20),
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  Colors.white,
-                  Colors.grey.shade50,
-                ],
-              ),
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Header
-                Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [
-                        Color(0xFF2E5BBA),
-                        Color(0xFF1A4480),
-                      ],
-                    ),
-                    borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(20),
-                      topRight: Radius.circular(20),
-                    ),
-                  ),
-                  child: Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: const Icon(
-                          Icons.preview,
-                          color: Colors.white,
-                          size: 24,
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      const Expanded(
-                        child: Text(
-                          'Match Preview',
-                          style: TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                // Content
-                Flexible(
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.all(20),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      Row(
                       children: [
-                        _buildPreviewSection('Basic Information', [
-                          _buildPreviewItem(
-                              'Match Name', _matchNameController.text),
-                          _buildPreviewItem('Sport', selectedSport ?? ''),
-                          _buildPreviewItem(
-                              'Match Type', selectedMatchType ?? ''),
-                        ]),
-                        const SizedBox(height: 20),
-                        _buildPreviewSection('Schedule', [
-                          _buildPreviewItem(
-                              'Date',
-                              selectedDate != null
-                                  ? '${selectedDate!.day}/${selectedDate!.month}/${selectedDate!.year}'
-                                  : ''),
-                          _buildPreviewItem(
-                              'Time',
-                              selectedTime != null
-                                  ? selectedTime!.format(context)
-                                  : ''),
-                        ]),
-                        const SizedBox(height: 20),
-                        // if (isTeamSelected || isPlayerSelected) ...[
-                        //   _buildPreviewSection('Participants', [
-                        //     if (isTeamSelected) ...[
-                        //       _buildPreviewItem(
-                        //           'Team 1 Players', _team1Controller.text,
-                        //           isMultiline: true),
-                        //       _buildPreviewItem(
-                        //           'Team 2 Players', _team2Controller.text,
-                        //           isMultiline: true),
-                        //     ],
-                        //     if (isPlayerSelected)
-                        //       _buildPreviewItem(
-                        //           'Player Name', _playerNameController.text),
-                        //   ]),
-                        //   const SizedBox(height: 20),
-                        // ],
-
-                        if (isTeamSelected || isPlayerSelected) ...[
-                          _buildPreviewSection('Participants', [
-                            if (isTeamSelected) ...[
-                              _buildPreviewItem('Team 1 Name',
-                                  _team1ActualNameController.text),
-                              _buildPreviewItem(
-                                  'Team 1 Players', _team1Controller.text,
-                                  isMultiline: true),
-                              _buildPreviewItem('Team 2 Name',
-                                  _team2ActualNameController.text),
-                              _buildPreviewItem(
-                                  'Team 2 Players', _team2Controller.text,
-                                  isMultiline: true),
-                            ],
-                            if (isPlayerSelected) ...[
-                              _buildPreviewItem(
-                                  'Player 1', _playerNameController.text),
-                              _buildPreviewItem(
-                                  'Player 2', _playertwoNameController.text),
-                            ]
-                          ]),
-                          const SizedBox(height: 20),
-                        ],
-                        _buildPreviewSection('Additional Details', [
-                          _buildPreviewItem('Maximum Participants',
-                              _maxParticipantsController.text),
-                          _buildPreviewItem(
-                              'Location', _locationController.text),
-                          _buildPreviewItem('Amount', _amountController.text),
-                          _buildPreviewItem(
-                              'Description', _descriptionController.text,
-                              isMultiline: true),
-                        ]),
-                      ],
-                    ),
-                  ),
-                ),
-
-                // Action Buttons
-                Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade50,
-                    borderRadius: const BorderRadius.only(
-                      bottomLeft: Radius.circular(20),
-                      bottomRight: Radius.circular(20),
-                    ),
-                  ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: OutlinedButton(
-                          onPressed: () => Navigator.of(context).pop(),
-                          style: OutlinedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                            side: const BorderSide(color: Color(0xFF2E5BBA)),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                          ),
-                          child: const Text(
-                            'Edit',
-                            style: TextStyle(
-                              color: Color(0xFF2E5BBA),
-                              fontWeight: FontWeight.w600,
-                              fontSize: 16,
-                            ),
+    
+                        Expanded(
+                          child: _buildDropdownField<String>(
+                            value: _selectedTeam2Id,
+                            label: 'Team 2',
+                            hint: 'Select second team',
+                            icon: Icons.group,
+                            items: _teams.where((team) => team['_id'] != _selectedTeam1Id).map((team) => DropdownMenuItem<String>(
+                              value: team['_id'],
+                              child: Text(team['teamName']),
+                            )).toList(),
+                            onChanged: (value) => setState(() => _selectedTeam2Id = value),
+                            validator: (value) => value == null ? 'Team 2 is required' : null,
+                            isLoading: _isLoadingTeams,
                           ),
                         ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        flex: 2,
-                        child: Container(
-                          decoration: BoxDecoration(
-                            gradient: const LinearGradient(
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                              colors: [
-                                Color(0xFF2E5BBA),
-                                Color(0xFF1A4480),
-                              ],
-                            ),
-                            borderRadius: BorderRadius.circular(12),
+                      ],
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 24),
+                _buildSectionCard(
+                  title: 'Schedule',
+                  icon: Icons.schedule,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildDateTimeField(
+                            label: 'Date',
+                            value: _selectedDate != null 
+                                ? '${_selectedDate!.day}/${_selectedDate!.month}/${_selectedDate!.year}'
+                                : null,
+                            hint: 'Select date',
+                            icon: Icons.calendar_today,
+                            onTap: _selectDate,
                           ),
-                          child: ElevatedButton(
-                            onPressed: () async {
-                              Navigator.of(context).pop(); // Close preview
-                              await _createMatch(); // Create the match
+                        ),
+      
+                      ],
+                    ),
+
+                                        Row(
+                      children: [
+
+                        Expanded(
+                          child: _buildDateTimeField(
+                            label: 'Time',
+                            value: _selectedTime != null 
+                                ? _selectedTime!.format(context)
+                                : null,
+                            hint: 'Select time',
+                            icon: Icons.access_time,
+                            onTap: _selectTime,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 24),
+                _buildSectionCard(
+                  title: 'Match Details',
+                  icon: Icons.settings,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildTextField(
+                            controller: _maxParticipantsController,
+                            label: 'Max Participants',
+                            hint: 'Enter max participants',
+                            icon: Icons.people,
+                            keyboardType: TextInputType.number,
+                            validator: (value) {
+                              if (value?.isEmpty == true) return 'Max participants is required';
+                              final num = int.tryParse(value!);
+                              if (num == null || num <= 0) return 'Enter valid number';
+                              return null;
                             },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.transparent,
-                              shadowColor: Colors.transparent,
-                              padding: const EdgeInsets.symmetric(vertical: 12),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                            ),
-                            child: const Text(
-                              'Confirm & Create',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
-                              ),
-                            ),
                           ),
                         ),
-                      ),
-                    ],
-                  ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: _buildTextField(
+                            controller: _priceController,
+                            label: 'Price (₹)',
+                            hint: 'Enter price',
+                            icon: Icons.currency_rupee,
+                            keyboardType: TextInputType.number,
+                            validator: (value) {
+                              if (value?.isEmpty == true) return 'Price is required';
+                              final num = double.tryParse(value!);
+                              if (num == null || num < 0) return 'Enter valid price';
+                              return null;
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+                    _buildTextField(
+                      controller: _locationController,
+                      label: 'Location',
+                      hint: 'Enter match location',
+                      icon: Icons.location_on,
+                      validator: (value) => value?.isEmpty == true ? 'Location is required' : null,
+                    ),
+                    const SizedBox(height: 20),
+                    _buildDropdownField<String>(
+                      value: _selectedMatchMode,
+                      label: 'Match Mode',
+                      hint: 'Select match mode',
+                      icon: Icons.sports_motorsports,
+                      items: _matchModes.map((mode) => DropdownMenuItem<String>(
+                        value: mode,
+                        child: Text(mode),
+                      )).toList(),
+                      onChanged: (value) => setState(() => _selectedMatchMode = value),
+                      validator: (value) => value == null ? 'Match mode is required' : null,
+                    ),
+                    const SizedBox(height: 20),
+                    _buildTextField(
+                      controller: _descriptionController,
+                      label: 'Description',
+                      hint: 'Enter match description',
+                      icon: Icons.description,
+                      maxLines: 3,
+                      validator: (value) => value?.isEmpty == true ? 'Description is required' : null,
+                    ),
+                  ],
                 ),
+                const SizedBox(height: 32),
+                _buildCreateButton(),
+                const SizedBox(height: 20),
               ],
             ),
           ),
-        );
-      },
-    );
-  }
-
-  Widget _buildPreviewSection(String title, List<Widget> items) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Container(
-              width: 3,
-              height: 20,
-              decoration: BoxDecoration(
-                color: const Color(0xFF2E5BBA),
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-            const SizedBox(width: 8),
-            Text(
-              title,
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF2D3748),
-              ),
-            ),
-          ],
         ),
-        const SizedBox(height: 12),
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Colors.grey.shade200),
-          ),
-          child: Column(
-            children: items,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildPreviewItem(String label, String value,
-      {bool isMultiline = false}) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            width: 120,
-            child: Text(
-              label,
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: Colors.grey.shade600,
-              ),
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              value.isEmpty ? 'Not specified' : value,
-              style: TextStyle(
-                fontSize: 14,
-                color: value.isEmpty
-                    ? Colors.grey.shade400
-                    : const Color(0xFF2D3748),
-                fontStyle: value.isEmpty ? FontStyle.italic : FontStyle.normal,
-              ),
-              maxLines: isMultiline ? null : 1,
-              overflow: isMultiline ? null : TextOverflow.ellipsis,
-            ),
-          ),
-        ],
       ),
     );
   }
 
-  // Separate method for creating the match
-  Future<void> _createMatch() async {
-    setState(() {
-      _isLoading = true;
-    });
-
-    // Simulate API call
-    await Future.delayed(const Duration(seconds: 2));
-
-    setState(() {
-      _isLoading = false;
-    });
-
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Row(
+  Widget _buildSectionCard({
+    required String title,
+    required IconData icon,
+    required List<Widget> children,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
             children: [
-              Icon(Icons.check_circle, color: Colors.white),
-              SizedBox(width: 12),
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).primaryColor.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(
+                  icon,
+                  color: Theme.of(context).primaryColor,
+                  size: 20,
+                ),
+              ),
+              const SizedBox(width: 12),
               Text(
-                'Match created successfully!',
-                style: TextStyle(
-                  fontSize: 16,
+                title,
+                style: const TextStyle(
+                  fontSize: 18,
                   fontWeight: FontWeight.w600,
+                  color: Colors.black87,
                 ),
               ),
             ],
           ),
-          backgroundColor: Colors.green,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          duration: const Duration(seconds: 3),
-        ),
-      );
-    }
-  }
-
-  void _addTeamName(TextEditingController nameController,
-      TextEditingController teamController) {
-    if (nameController.text.trim().isNotEmpty) {
-      final newPlayerName = nameController.text.trim();
-
-      setState(() {
-        // Add to team controller
-        if (teamController.text.isEmpty) {
-          teamController.text = newPlayerName;
-        } else {
-          teamController.text += ', $newPlayerName';
-        }
-
-        // Add to teamPlayers list if not already present
-        if (!teamPlayers.contains(newPlayerName)) {
-          teamPlayers.add(newPlayerName);
-          // Sort the list alphabetically for better organization
-          teamPlayers.sort();
-        }
-
-        nameController.clear();
-      });
-
-      // Show confirmation snackbar
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Row(
-            children: [
-              const Icon(Icons.check_circle, color: Colors.white, size: 20),
-              const SizedBox(width: 8),
-              Text(
-                'Added "$newPlayerName" to team and player list',
-                style: const TextStyle(fontSize: 14),
-              ),
-            ],
-          ),
-          backgroundColor: Colors.green,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
-          duration: const Duration(seconds: 2),
-        ),
-      );
-    }
-  }
-
-  Widget _buildAnimatedField({
-    required Widget child,
-    required int index,
-  }) {
-    // Calculate safe interval values to avoid exceeding 1.0
-    final double startInterval = (index * 0.05).clamp(0.0, 0.8);
-    final double endInterval = (startInterval + 0.2).clamp(0.2, 1.0);
-
-    return AnimatedBuilder(
-      animation: _slideAnimation,
-      builder: (context, child) {
-        return SlideTransition(
-          position: Tween<Offset>(
-            begin: Offset(0, 0.2 + (index * 0.02)),
-            end: Offset.zero,
-          ).animate(CurvedAnimation(
-            parent: _slideController,
-            curve: Interval(
-              startInterval,
-              endInterval,
-              curve: Curves.easeOutCubic,
-            ),
-          )),
-          child: FadeTransition(
-            opacity: Tween<double>(
-              begin: 0.0,
-              end: 1.0,
-            ).animate(CurvedAnimation(
-              parent: _fadeController,
-              curve: Interval(
-                startInterval,
-                endInterval,
-                curve: Curves.easeInOut,
-              ),
-            )),
-            child: child!,
-          ),
-        );
-      },
-      child: child,
+          const SizedBox(height: 24),
+          ...children,
+        ],
+      ),
     );
   }
 
   Widget _buildTextField({
     required TextEditingController controller,
     required String label,
+    required String hint,
     required IconData icon,
     String? Function(String?)? validator,
+    TextInputType? keyboardType,
     int maxLines = 1,
-    Widget? suffixIcon,
-    VoidCallback? onTap,
-    bool readOnly = false,
-    String? hintText,
   }) {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: TextFormField(
-        controller: controller,
-        validator: validator,
-        maxLines: maxLines,
-        onTap: onTap,
-        readOnly: readOnly,
-        style: const TextStyle(
-          fontSize: 16,
-          color: Color(0xFF2D3748),
-        ),
-        decoration: InputDecoration(
-          labelText: label,
-          hintText: hintText,
-          prefixIcon: Container(
-            margin: const EdgeInsets.all(12),
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: const Color(0xFF2E5BBA).withOpacity(0.1),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Icon(
-              icon,
-              color: const Color(0xFF2E5BBA),
-              size: 20,
-            ),
-          ),
-          suffixIcon: suffixIcon,
-          labelStyle: TextStyle(
-            color: Colors.grey.shade600,
-            fontSize: 16,
-          ),
-          hintStyle: TextStyle(
-            color: Colors.grey.shade400,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(
             fontSize: 14,
-          ),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(16),
-            borderSide: BorderSide.none,
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(16),
-            borderSide: BorderSide(
-              color: Colors.grey.shade200,
-              width: 1,
-            ),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(16),
-            borderSide: const BorderSide(
-              color: Color(0xFF2E5BBA),
-              width: 2,
-            ),
-          ),
-          errorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(16),
-            borderSide: const BorderSide(
-              color: Colors.red,
-              width: 1,
-            ),
-          ),
-          focusedErrorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(16),
-            borderSide: const BorderSide(
-              color: Colors.red,
-              width: 2,
-            ),
-          ),
-          filled: true,
-          fillColor: Colors.white,
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: 16,
+            fontWeight: FontWeight.w500,
+            color: Colors.black87,
           ),
         ),
-      ),
+        const SizedBox(height: 8),
+        TextFormField(
+          controller: controller,
+          keyboardType: keyboardType,
+          maxLines: maxLines,
+          validator: validator,
+          decoration: InputDecoration(
+            hintText: hint,
+            prefixIcon: Icon(icon, size: 20),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: Colors.grey.shade300),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: Colors.grey.shade300),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: Theme.of(context).primaryColor, width: 2),
+            ),
+            errorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: Colors.red),
+            ),
+            filled: true,
+            fillColor: Colors.grey.shade50,
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          ),
+        ),
+      ],
     );
   }
 
   Widget _buildDropdownField<T>({
-    required String label,
-    required IconData icon,
     required T? value,
-    required List<T> items,
+    required String label,
+    required String hint,
+    required IconData icon,
+    required List<DropdownMenuItem<T>> items,
     required void Function(T?) onChanged,
-    required String? Function(T?) validator,
+    String? Function(T?)? validator,
+    bool isLoading = false,
   }) {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: DropdownButtonFormField<T>(
-        value: value,
-        validator: validator,
-        style: const TextStyle(
-          fontSize: 16,
-          color: Color(0xFF2D3748),
-        ),
-        decoration: InputDecoration(
-          labelText: label,
-          prefixIcon: Container(
-            margin: const EdgeInsets.all(12),
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: const Color(0xFF2E5BBA).withOpacity(0.1),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Icon(
-              icon,
-              color: const Color(0xFF2E5BBA),
-              size: 20,
-            ),
-          ),
-          labelStyle: TextStyle(
-            color: Colors.grey.shade600,
-            fontSize: 16,
-          ),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(16),
-            borderSide: BorderSide.none,
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(16),
-            borderSide: BorderSide(
-              color: Colors.grey.shade200,
-              width: 1,
-            ),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(16),
-            borderSide: const BorderSide(
-              color: Color(0xFF2E5BBA),
-              width: 2,
-            ),
-          ),
-          errorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(16),
-            borderSide: const BorderSide(
-              color: Colors.red,
-              width: 1,
-            ),
-          ),
-          filled: true,
-          fillColor: Colors.white,
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: 16,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+            color: Colors.black87,
           ),
         ),
-        items: items.map((T item) {
-          return DropdownMenuItem<T>(
-            value: item,
-            child: Text(item.toString()),
-          );
-        }).toList(),
-        onChanged: onChanged,
-        dropdownColor: Colors.white,
-        icon: const Icon(
-          Icons.keyboard_arrow_down,
-          color: Color(0xFF2E5BBA),
+        const SizedBox(height: 8),
+        DropdownButtonFormField<T>(
+          value: value,
+          items: items,
+          onChanged: isLoading ? null : onChanged,
+          validator: validator,
+          decoration: InputDecoration(
+            hintText: hint,
+            prefixIcon: isLoading 
+                ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: Center(
+                      child: SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      ),
+                    ),
+                  )
+                : Icon(icon, size: 20),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: Colors.grey.shade300),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: Colors.grey.shade300),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: Theme.of(context).primaryColor, width: 2),
+            ),
+            errorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: Colors.red),
+            ),
+            filled: true,
+            fillColor: Colors.grey.shade50,
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          ),
         ),
-      ),
+      ],
     );
   }
 
-  Widget _buildSectionTitle(String title) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Row(
-        children: [
-          Container(
-            width: 4,
-            height: 24,
+  Widget _buildDateTimeField({
+    required String label,
+    required String? value,
+    required String hint,
+    required IconData icon,
+    required VoidCallback onTap,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+            color: Colors.black87,
+          ),
+        ),
+        const SizedBox(height: 8),
+        InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(12),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
-              color: const Color(0xFF2E5BBA),
-              borderRadius: BorderRadius.circular(2),
+              border: Border.all(color: Colors.grey.shade300),
+              borderRadius: BorderRadius.circular(12),
+              color: Colors.grey.shade50,
             ),
-          ),
-          const SizedBox(width: 12),
-          Text(
-            title,
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Color(0xFF2D3748),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.grey.shade50,
-      appBar: AppBar(
-        elevation: 0,
-        backgroundColor: Colors.white,
-        foregroundColor: const Color(0xFF2D3748),
-        title: const Text(
-          'Create Match',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 20,
-          ),
-        ),
-        centerTitle: true,
-        flexibleSpace: Container(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                Colors.white,
-                Color(0xFFF7FAFC),
-              ],
-            ),
-          ),
-        ),
-      ),
-      body: FadeTransition(
-        opacity: _fadeAnimation,
-        child: Form(
-          key: _formKey,
-          child: SingleChildScrollView(
-            physics: const BouncingScrollPhysics(),
-            padding: const EdgeInsets.all(20.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            child: Row(
               children: [
-                // Basic Information Section
-                _buildAnimatedField(
-                  index: 0,
-                  child: _buildSectionTitle('Basic Information'),
-                ),
-                const SizedBox(height: 16),
-
-                _buildAnimatedField(
-                  index: 1,
-                  child: _buildTextField(
-                    controller: _matchNameController,
-                    label: 'Match Name',
-                    icon: Icons.sports,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter match name';
-                      }
-                      return null;
-                    },
-                  ),
-                ),
-                const SizedBox(height: 20),
-
-                _buildAnimatedField(
-                  index: 2,
-                  child: _buildDropdownField<String>(
-                    label: 'Sport',
-                    icon: Icons.sports_soccer,
-                    value: selectedSport,
-                    items: sports,
-                    onChanged: (String? newValue) {
-                      setState(() {
-                        selectedSport = newValue;
-                      });
-                    },
-                    validator: (value) {
-                      if (value == null) {
-                        return 'Please select a sport';
-                      }
-                      return null;
-                    },
-                  ),
-                ),
-                const SizedBox(height: 20),
-
-                _buildAnimatedField(
-                  index: 3,
-                  child: _buildDropdownField<String>(
-                    label: 'Match Type',
-                    icon: Icons.category,
-                    value: selectedMatchType,
-                    items: matchTypes,
-                    onChanged: (String? newValue) {
-                      setState(() {
-                        selectedMatchType = newValue;
-                      });
-                    },
-                    validator: (value) {
-                      if (value == null) {
-                        return 'Please select match type';
-                      }
-                      return null;
-                    },
-                  ),
-                ),
-                const SizedBox(height: 32),
-
-                // Schedule Section
-                _buildAnimatedField(
-                  index: 4,
-                  child: _buildSectionTitle('Schedule'),
-                ),
-                const SizedBox(height: 16),
-
-                Row(
-                  children: [
-                    Expanded(
-                      child: _buildAnimatedField(
-                        index: 5,
-                        child: _buildTextField(
-                          controller: TextEditingController(),
-                          label: 'Date',
-                          icon: Icons.calendar_today,
-                          readOnly: true,
-                          hintText: selectedDate != null
-                              ? '${selectedDate!.day}/${selectedDate!.month}/${selectedDate!.year}'
-                              : 'Select Date',
-                          onTap: () => _selectDate(context),
-                          validator: (value) {
-                            if (selectedDate == null) {
-                              return 'Please select a date';
-                            }
-                            return null;
-                          },
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: _buildAnimatedField(
-                        index: 6,
-                        child: _buildTextField(
-                          controller: TextEditingController(),
-                          label: 'Time',
-                          icon: Icons.access_time,
-                          readOnly: true,
-                          hintText: selectedTime != null
-                              ? selectedTime!.format(context)
-                              : 'Select Time',
-                          onTap: () => _selectTime(context),
-                          validator: (value) {
-                            if (selectedTime == null) {
-                              return 'Please select a time';
-                            }
-                            return null;
-                          },
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 32),
-
-                // Participants Section
-                _buildAnimatedField(
-                  index: 7,
-                  child: _buildSectionTitle('Participants'),
-                ),
-                const SizedBox(height: 16),
-
-                _buildAnimatedField(
-                  index: 8,
-                  child: Container(
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(16),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.05),
-                          blurRadius: 10,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: Column(
-                      children: [
-                        RadioListTile<String>(
-                          title: const Text(
-                            'Team Match',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                              color: Color(0xFF2D3748),
-                            ),
-                          ),
-                          subtitle: const Text('Organize teams for the match'),
-                          value: 'team',
-                          groupValue: isTeamSelected
-                              ? 'team'
-                              : (isPlayerSelected ? 'player' : null),
-                          // onChanged: (String? value) {
-                          //   setState(() {
-                          //     isTeamSelected = value == 'team';
-                          //     isPlayerSelected = false;
-                          //     if (!isTeamSelected) {
-                          //       _team1Controller.clear();
-                          //       _team2Controller.clear();
-                          //       _team1NameController.clear();
-                          //       _team2NameController.clear();
-                          //     }
-                          //     if (isTeamSelected) {
-                          //       _playerNameController.clear();
-                          //     }
-                          //   });
-                          // },
-
-                          onChanged: (String? value) {
-                            setState(() {
-                              isTeamSelected = value == 'team';
-                              isPlayerSelected = false;
-                              if (!isTeamSelected) {
-                                _team1Controller.clear();
-                                _team2Controller.clear();
-                                _team1NameController.clear();
-                                _team2NameController.clear();
-                                _team1ActualNameController
-                                    .clear(); 
-                                _team2ActualNameController
-                                    .clear(); 
-                              }
-                              if (isTeamSelected) {
-                                _playerNameController.clear();
-                                _playertwoNameController.clear();
-                                _manualPlayerNameController.clear();
-                                _manualPlayertwoNameController.clear();
-                              }
-                            });
-                          },
-                          activeColor: const Color(0xFF2E5BBA),
-                          controlAffinity: ListTileControlAffinity.leading,
-                          contentPadding: EdgeInsets.zero,
-                        ),
-                        const Divider(height: 20),
-                        RadioListTile<String>(
-                          title: const Text(
-                            'Individual Player',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                              color: Color(0xFF2D3748),
-                            ),
-                          ),
-                          subtitle: const Text('Single player registration'),
-                          value: 'player',
-                          groupValue: isTeamSelected
-                              ? 'team'
-                              : (isPlayerSelected ? 'player' : null),
-                          onChanged: (String? value) {
-                            setState(() {
-                              isPlayerSelected = value == 'player';
-                              isTeamSelected = false;
-                              if (!isPlayerSelected) {
-                                _playerNameController.clear();
-                              }
-                              if (isPlayerSelected) {
-                                _team1Controller.clear();
-                                _team2Controller.clear();
-                                _team1NameController.clear();
-                                _team2NameController.clear();
-                              }
-                            });
-                          },
-                          activeColor: const Color(0xFF2E5BBA),
-                          controlAffinity: ListTileControlAffinity.leading,
-                          contentPadding: EdgeInsets.zero,
-                        ),
-                      ],
+                Icon(icon, size: 20, color: Colors.grey.shade600),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    value ?? hint,
+                    style: TextStyle(
+                      color: value != null ? Colors.black87 : Colors.grey.shade600,
+                      fontSize: 16,
                     ),
                   ),
                 ),
-
-                // Team Fields
-                if (isTeamSelected) ...[
-                  const SizedBox(height: 20),
-
-                  _buildAnimatedField(
-                    index: 9,
-                    child: _buildTextField(
-                      controller: _team1ActualNameController,
-                      label: 'Team 1 Name',
-                      icon: Icons.sports,
-                      hintText: 'Enter team 1 name (e.g., Warriors, Eagles)',
-                      validator: isTeamSelected
-                          ? (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please enter team 1 name';
-                              }
-                              return null;
-                            }
-                          : null,
-                    ),
-                  ),
-                  SizedBox(
-                    height: 15,
-                  ),
-
-                  // Team 1 Name Input
-                  _buildAnimatedField(
-                    index: 9,
-                    child: Row(
-                      children: [
-                        Expanded(
-                          flex: 3,
-                          child: _buildTextField(
-                            controller: _team1NameController,
-                            label: 'Enter Team 1 Player Name',
-                            icon: Icons.person_add,
-                            hintText: 'Type player name and press add',
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Container(
-                          height: 56,
-                          decoration: BoxDecoration(
-                            gradient: const LinearGradient(
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                              colors: [
-                                Color(0xFF2E5BBA),
-                                Color(0xFF1A4480),
-                              ],
-                            ),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: ElevatedButton(
-                            onPressed: () => _addTeamName(
-                                _team1NameController, _team1Controller),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.transparent,
-                              shadowColor: Colors.transparent,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                            ),
-                            child: const Icon(Icons.add, color: Colors.white),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Team 1 Players Display
-                  _buildAnimatedField(
-                    index: 10,
-                    child: _buildTextField(
-                      controller: _team1Controller,
-                      label: 'Team 1 Players',
-                      icon: Icons.group,
-                      maxLines: 2,
-                      readOnly: true,
-                      suffixIcon: Container(
-                        margin: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF2E5BBA),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: IconButton(
-                          icon: const Icon(Icons.search, color: Colors.white),
-                          onPressed: () =>
-                              _showPlayerDropdown(_team1Controller, 'Team 1'),
-                        ),
-                      ),
-                      validator: isTeamSelected
-                          ? (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please add team 1 players';
-                              }
-                              return null;
-                            }
-                          : null,
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-
-                  _buildAnimatedField(
-                    index: 12,
-                    child: _buildTextField(
-                      controller: _team2ActualNameController,
-                      label: 'Team 2 Name',
-                      icon: Icons.sports,
-                      hintText: 'Enter team 2 name (e.g., Lions, Sharks)',
-                      validator: isTeamSelected
-                          ? (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please enter team 2 name';
-                              }
-                              return null;
-                            }
-                          : null,
-                    ),
-                  ),
-
-                  SizedBox(
-                    height: 16,
-                  ),
-
-                  // Team 2 Name Input
-                  _buildAnimatedField(
-                    index: 11,
-                    child: Row(
-                      children: [
-                        Expanded(
-                          flex: 3,
-                          child: _buildTextField(
-                            controller: _team2NameController,
-                            label: 'Enter Team 2 Player Name',
-                            icon: Icons.person_add,
-                            hintText: 'Type player name and press add',
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Container(
-                          height: 56,
-                          decoration: BoxDecoration(
-                            gradient: const LinearGradient(
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                              colors: [
-                                Color(0xFF2E5BBA),
-                                Color(0xFF1A4480),
-                              ],
-                            ),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: ElevatedButton(
-                            onPressed: () => _addTeamName(
-                                _team2NameController, _team2Controller),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.transparent,
-                              shadowColor: Colors.transparent,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                            ),
-                            child: const Icon(Icons.add, color: Colors.white),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Team 2 Players Display
-                  _buildAnimatedField(
-                    index: 12,
-                    child: _buildTextField(
-                      controller: _team2Controller,
-                      label: 'Team 2 Players',
-                      icon: Icons.group,
-                      maxLines: 2,
-                      readOnly: true,
-                      suffixIcon: Container(
-                        margin: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF2E5BBA),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: IconButton(
-                          icon: const Icon(Icons.search, color: Colors.white),
-                          onPressed: () =>
-                              _showPlayerDropdown(_team2Controller, 'Team 2'),
-                        ),
-                      ),
-                      validator: isTeamSelected
-                          ? (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please add team 2 players';
-                              }
-                              return null;
-                            }
-                          : null,
-                    ),
-                  ),
-                ],
-
-                // Player Field
-                if (isPlayerSelected) ...[
-                  const SizedBox(height: 20),
-                  const SizedBox(
-                    height: 16,
-                  ),
-                  _buildAnimatedField(
-                    index: 13,
-                    child: _buildTextField(
-                      controller: _manualPlayerNameController,
-                      label: 'Enter Player Name Manually',
-                      icon: Icons.person_add,
-                      suffixIcon: Container(
-                        margin: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF2E5BBA),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: IconButton(
-                          icon: const Icon(Icons.add, color: Colors.white),
-                          onPressed: () {
-                            if (_manualPlayerNameController.text
-                                .trim()
-                                .isNotEmpty) {
-                              setState(() {
-                                _playerNameController.text =
-                                    _manualPlayerNameController.text.trim();
-                                // Also add to teamPlayers list if not already present
-                                if (!teamPlayers.contains(
-                                    _manualPlayerNameController.text.trim())) {
-                                  teamPlayers.add(
-                                      _manualPlayerNameController.text.trim());
-                                  teamPlayers.sort();
-                                }
-                              });
-                            }
-                          },
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(
-                    height: 16,
-                  ),
-                  _buildAnimatedField(
-                    index: 14,
-                    child: _buildTextField(
-                      controller: _playerNameController,
-                      label: 'Selected Player',
-                      icon: Icons.person,
-                      readOnly: true,
-                      suffixIcon: Container(
-                        margin: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF2E5BBA),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: IconButton(
-                          icon: const Icon(Icons.search, color: Colors.white),
-                          onPressed: () {
-                            _showPlayerDropdown(
-                                _playerNameController, 'Player');
-                          },
-                        ),
-                      ),
-                      validator: isPlayerSelected
-                          ? (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please select a player';
-                              }
-                              return null;
-                            }
-                          : null,
-                    ),
-                  ),
-                  SizedBox(
-                    height: 16,
-                  ),
-                  _buildAnimatedField(
-                    index: 13,
-                    child: _buildTextField(
-                      controller: _manualPlayertwoNameController,
-                      label: 'Enter Player Name Manually',
-                      icon: Icons.person_add,
-                      suffixIcon: Container(
-                        margin: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF2E5BBA),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: IconButton(
-                          icon: const Icon(Icons.add, color: Colors.white),
-                          onPressed: () {
-                            if (_manualPlayertwoNameController.text
-                                .trim()
-                                .isNotEmpty) {
-                              setState(() {
-                                _playertwoNameController.text =
-                                    _manualPlayertwoNameController.text.trim();
-                                if (!teamPlayers.contains(
-                                    _manualPlayertwoNameController.text
-                                        .trim())) {
-                                  teamPlayers.add(_manualPlayertwoNameController
-                                      .text
-                                      .trim());
-                                  teamPlayers.sort();
-                                }
-                              });
-                            }
-                          },
-                        ),
-                      ),
-                    ),
-                  ),
-                  SizedBox(
-                    height: 16,
-                  ),
-                  _buildAnimatedField(
-                    index: 14,
-                    child: _buildTextField(
-                      controller: _playertwoNameController,
-                      label: 'Selected Player',
-                      icon: Icons.person,
-                      readOnly: true,
-                      suffixIcon: Container(
-                        margin: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF2E5BBA),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: IconButton(
-                          icon: const Icon(Icons.search, color: Colors.white),
-                          onPressed: () {
-                            _showPlayerDropdown(
-                                _playertwoNameController, 'Player');
-                          },
-                        ),
-                      ),
-                      validator: isPlayerSelected
-                          ? (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please select a player';
-                              }
-                              return null;
-                            }
-                          : null,
-                    ),
-                  ),
-                ],
-
-                const SizedBox(height: 32),
-
-                // Additional Details Section
-                _buildAnimatedField(
-                  index: 14,
-                  child: _buildSectionTitle('Additional Details'),
-                ),
-                const SizedBox(height: 16),
-
-                _buildAnimatedField(
-                  index: 15,
-                  child: _buildTextField(
-                    controller: _maxParticipantsController,
-                    label: 'Maximum Participants',
-                    icon: Icons.people,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter maximum participants';
-                      }
-                      if (int.tryParse(value) == null) {
-                        return 'Please enter a valid number';
-                      }
-                      return null;
-                    },
-                  ),
-                ),
-                const SizedBox(height: 20),
-
-                _buildAnimatedField(
-                  index: 16,
-                  child: _buildTextField(
-                    controller: _locationController,
-                    label: 'Location',
-                    icon: Icons.location_on,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter location';
-                      }
-                      return null;
-                    },
-                  ),
-                ),
-                const SizedBox(height: 20),
-
-                _buildAnimatedField(
-                  index: 17,
-                  child: _buildTextField(
-                    controller: _amountController,
-                    label: 'Amount',
-                    icon: Icons.attach_money,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter amount';
-                      }
-                      return null;
-                    },
-                  ),
-                ),
-                const SizedBox(height: 20),
-
-                _buildAnimatedField(
-                  index: 18,
-                  child: _buildTextField(
-                    controller: _descriptionController,
-                    label: 'Description',
-                    icon: Icons.description,
-                    maxLines: 4,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter description';
-                      }
-                      return null;
-                    },
-                  ),
-                ),
-                const SizedBox(height: 40),
-
-                // Create Match Button
-                _buildAnimatedField(
-                  index: 19,
-                  child: Container(
-                    width: double.infinity,
-                    height: 56,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(16),
-                      gradient: const LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          Color(0xFF2E5BBA),
-                          Color(0xFF1A4480),
-                        ],
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: const Color(0xFF2E5BBA).withOpacity(0.3),
-                          blurRadius: 15,
-                          offset: const Offset(0, 8),
-                        ),
-                      ],
-                    ),
-                    child: ElevatedButton(
-                      onPressed: _isLoading
-                          ? null
-                          : () async {
-                              if (_formKey.currentState!.validate()) {
-                                _showPreviewDialog();
-                              }
-                            },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.transparent,
-                        shadowColor: Colors.transparent,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                      ),
-                      child: _isLoading
-                          ? const SizedBox(
-                              width: 24,
-                              height: 24,
-                              child: CircularProgressIndicator(
-                                valueColor:
-                                    AlwaysStoppedAnimation<Color>(Colors.white),
-                                strokeWidth: 2,
-                              ),
-                            )
-                          : const Text(
-                              'Preview & Create',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                            ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 20),
               ],
             ),
           ),
         ),
+      ],
+    );
+  }
+
+  Widget _buildCreateButton() {
+    return SizedBox(
+      height: 56,
+      child: ElevatedButton(
+        onPressed: _isCreatingMatch ? null : _CreateMatchForm,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Theme.of(context).primaryColor,
+          foregroundColor: Colors.white,
+          elevation: 2,
+          shadowColor: Theme.of(context).primaryColor.withOpacity(0.3),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+        ),
+        child: _isCreatingMatch
+            ? const SizedBox(
+                height: 20,
+                width: 20,
+                child: CircularProgressIndicator(
+                  color: Colors.white,
+                  strokeWidth: 2,
+                ),
+              )
+            : const Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.add_circle_outline, size: 20),
+                  SizedBox(width: 8),
+                  Text(
+                    'Create Match',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
       ),
     );
   }
