@@ -4,9 +4,12 @@ import 'package:booking_application/details.dart';
 import 'package:booking_application/helper/storage_helper.dart';
 import 'package:booking_application/home/enroll_screen.dart';
 import 'package:booking_application/modal/registration_model.dart';
+import 'package:booking_application/provider/LocationProvider/location_provider.dart';
 import 'package:booking_application/provider/category_provider.dart';
 import 'package:booking_application/provider/tournament_category_provider.dart';
 import 'package:booking_application/provider/upcoming_tournament_provider.dart';
+import 'package:booking_application/views/Cricket/user_live_screen.dart';
+import 'package:booking_application/views/LocationScreen/location_search_screen.dart';
 import 'package:booking_application/views/details_screen.dart';
 import 'package:booking_application/views/live_screen.dart';
 import 'package:booking_application/views/profile/notification_screen.dart';
@@ -29,6 +32,13 @@ class _HomeScreenState extends State<HomeScreen> {
   String _selectedCategory = 'cricket';
   String _selectedTournamentCategory = 'Cricket'; // Add this for tournaments
   String? _currentUserId;
+  static const Color _textPrimary = Color(0xFF2E3440);
+  static const Color _textSecondary = Color(0xFF5E6772);
+  static const Color _accentColor = Color(0xFFFF6B35); // Orange accent
+
+  String _address = 'Fetching location...';
+
+  bool _isLoadingCurrentLocation = false;
 
   final List<Map<String, dynamic>> cricketComplexes = [
     {
@@ -92,6 +102,8 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      _handleCurrentLocation();
+
       context.read<CategoryProvider>().fetchCategories();
       context.read<UpcomingTournamentProvider>().fetchUpcomingTournament();
       // Initialize tournament category provider
@@ -102,10 +114,54 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+  void _showError(String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: _accentColor,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        margin: EdgeInsets.all(16),
+      ),
+    );
+  }
+
+  Future<void> _handleCurrentLocation() async {
+    setState(() {
+      _isLoadingCurrentLocation = true;
+    });
+
+    try {
+      final locationProvider = Provider.of<LocationFetchProvider>(
+        context,
+        listen: false,
+      );
+      await locationProvider.initLocation("68da44599d96d329b6169526");
+
+      if (mounted) {
+        if (locationProvider.hasError) {
+          _showError(locationProvider.errorMessage);
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        _showError("Failed to get current location: ${e.toString()}");
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoadingCurrentLocation = false;
+        });
+      }
+    }
+  }
+
   void _loadNearbyTurfs() async {
     final user = await UserPreferences.getUser();
     if (user != null && user.id != null) {
       _currentUserId = user.id!;
+      print("ggggggggggggggggggggggggggggggggggg$_currentUserId");
       if (mounted) {
         Provider.of<LocationProvider>(context, listen: false)
             .fetchNearbyTurfs(userId: user.id!, category: _selectedCategory);
@@ -154,7 +210,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-        appBar: AppBar(
+      appBar: AppBar(
   backgroundColor: Colors.white,
   elevation: 0,
   leading: GestureDetector(
@@ -176,7 +232,6 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     ),
   ),
-
   title: FutureBuilder<User?>(
     future: UserPreferences.getUser(),
     builder: (context, snapshot) {
@@ -199,25 +254,83 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
           const SizedBox(height: 2),
-          Row(
-            children: const [
-              Icon(Icons.location_on, color: Colors.red, size: 16),
-              SizedBox(width: 4),
-              Text(
-                'Hyderabad, India', // 👈 Manual location here
-                style: TextStyle(
-                  color: Colors.grey,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w400,
+          GestureDetector(
+            onTap: () async {
+              final result = await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => LocationSearchScreen(
+                      userId: "68da44599d96d329b6169526"),
                 ),
-              ),
-            ],
+              );
+            },
+            child: Consumer<LocationFetchProvider>(
+              builder: (context, locationProvider, child) {
+                // Show loading indicator if location is being fetched
+                if (locationProvider.address == null || locationProvider.address!.isEmpty) {
+                  return Row(
+                    children: [
+                      SizedBox(
+                        width: 12,
+                        height: 12,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Colors.grey[600]!,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Fetching location...',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey[600],
+                        ),
+                      ),
+                    ],
+                  );
+                }
+
+                final addrParts = locationProvider.address!
+                    .split(',')
+                    .map((e) => e.trim())
+                    .toList();
+                final primary = addrParts.length > 1 
+                    ? addrParts[1] 
+                    : (addrParts.isNotEmpty ? addrParts[0] : 'Unknown');
+                final secondary = addrParts.length > 2
+                    ? addrParts.sublist(2).join(', ')
+                    : '';
+
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      primary,
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: _textPrimary,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    if (secondary.isNotEmpty)
+                      Text(
+                        secondary,
+                        style: TextStyle(
+                            fontSize: 12, color: _textSecondary),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                  ],
+                );
+              },
+            ),
           ),
         ],
       );
     },
   ),
-
   actions: [
     Container(
       margin: const EdgeInsets.all(12),
@@ -245,8 +358,6 @@ class _HomeScreenState extends State<HomeScreen> {
     ),
   ],
 ),
-    
-
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -450,7 +561,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => const LiveScreen()));
+                        builder: (context) => const UserLiveScreen()));
               },
               child: Container(
                 padding: const EdgeInsets.all(16),

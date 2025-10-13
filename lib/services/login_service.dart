@@ -33,7 +33,6 @@ class LoginService {
       if (response.statusCode == 200 || response.statusCode == 201) {
         return {
           'success': true,
-          'data': jsonDecode(response.body),
           'message': 'OTP sent successfully'
         };
       } else {
@@ -41,7 +40,6 @@ class LoginService {
         return {
           'success': false,
           'message': errorData['message'] ?? 'Login failed',
-          'data': null
         };
       }
     } catch (e) {
@@ -54,17 +52,20 @@ class LoginService {
   }
 
   // Verify OTP
-  Future<Map<String, dynamic>> verifyOtp(String otp) async {
+  Future<Map<String, dynamic>> verifyOtp(String otp, String mobileNumber) async {
     try {
       final url = Uri.parse('$baseUrl$verifyOtpEndpoint');
       final headers = {
         'Content-Type': 'application/json',
       };
       final body = jsonEncode({
-        'otp': int.parse(otp),
+        'otp': otp,
+        'mobile': mobileNumber
       });
 
+            print('tttttttttttttttttttttttttttttttttttttttttttttttttttt$url');
 
+            print('tttttttttttttttttttttttttttttttttttttttttttttttttttt$body');
 
 
       final response = await http.post(
@@ -72,6 +73,9 @@ class LoginService {
         headers: headers,
         body: body,
       );
+
+            print('hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh${response.body}');
+
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         final responseData = jsonDecode(response.body);

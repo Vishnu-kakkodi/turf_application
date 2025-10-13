@@ -150,7 +150,7 @@ class _CreateTeamState extends State<CreateTeam> with TickerProviderStateMixin {
       }
     }
     
-    if (selectedCategoryId == null || selectedTournamentId == null) {
+    if (selectedCategoryId == null) {
       _showErrorSnackBar('Please select category and tournament');
       return;
     }
@@ -179,6 +179,8 @@ class _CreateTeamState extends State<CreateTeam> with TickerProviderStateMixin {
         },
         body: json.encode(payload),
       );
+
+      print("Response Body: ${response.body}");
       
       if (response.statusCode == 200 || response.statusCode == 201) {
         _showSuccessSnackBar('Team created successfully!');
@@ -432,6 +434,90 @@ class _CreateTeamState extends State<CreateTeam> with TickerProviderStateMixin {
       ],
     );
   }
+
+
+
+
+  Widget _buildDropdownn<T>({
+    required String label,
+    required IconData icon,
+    required T? value,
+    required List<DropdownMenuItem<T>> items,
+    required void Function(T?) onChanged,
+    bool isLoading = false,
+  }) {
+    return Column(
+      children: [
+        DropdownButtonFormField<T>(
+          value: value,
+          style: const TextStyle(
+            fontSize: 16,
+            color: Color(0xFF1F2937),
+          ),
+          decoration: InputDecoration(
+            labelText: label,
+            labelStyle: TextStyle(
+              color: Colors.grey[600],
+              fontSize: 14,
+            ),
+            prefixIcon: Icon(
+              icon,
+              color: const Color(0xFF6B7280),
+              size: 20,
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: Colors.grey[300]!),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: Colors.grey[300]!),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: Color(0xFF4F46E5), width: 2),
+            ),
+            filled: true,
+            fillColor: const Color(0xFFF9FAFB),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+          ),
+          items: isLoading ? [] : items,
+          onChanged: isLoading ? null : onChanged,
+          dropdownColor: Colors.white,
+          icon: const Icon(Icons.keyboard_arrow_down, color: Color(0xFF6B7280)),
+          isExpanded: true,
+          menuMaxHeight: 300,
+        ),
+        if (isLoading)
+          Padding(
+            padding: const EdgeInsets.only(top: 12),
+            child: Row(
+              children: [
+                const SizedBox(
+                  width: 16,
+                  height: 16,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF4F46E5)),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  'Loading...',
+                  style: TextStyle(
+                    color: Colors.grey[600],
+                    fontSize: 12,
+                  ),
+                ),
+              ],
+            ),
+          ),
+      ],
+    );
+  }
+
+  
+
 
   Widget _buildPlayerCard(int index) {
     return AnimatedContainer(
@@ -700,8 +786,8 @@ class _CreateTeamState extends State<CreateTeam> with TickerProviderStateMixin {
                         isLoading: isLoadingCategories,
                       ),
                       const SizedBox(height: 20),
-                      _buildDropdown<String>(
-                        label: 'Select Tournament',
+                      _buildDropdownn<String>(
+                        label: 'Select Tournament(Optional)',
                         icon: Icons.emoji_events,
                         value: selectedTournamentId,
                         items: tournaments.map((tournament) {
@@ -721,12 +807,6 @@ class _CreateTeamState extends State<CreateTeam> with TickerProviderStateMixin {
                           setState(() {
                             selectedTournamentId = value;
                           });
-                        },
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please select a tournament';
-                          }
-                          return null;
                         },
                         isLoading: isLoadingTournaments,
                       ),

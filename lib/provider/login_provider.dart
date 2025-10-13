@@ -250,11 +250,11 @@ class LoginProvider extends ChangeNotifier {
   }
 
   // Verify OTP
-  Future<bool> verifyOtp(String otp) async {
+  Future<bool> verifyOtp(String otp, String mobileNumber) async {
     _setOtpState(LoginState.loading);
     
     try {
-      final result = await _loginService.verifyOtp(otp);
+      final result = await _loginService.verifyOtp(otp,mobileNumber);
       
       if (result['success']) {
         final data = result['data'];

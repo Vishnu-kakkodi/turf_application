@@ -2,7 +2,7 @@ import 'package:booking_application/helper/storage_helper.dart';
 import 'package:booking_application/modal/match_model.dart';
 import 'package:booking_application/provider/match_provider.dart';
 import 'package:booking_application/views/team/chambion_screen.dart';
-import 'package:booking_application/views/team/create_match.dart';
+import 'package:booking_application/views/Cricket/create_match.dart';
 import 'package:booking_application/views/team/toss_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';

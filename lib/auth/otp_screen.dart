@@ -399,6 +399,7 @@
 
 
 import 'package:booking_application/auth/user_details.dart';
+import 'package:booking_application/home/navbar_screen.dart';
 import 'package:booking_application/provider/login_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -496,25 +497,25 @@ class _OtpScreenState extends State<OtpScreen> {
     final loginProvider = Provider.of<LoginProvider>(context, listen: false);
     
     // Check if your default OTP is 1234
-    if (otp == '1234') {
-      print('Default OTP entered, navigating...'); // Debug print
-      if (mounted) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const Adddetails()),
-        );
-      }
-      return;
-    }
+    // if (otp == '1234') {
+    //   print('Default OTP entered, navigating...'); // Debug print
+    //   if (mounted) {
+    //     Navigator.pushReplacement(
+    //       context,
+    //       MaterialPageRoute(builder: (context) => const Adddetails()),
+    //     );
+    //   }
+    //   return;
+    // }
     
-    final success = await loginProvider.verifyOtp(otp);
+    final success = await loginProvider.verifyOtp(otp,widget.mobileNumber);
     
     if (success) {
       // Navigate to user details or home screen
       if (mounted) {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const Adddetails()),
+          MaterialPageRoute(builder: (context) =>  const NavbarScreen()),
         );
       }
     } else {
