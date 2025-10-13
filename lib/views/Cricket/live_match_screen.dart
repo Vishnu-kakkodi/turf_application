@@ -7495,6 +7495,7 @@ class _LiveMatchScreenState extends State<LiveMatchScreen> with SingleTickerProv
   double runRate = 0.0;
   String currentBatsman = "Player A1";
   String currentBowler = "Player B2";
+    String currentBowlerId = "Player B2";
   String nonStriker = "Player A3";
   bool isWaitingForBatsman = false;
   bool isWaitingForBowler = false;
@@ -7604,6 +7605,8 @@ class _LiveMatchScreenState extends State<LiveMatchScreen> with SingleTickerProv
           nonStrikerId = match['nonStriker']?['_id'] ?? match['opening']?['nonStriker']?['_id'];
 
           currentBowler = match['currentBowler']?['name'] ?? match['bowling']?['bowler']?['name'] ?? 'Waiting...';
+                    currentBowlerId = match['currentBowler']?['_id'] ?? match['bowling']?['bowler']?['_id'] ?? 'Waiting...';
+
           bowlerId = match['currentBowler']?['_id'] ?? match['bowling']?['bowler']?['_id'];
           
           // Over history
@@ -8025,12 +8028,14 @@ Future<void> _startSecondInningsWithDetails({
     }
   }
 
-  Future<void> _updateExtra(String extraType) async {
+  Future<void> _updateExtra(String extraType, String bowlerId) async {
     try {
       await ApiService.updateMatch(widget.matchId, {
         "extraType": extraType,
-        "ballUpdate": false, // Don't increment over count for extras
+        "runs":1,
+        "ballUpdate": true, 
         "innings": currentInnings,
+        "bowler": bowlerId
       });
       
       setState(() {
@@ -8094,7 +8099,7 @@ Future<void> _startSecondInningsWithDetails({
     try {
       await ApiService.updateMatch(widget.matchId, {
         "bowler": newBowlerId,
-        "innings": currentInnings,
+        "changeBowler": true,
       });
       
       setState(() {
@@ -8114,10 +8119,14 @@ Future<void> _startSecondInningsWithDetails({
 
   Future<void> _swapBatsmen() async {
     try {
+      print("kkkkkkkkkkkkkkkkkkkkk$nonStrikerId");
+            print("kkkkkkkkkkkkkkkkkkkkk$strikerId");
+
       await ApiService.updateMatch(widget.matchId, {
-        "striker": nonStrikerId,
-        "nonStriker": strikerId,
-        "innings": currentInnings,
+        // "striker": nonStrikerId,
+        // "nonStriker": strikerId,
+        // "innings": currentInnings,
+        "swapStriker": true
       });
       
       setState(() {
@@ -8525,7 +8534,7 @@ Future<void> _selectNextBatsman(String outPlayerId) async {
     });
   }
 
-  void _handleScoring(String score) {
+  void _handleScoring(String score, String bowlerId) {
     switch (score) {
       case '0':
       case '1':
@@ -8538,11 +8547,11 @@ Future<void> _selectNextBatsman(String outPlayerId) async {
         break;
         
       case 'Wide':
-        _updateExtra('wide');
+        _updateExtra('wide',bowlerId);
         break;
         
       case 'No Ball':
-        _updateExtra('noball');
+        _updateExtra('noball',bowlerId);
         break;
         
       case 'Wicket':
@@ -9125,18 +9134,18 @@ Future<void> _selectNextBatsman(String outPlayerId) async {
       mainAxisSpacing: 8,
       childAspectRatio: 1.2,
       children: [
-        _buildScoreButton('0', const Color(0xFFF5F5F5)),
-        _buildScoreButton('1', const Color(0xFFF5F5F5)),
-        _buildScoreButton('2', const Color(0xFFF5F5F5)),
-        _buildScoreButton('3', const Color(0xFFF5F5F5)),
-        _buildScoreButton('4', const Color(0xFF1976D2)),
-        _buildScoreButton('6', const Color(0xFF388E3C)),
-        _buildScoreButton('Wide', const Color(0xFFFF9800)),
-        _buildScoreButton('No Ball', const Color(0xFFFF9800)),
-        _buildScoreButton('Bye', const Color(0xFFF5F5F5)),
-        _buildScoreButton('Leg Bye', const Color(0xFFF5F5F5)),
-        _buildScoreButton('Wicket', const Color(0xFFD32F2F)),
-        _buildScoreButton('Undo', const Color(0xFFFF7043)),
+        _buildScoreButton('0', const Color(0xFFF5F5F5),bowlerId.toString()),
+        _buildScoreButton('1', const Color(0xFFF5F5F5),bowlerId.toString()),
+        _buildScoreButton('2', const Color(0xFFF5F5F5),bowlerId.toString()),
+        _buildScoreButton('3', const Color(0xFFF5F5F5),bowlerId.toString()),
+        _buildScoreButton('4', const Color(0xFF1976D2),bowlerId.toString()),
+        _buildScoreButton('6', const Color(0xFF388E3C),bowlerId.toString()),
+        _buildScoreButton('Wide', const Color(0xFFFF9800),bowlerId.toString()),
+        _buildScoreButton('No Ball', const Color(0xFFFF9800),bowlerId.toString()),
+        _buildScoreButton('Bye', const Color(0xFFF5F5F5),bowlerId.toString()),
+        _buildScoreButton('Leg Bye', const Color(0xFFF5F5F5),bowlerId.toString()),
+        _buildScoreButton('Wicket', const Color(0xFFD32F2F),bowlerId.toString()),
+        _buildScoreButton('Undo', const Color(0xFFFF7043),bowlerId.toString()),
       ],
     );
   }
@@ -9711,7 +9720,7 @@ Future<void> _selectNextBatsman(String outPlayerId) async {
     );
   }
 
-  Widget _buildScoreButton(String label, Color bgColor) {
+  Widget _buildScoreButton(String label, Color bgColor, String bowlerId) {
     bool isDarkButton = bgColor == const Color(0xFF1976D2) || 
                         bgColor == const Color(0xFF388E3C) || 
                         bgColor == const Color(0xFFD32F2F) ||
@@ -9720,7 +9729,7 @@ Future<void> _selectNextBatsman(String outPlayerId) async {
     Color textColor = isDarkButton ? Colors.white : const Color(0xFF212121);
     
     return ElevatedButton(
-      onPressed: () => _handleScoring(label),
+      onPressed: () => _handleScoring(label,bowlerId),
       style: ElevatedButton.styleFrom(
         backgroundColor: bgColor,
         foregroundColor: textColor,
