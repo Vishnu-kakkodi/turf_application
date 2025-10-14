@@ -13,7 +13,7 @@
 
 // class _TournamentDetailScreenState extends State<TournamentDetailScreen> with SingleTickerProviderStateMixin {
 //   late TabController _tabController;
-  
+
 //   @override
 //   void initState() {
 //     super.initState();
@@ -268,7 +268,7 @@
 //                 _buildDetailRow(
 //                   icon: widget.tournament.isPaidEntry ? Icons.payments : Icons.free_breakfast,
 //                   label: 'Entry',
-//                   value: widget.tournament.isPaidEntry 
+//                   value: widget.tournament.isPaidEntry
 //                       ? '₹${widget.tournament.entryFee?.toStringAsFixed(0) ?? '0'}'
 //                       : 'Free',
 //                 ),
@@ -579,7 +579,7 @@
 
 //   Widget _buildBottomBar() {
 //     final status = widget.tournament.tournamentStatus;
-    
+
 //     if (status == TournamentStatus.registrationOpen) {
 //       return Container(
 //         padding: const EdgeInsets.all(20),
@@ -617,7 +617,7 @@
 //         ),
 //       );
 //     }
-    
+
 //     return const SizedBox.shrink();
 //   }
 
@@ -775,21 +775,10 @@
 //   }
 // }
 
-
-
-
-
-
-
-
-
-
-
-
-
 import 'package:booking_application/views/Cricket/models/tournament_model.dart';
 import 'package:booking_application/views/Cricket/models/team_model.dart';
 import 'package:booking_application/views/Cricket/providers/tournament_provider.dart';
+import 'package:booking_application/views/Cricket/views/tournament_match_creation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -797,29 +786,32 @@ import 'package:provider/provider.dart';
 class TournamentDetailScreen extends StatefulWidget {
   final Tournament tournament;
 
-  const TournamentDetailScreen({Key? key, required this.tournament}) : super(key: key);
+  const TournamentDetailScreen({Key? key, required this.tournament})
+      : super(key: key);
 
   @override
   _TournamentDetailScreenState createState() => _TournamentDetailScreenState();
 }
 
-class _TournamentDetailScreenState extends State<TournamentDetailScreen> with SingleTickerProviderStateMixin {
+class _TournamentDetailScreenState extends State<TournamentDetailScreen>
+    with SingleTickerProviderStateMixin {
   late TabController _tabController;
   final TextEditingController _searchController = TextEditingController();
-  
+
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
-    
+
     // Add listener to rebuild when tab changes
     _tabController.addListener(() {
       setState(() {});
     });
-    
+
     // Fetch tournament teams when screen loads
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final provider = Provider.of<TournamentNewProvider>(context, listen: false);
+      final provider =
+          Provider.of<TournamentNewProvider>(context, listen: false);
       provider.fetchTournamentTeams(widget.tournament.id);
     });
   }
@@ -846,20 +838,20 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> with Si
               icon: const Icon(Icons.arrow_back, color: Colors.white),
               onPressed: () => Navigator.pop(context),
             ),
-            actions: [
-              IconButton(
-                icon: const Icon(Icons.share, color: Colors.white),
-                onPressed: () {
-                  // Share tournament functionality
-                },
-              ),
-              IconButton(
-                icon: const Icon(Icons.more_vert, color: Colors.white),
-                onPressed: () {
-                  _showMoreOptions(context);
-                },
-              ),
-            ],
+            // actions: [
+            //   IconButton(
+            //     icon: const Icon(Icons.share, color: Colors.white),
+            //     onPressed: () {
+            //       // Share tournament functionality
+            //     },
+            //   ),
+            //   IconButton(
+            //     icon: const Icon(Icons.more_vert, color: Colors.white),
+            //     onPressed: () {
+            //       _showMoreOptions(context);
+            //     },
+            //   ),
+            // ],
             flexibleSpace: FlexibleSpaceBar(
               background: Container(
                 decoration: BoxDecoration(
@@ -879,9 +871,11 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> with Si
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 6),
                           decoration: BoxDecoration(
-                            color: _getStatusColor(widget.tournament.tournamentStatus),
+                            color: _getStatusColor(
+                                widget.tournament.tournamentStatus),
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: Text(
@@ -908,7 +902,8 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> with Si
                         const SizedBox(height: 12),
                         Row(
                           children: [
-                            const Icon(Icons.location_on, color: Colors.white70, size: 18),
+                            const Icon(Icons.location_on,
+                                color: Colors.white70, size: 18),
                             const SizedBox(width: 6),
                             Expanded(
                               child: Text(
@@ -926,7 +921,8 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> with Si
                         const SizedBox(height: 8),
                         Row(
                           children: [
-                            const Icon(Icons.calendar_today, color: Colors.white70, size: 18),
+                            const Icon(Icons.calendar_today,
+                                color: Colors.white70, size: 18),
                             const SizedBox(width: 6),
                             Text(
                               '${_formatDate(widget.tournament.startDate)} - ${_formatDate(widget.tournament.endDate)}',
@@ -981,12 +977,29 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> with Si
           ),
         ],
       ),
-      floatingActionButton: _tabController.index == 1
+// Replace the existing floating action button code
+      floatingActionButton: _tabController.index == 2
           ? FloatingActionButton.extended(
-              onPressed: () => _showAddTeamDialog(),
+              onPressed: () async {
+                final result = await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => CreateTournamentMatchScreen(
+                      tournamentId: widget.tournament.id,
+                      tournamentName: widget.tournament.name,
+                    ),
+                  ),
+                );
+
+                // Refresh matches if needed
+                if (result == true) {
+                  // Refresh your matches list
+                }
+              },
               backgroundColor: const Color(0xFF2E7D32),
               icon: const Icon(Icons.add, color: Colors.white),
-              label: const Text('Add Team', style: TextStyle(color: Colors.white)),
+              label: const Text('Schedule Match',
+                  style: TextStyle(color: Colors.white)),
             )
           : null,
     );
@@ -996,7 +1009,7 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> with Si
     return Consumer<TournamentNewProvider>(
       builder: (context, provider, child) {
         final teams = provider.tournamentTeams[widget.tournament.id] ?? [];
-        
+
         return SingleChildScrollView(
           padding: const EdgeInsets.all(20),
           child: Column(
@@ -1058,19 +1071,22 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> with Si
                     _buildDetailRow(
                       icon: Icons.calendar_month,
                       label: 'Registration Ends',
-                      value: DateFormat('dd MMM yyyy').format(widget.tournament.registrationEndDate),
+                      value: DateFormat('dd MMM yyyy')
+                          .format(widget.tournament.registrationEndDate),
                     ),
                     const SizedBox(height: 12),
                     _buildDetailRow(
                       icon: Icons.flag,
                       label: 'Tournament Starts',
-                      value: DateFormat('dd MMM yyyy').format(widget.tournament.startDate),
+                      value: DateFormat('dd MMM yyyy')
+                          .format(widget.tournament.startDate),
                     ),
                     const SizedBox(height: 12),
                     _buildDetailRow(
                       icon: Icons.event_available,
                       label: 'Tournament Ends',
-                      value: DateFormat('dd MMM yyyy').format(widget.tournament.endDate),
+                      value: DateFormat('dd MMM yyyy')
+                          .format(widget.tournament.endDate),
                     ),
                     const SizedBox(height: 12),
                     _buildDetailRow(
@@ -1080,7 +1096,9 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> with Si
                     ),
                     const SizedBox(height: 12),
                     _buildDetailRow(
-                      icon: widget.tournament.tournamentType == 'paid' ? Icons.payments : Icons.free_breakfast,
+                      icon: widget.tournament.tournamentType == 'paid'
+                          ? Icons.payments
+                          : Icons.free_breakfast,
                       label: 'Entry',
                       value: widget.tournament.tournamentType == 'paid'
                           ? '₹${widget.tournament.price?.toStringAsFixed(0) ?? '0'}'
@@ -1092,7 +1110,8 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> with Si
               const SizedBox(height: 20),
 
               // Rules
-              if (widget.tournament.rules != null && widget.tournament.rules!.isNotEmpty)
+              if (widget.tournament.rules != null &&
+                  widget.tournament.rules!.isNotEmpty)
                 _buildSection(
                   title: 'Rules & Regulations',
                   child: Text(
@@ -1107,7 +1126,8 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> with Si
               const SizedBox(height: 20),
 
               // Prizes
-              if (widget.tournament.prizes != null && widget.tournament.prizes!.isNotEmpty)
+              if (widget.tournament.prizes != null &&
+                  widget.tournament.prizes!.isNotEmpty)
                 _buildSection(
                   title: 'Prizes',
                   child: Text(
@@ -1134,7 +1154,8 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> with Si
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Icon(Icons.map, size: 48, color: Color(0xFF999999)),
+                        const Icon(Icons.map,
+                            size: 48, color: Color(0xFF999999)),
                         const SizedBox(height: 8),
                         Text(
                           widget.tournament.locationName,
@@ -1205,10 +1226,12 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> with Si
                 ElevatedButton.icon(
                   onPressed: () => _showAddTeamDialog(),
                   icon: const Icon(Icons.add, color: Colors.white),
-                  label: const Text('Add Your First Team', style: TextStyle(color: Colors.white)),
+                  label: const Text('Add Your First Team',
+                      style: TextStyle(color: Colors.white)),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF2E7D32),
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 24, vertical: 12),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -1439,7 +1462,8 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> with Si
       builder: (context) => _AddTeamDialog(
         tournamentId: widget.tournament.id,
         onTeamAdded: () {
-          final provider = Provider.of<TournamentNewProvider>(context, listen: false);
+          final provider =
+              Provider.of<TournamentNewProvider>(context, listen: false);
           provider.fetchTournamentTeams(widget.tournament.id);
         },
       ),
@@ -1506,7 +1530,8 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> with Si
                     final player = team.players[index];
                     return ListTile(
                       leading: CircleAvatar(
-                        backgroundColor: const Color(0xFF2E7D32).withOpacity(0.1),
+                        backgroundColor:
+                            const Color(0xFF2E7D32).withOpacity(0.1),
                         child: Text(
                           '${index + 1}',
                           style: const TextStyle(
@@ -1674,10 +1699,10 @@ class _AddTeamDialogState extends State<_AddTeamDialog> {
     if (_selectedTeam == null) return;
 
     final provider = Provider.of<TournamentNewProvider>(context, listen: false);
-    
+
     // You need to get userId from your auth system
     const userId = '6884a16d466d0e6a7824552a'; // Replace with actual user ID
-    
+
     final success = await provider.addTeamToTournament(
       userId: userId,
       tournamentId: widget.tournamentId,
@@ -1726,14 +1751,16 @@ class _AddTeamDialogState extends State<_AddTeamDialog> {
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               ),
               onChanged: _searchTeams,
             ),
             const SizedBox(height: 16),
             if (_isSearching)
               const CircularProgressIndicator()
-            else if (_searchResults.isEmpty && _searchController.text.isNotEmpty)
+            else if (_searchResults.isEmpty &&
+                _searchController.text.isNotEmpty)
               const Text(
                 'No teams found',
                 style: TextStyle(color: Colors.grey),
@@ -1747,12 +1774,13 @@ class _AddTeamDialogState extends State<_AddTeamDialog> {
                   itemBuilder: (context, index) {
                     final team = _searchResults[index];
                     final isSelected = _selectedTeam?.id == team.id;
-                    
+
                     return ListTile(
                       selected: isSelected,
-                      selectedTileColor: const Color(0xFF2E7D32).withOpacity(0.1),
+                      selectedTileColor:
+                          const Color(0xFF2E7D32).withOpacity(0.1),
                       leading: CircleAvatar(
-                        backgroundColor: isSelected 
+                        backgroundColor: isSelected
                             ? const Color(0xFF2E7D32)
                             : Colors.grey[300],
                         child: Text(
@@ -1813,7 +1841,8 @@ class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
   double get maxExtent => _tabBar.preferredSize.height;
 
   @override
-  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
+  Widget build(
+      BuildContext context, double shrinkOffset, bool overlapsContent) {
     return Container(
       color: Colors.white,
       child: _tabBar,

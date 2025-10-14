@@ -1174,6 +1174,75 @@ static Future<Map<String, dynamic>?> showWicketModal(
     );
   }
 
+
+  static Future<int?> showRunSelectionModal(BuildContext context) {
+  return showDialog<int>(
+    context: context,
+    barrierDismissible: true,
+    builder: (BuildContext context) {
+      final List<int> runsList = [0, 1, 2, 3, 4, 5, 6];
+
+      return Dialog(
+        backgroundColor: const Color(0xFF2A3441),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                'Select Runs',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF00BCD4),
+                ),
+              ),
+              const SizedBox(height: 24),
+              Wrap(
+                spacing: 16,
+                runSpacing: 16,
+                alignment: WrapAlignment.center,
+                children: runsList.map((run) {
+                  return ElevatedButton(
+                    onPressed: () => Navigator.of(context).pop(run),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF3A4551),
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.all(20),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    child: Text(
+                      run.toString(),
+                      style: const TextStyle(fontSize: 20),
+                    ),
+                  );
+                }).toList(),
+              ),
+              const SizedBox(height: 24),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(null),
+                child: const Text(
+                  'Cancel',
+                  style: TextStyle(
+                    color: Color(0xFF8A9BA8),
+                    fontSize: 16,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    },
+  );
+}
+
+
   // 5. Select Opening Batsmen Modal
 static Future<Map<String, String>?> showOpeningBatsmenModal(
   BuildContext context, {

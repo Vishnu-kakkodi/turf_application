@@ -46,6 +46,7 @@ class TournamentService {
   Future<List<Tournament>> getAllTournaments() async {
     try {
       final url = Uri.parse('$baseUrl/alltournaments');
+      print(url);
       final response = await http.get(url);
 
       if (response.statusCode == 200) {
