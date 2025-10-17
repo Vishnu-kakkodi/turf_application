@@ -1,5 +1,8 @@
 import 'package:booking_application/helper/storage_helper.dart';
+import 'package:booking_application/views/Games/GameViews/point_based_screen.dart';
+import 'package:booking_application/views/Games/GameViews/set_based_screen.dart';
 import 'package:booking_application/views/Games/game_selection.dart';
+import 'package:booking_application/views/Games/widgets/game_card.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -63,9 +66,9 @@ class _ViewMatchScreenState extends State<ViewMatchScreen>
         final statusOrder = [
           'live',
           'upcoming',
-          'completed',
+          'finished',
           'postponed',
-          'cancelled'
+          'cancelled',
         ];
         _availableStatuses = statusOrder
             .where((status) => _groupedMatches.containsKey(status))
@@ -97,6 +100,7 @@ class _ViewMatchScreenState extends State<ViewMatchScreen>
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
+        centerTitle: true,
         title: const Text(
           'Matches',
           style: TextStyle(
@@ -209,186 +213,251 @@ class _ViewMatchScreenState extends State<ViewMatchScreen>
         itemCount: matches.length,
         itemBuilder: (context, index) {
           final match = matches[index];
-          return _buildMatchCard(match, status);
+          return MatchDetailsCard(
+            match: match,
+            status: status,
+            onStartMatch: () => _startMatch(match),
+            onViewLive: () => _viewLiveMatch(match),
+            
+
+            // onOptions: () => _showMatchOptions(context, match),
+          );
         },
       ),
     );
   }
 
-  Widget _buildMatchCard(MatchData match, String status) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 16),
-      elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: _getStatusColor(status).withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    _getStatusText(status),
-                    style: TextStyle(
-                      color: _getStatusColor(status),
-                      fontWeight: FontWeight.w600,
-                      fontSize: 12,
-                    ),
-                  ),
-                ),
-                const Spacer(),
-                Text(
-                  _formatDateTime(match.createdAt),
-                  style: const TextStyle(
-                    color: Color(0xFF666666),
-                    fontSize: 12,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            Text(
-              match.name,
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF333333),
-              ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              '${match.categoryName} • ${match.scoringMethod} • ${match.gameMode == 'team' ? 'Team Mode' : 'Singles Mode'}',
-              style: const TextStyle(
-                fontSize: 13,
-                color: Color(0xFF999999),
-              ),
-            ),
-            const SizedBox(height: 8),
-            if (match.teams.isNotEmpty) ...[
-              Row(
-                children: [
-                  const Icon(Icons.group, size: 16, color: Color(0xFF666666)),
-                  const SizedBox(width: 4),
-                  Expanded(
-                    child: Text(
-                      'Teams: ${match.teams.length} teams',
-                      style: const TextStyle(
-                        fontSize: 14,
-                        color: Color(0xFF666666),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ] else if (match.players.isNotEmpty) ...[
-              Row(
-                children: [
-                  const Icon(Icons.person, size: 16, color: Color(0xFF666666)),
-                  const SizedBox(width: 4),
-                  Expanded(
-                    child: Text(
-                      'Players: ${match.players.join(', ')}',
-                      style: const TextStyle(
-                        fontSize: 14,
-                        color: Color(0xFF666666),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-            const SizedBox(height: 12),
-            _buildActionButtons(match, status),
-          ],
-        ),
-      ),
-    );
-  }
+  // Widget _buildMatchCard(MatchData match, String status) {
+  //   return Card(
+  //     margin: const EdgeInsets.only(bottom: 16),
+  //     elevation: 2,
+  //     shape: RoundedRectangleBorder(
+  //       borderRadius: BorderRadius.circular(12),
+  //     ),
+  //     child: Container(
+  //       padding: const EdgeInsets.all(16),
+  //       child: Column(
+  //         crossAxisAlignment: CrossAxisAlignment.start,
+  //         children: [
+  //           Row(
+  //             children: [
+  //               Container(
+  //                 padding:
+  //                     const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+  //                 decoration: BoxDecoration(
+  //                   color: _getStatusColor(status).withOpacity(0.1),
+  //                   borderRadius: BorderRadius.circular(8),
+  //                 ),
+  //                 child: Text(
+  //                   _getStatusText(status),
+  //                   style: TextStyle(
+  //                     color: _getStatusColor(status),
+  //                     fontWeight: FontWeight.w600,
+  //                     fontSize: 12,
+  //                   ),
+  //                 ),
+  //               ),
+  //               const Spacer(),
+  //               Text(
+  //                 _formatDateTime(match.createdAt),
+  //                 style: const TextStyle(
+  //                   color: Color(0xFF666666),
+  //                   fontSize: 12,
+  //                 ),
+  //               ),
+  //             ],
+  //           ),
+  //           const SizedBox(height: 12),
+  //           Text(
+  //             match.name,
+  //             style: const TextStyle(
+  //               fontSize: 18,
+  //               fontWeight: FontWeight.bold,
+  //               color: Color(0xFF333333),
+  //             ),
+  //           ),
+  //           const SizedBox(height: 4),
+  //           Text(
+  //             '${match.categoryName} • ${match.scoringMethod} • ${match.gameMode == 'team' ? 'Team Mode' : 'Singles Mode'}',
+  //             style: const TextStyle(
+  //               fontSize: 13,
+  //               color: Color(0xFF999999),
+  //             ),
+  //           ),
+  //           const SizedBox(height: 8),
+  //           if (match.teams.isNotEmpty) ...[
+  //             Row(
+  //               children: [
+  //                 const Icon(Icons.group, size: 16, color: Color(0xFF666666)),
+  //                 const SizedBox(width: 4),
+  //                 Expanded(
+  //                   child: Text(
+  //                     'Teams: ${match.teams.length} teams',
+  //                     style: const TextStyle(
+  //                       fontSize: 14,
+  //                       color: Color(0xFF666666),
+  //                     ),
+  //                   ),
+  //                 ),
+  //               ],
+  //             ),
+  //           ] else if (match.players.isNotEmpty) ...[
+  //             Row(
+  //               children: [
+  //                 const Icon(Icons.person, size: 16, color: Color(0xFF666666)),
+  //                 const SizedBox(width: 4),
+  //                 Expanded(
+  //                   child: Text(
+  //                     'Players: ${match.players.join(', ')}',
+  //                     style: const TextStyle(
+  //                       fontSize: 14,
+  //                       color: Color(0xFF666666),
+  //                     ),
+  //                   ),
+  //                 ),
+  //               ],
+  //             ),
+  //           ],
+  //           const SizedBox(height: 12),
+  //           _buildActionButtons(match, status),
+  //         ],
+  //       ),
+  //     ),
+  //   );
+  // }
 
-  Widget _buildActionButtons(MatchData match, String status) {
-    if (status == 'upcoming') {
-      return Row(
-        children: [
-          Expanded(
-            child: ElevatedButton(
-              onPressed: () => _startMatch(match),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF2E7D32),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-              child: const Text(
-                'Start Match',
-                style: TextStyle(color: Colors.white),
-              ),
-            ),
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: OutlinedButton(
-              onPressed: () => _showMatchOptions(context, match),
-              style: OutlinedButton.styleFrom(
-                side: const BorderSide(color: Color(0xFF2E7D32)),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-              child: const Text(
-                'Options',
-                style: TextStyle(color: Color(0xFF2E7D32)),
-              ),
-            ),
-          ),
-        ],
-      );
-    } else if (status == 'live') {
-      return SizedBox(
-        width: double.infinity,
-        child: ElevatedButton(
-          onPressed: () => _viewLiveMatch(match),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF2E7D32),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-          ),
-          child: const Text(
-            'View Live Match',
-            style: TextStyle(color: Colors.white),
-          ),
-        ),
-      );
-    } else {
-      return SizedBox(
-        width: double.infinity,
-        child: OutlinedButton(
-          onPressed: () => _viewMatchDetails(match),
-          style: OutlinedButton.styleFrom(
-            side: const BorderSide(color: Color(0xFF2E7D32)),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-          ),
-          child: const Text(
-            'View Details',
-            style: TextStyle(color: Color(0xFF2E7D32)),
-          ),
-        ),
-      );
-    }
-  }
+  // Widget _buildActionButtons(MatchData match, String status) {
+  //   if (status == 'upcoming') {
+  //     return Row(
+  //       children: [
+  //         Expanded(
+  //           child: ElevatedButton(
+  //             onPressed: () => _startMatch(match),
+  //             style: ElevatedButton.styleFrom(
+  //               backgroundColor: const Color(0xFF2E7D32),
+  //               shape: RoundedRectangleBorder(
+  //                 borderRadius: BorderRadius.circular(8),
+  //               ),
+  //             ),
+  //             child: const Text(
+  //               'Start Match',
+  //               style: TextStyle(color: Colors.white),
+  //             ),
+  //           ),
+  //         ),
+  //         const SizedBox(width: 8),
+  //         Expanded(
+  //           child: OutlinedButton(
+  //             onPressed: () => _showMatchOptions(context, match),
+  //             style: OutlinedButton.styleFrom(
+  //               side: const BorderSide(color: Color(0xFF2E7D32)),
+  //               shape: RoundedRectangleBorder(
+  //                 borderRadius: BorderRadius.circular(8),
+  //               ),
+  //             ),
+  //             child: const Text(
+  //               'Options',
+  //               style: TextStyle(color: Color(0xFF2E7D32)),
+  //             ),
+  //           ),
+  //         ),
+  //       ],
+  //     );
+  //   } else if (status == 'live') {
+  //     return SizedBox(
+  //       width: double.infinity,
+  //       child: ElevatedButton(
+  //         onPressed: () => _viewLiveMatch(match),
+  //         style: ElevatedButton.styleFrom(
+  //           backgroundColor: const Color(0xFF2E7D32),
+  //           shape: RoundedRectangleBorder(
+  //             borderRadius: BorderRadius.circular(8),
+  //           ),
+  //         ),
+  //         child: const Text(
+  //           'View Live Match',
+  //           style: TextStyle(color: Colors.white),
+  //         ),
+  //       ),
+  //     );
+  //   } else {
+  //     return SizedBox(
+  //       width: double.infinity,
+  //       child: OutlinedButton(
+  //         onPressed: () => _viewMatchDetails(match),
+  //         style: OutlinedButton.styleFrom(
+  //           side: const BorderSide(color: Color(0xFF2E7D32)),
+  //           shape: RoundedRectangleBorder(
+  //             borderRadius: BorderRadius.circular(8),
+  //           ),
+  //         ),
+  //         child: const Text(
+  //           'View Details',
+  //           style: TextStyle(color: Color(0xFF2E7D32)),
+  //         ),
+  //       ),
+  //     );
+  //   }
+  // }
+
+  // void _startMatch(MatchData match) async {
+  //   showDialog(
+  //     context: context,
+  //     barrierDismissible: false,
+  //     builder: (context) => const Center(
+  //       child: CircularProgressIndicator(
+  //         valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF2E7D32)),
+  //       ),
+  //     ),
+  //   );
+
+  //   try {
+  //     print("UserId: $userId");
+  //     print("MatchId: ${match.id}");
+
+  //     final response = await http.post(
+  //       Uri.parse(
+  //           'http://31.97.206.144:3081/users/startgamematch/$userId/${match.id}'),
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //       },
+  //       body: json.encode({
+  //         'status': 'live',
+  //         'startKickTime': DateTime.now().toIso8601String(),
+  //       }),
+  //     );
+
+  //     print("Response status body: ${response.body}");
+
+  //     Navigator.of(context).pop();
+
+  //     if (response.statusCode == 200) {
+  //       await _fetchMatches();
+  //       ScaffoldMessenger.of(context).showSnackBar(
+  //         const SnackBar(
+  //           content: Text('Match started successfully!'),
+  //           backgroundColor: Color(0xFF2E7D32),
+  //         ),
+  //       );
+  //     }
+  //   } catch (e) {
+  //     Navigator.of(context).pop();
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       const SnackBar(
+  //         content: Text('Failed to start match'),
+  //         backgroundColor: Colors.red,
+  //       ),
+  //     );
+  //   }
+  // }
 
   void _startMatch(MatchData match) async {
+    // Show configuration modal first
+    final config = await _showMatchConfigModal(context);
+
+    // If user cancelled, return
+    if (config == null) return;
+
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -403,19 +472,30 @@ class _ViewMatchScreenState extends State<ViewMatchScreen>
       print("UserId: $userId");
       print("MatchId: ${match.id}");
 
-      final response = await http.put(
+      // 🧾 Prepare payload
+      final payload = {
+        'startKickTime': DateTime.now().toIso8601String(),
+        'totalDuration': config['totalDuration'],
+        'halfTimeDuration': config['halfTimeDuration'],
+        'extraTimeAllowedForHalfTime': config['extraTimeAllowedForHalfTime'],
+        'extraTimeDurationForHalfTime': config['extraTimeDurationForHalfTime'],
+        'extraTimeAllowedForFullTime': config['extraTimeAllowedForFullTime'],
+        'extraTimeDurationForFullTime': config['extraTimeDurationForFullTime'],
+      };
+
+      print("📦 Payload being sent:");
+      print(const JsonEncoder.withIndent('  ').convert(payload));
+
+      // 🌐 Send request
+      final response = await http.post(
         Uri.parse(
-            'http://31.97.206.144:3081/users/footballstatus/$userId/${match.id}'),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: json.encode({
-          'status': 'live',
-          'kickOffTime': DateTime.now().toIso8601String(),
-        }),
+            'http://31.97.206.144:3081/users/startgamematch/$userId/${match.id}'),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode(payload),
       );
 
-      print("Response status body: ${response.body}");
+      print("Response status: ${response.statusCode}");
+      print("Response body: ${response.body}");
 
       Navigator.of(context).pop();
 
@@ -425,6 +505,13 @@ class _ViewMatchScreenState extends State<ViewMatchScreen>
           const SnackBar(
             content: Text('Match started successfully!'),
             backgroundColor: Color(0xFF2E7D32),
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to start match: ${response.body}'),
+            backgroundColor: Colors.red,
           ),
         );
       }
@@ -437,6 +524,412 @@ class _ViewMatchScreenState extends State<ViewMatchScreen>
         ),
       );
     }
+  }
+
+// Future<Map<String, dynamic>?> _showMatchConfigModal(BuildContext context) async {
+//   int totalDuration = 90;
+//   int halfTimeDuration = 15;
+//   bool extraTimeAllowed = false;
+//   int extraTimeDuration = 30;
+
+//   return showDialog<Map<String, dynamic>>(
+//     context: context,
+//     barrierDismissible: false,
+//     builder: (context) => StatefulBuilder(
+//       builder: (context, setState) => AlertDialog(
+//         title: const Text(
+//           'Match Configuration',
+//           style: TextStyle(
+//             color: Color(0xFF2E7D32),
+//             fontWeight: FontWeight.bold,
+//           ),
+//         ),
+//         content: SingleChildScrollView(
+//           child: Column(
+//             mainAxisSize: MainAxisSize.min,
+//             crossAxisAlignment: CrossAxisAlignment.start,
+//             children: [
+//               const Text(
+//                 'Set match duration and settings',
+//                 style: TextStyle(
+//                   color: Color(0xFF666666),
+//                   fontSize: 14,
+//                 ),
+//               ),
+//               const SizedBox(height: 20),
+
+//               // Total Duration
+//               const Text(
+//                 'Total Duration (minutes)',
+//                 style: TextStyle(
+//                   fontWeight: FontWeight.w600,
+//                   fontSize: 14,
+//                 ),
+//               ),
+//               const SizedBox(height: 8),
+//               Container(
+//                 decoration: BoxDecoration(
+//                   border: Border.all(color: const Color(0xFFCCCCCC)),
+//                   borderRadius: BorderRadius.circular(8),
+//                 ),
+//                 child: Row(
+//                   children: [
+//                     IconButton(
+//                       icon: const Icon(Icons.remove),
+//                       onPressed: () {
+//                         if (totalDuration > 30) {
+//                           setState(() => totalDuration -= 15);
+//                         }
+//                       },
+//                     ),
+//                     Expanded(
+//                       child: Text(
+//                         '$totalDuration min',
+//                         textAlign: TextAlign.center,
+//                         style: const TextStyle(
+//                           fontSize: 16,
+//                           fontWeight: FontWeight.bold,
+//                         ),
+//                       ),
+//                     ),
+//                     IconButton(
+//                       icon: const Icon(Icons.add),
+//                       onPressed: () {
+//                         setState(() => totalDuration += 15);
+//                       },
+//                     ),
+//                   ],
+//                 ),
+//               ),
+//               const SizedBox(height: 16),
+
+//               // Half Time Duration
+//               const Text(
+//                 'Half Time Duration (minutes)',
+//                 style: TextStyle(
+//                   fontWeight: FontWeight.w600,
+//                   fontSize: 14,
+//                 ),
+//               ),
+//               const SizedBox(height: 8),
+//               Container(
+//                 decoration: BoxDecoration(
+//                   border: Border.all(color: const Color(0xFFCCCCCC)),
+//                   borderRadius: BorderRadius.circular(8),
+//                 ),
+//                 child: Row(
+//                   children: [
+//                     IconButton(
+//                       icon: const Icon(Icons.remove),
+//                       onPressed: () {
+//                         if (halfTimeDuration > 5) {
+//                           setState(() => halfTimeDuration -= 5);
+//                         }
+//                       },
+//                     ),
+//                     Expanded(
+//                       child: Text(
+//                         '$halfTimeDuration min',
+//                         textAlign: TextAlign.center,
+//                         style: const TextStyle(
+//                           fontSize: 16,
+//                           fontWeight: FontWeight.bold,
+//                         ),
+//                       ),
+//                     ),
+//                     IconButton(
+//                       icon: const Icon(Icons.add),
+//                       onPressed: () {
+//                         setState(() => halfTimeDuration += 5);
+//                       },
+//                     ),
+//                   ],
+//                 ),
+//               ),
+//               const SizedBox(height: 16),
+
+//               // Extra Time Toggle
+//               Container(
+//                 decoration: BoxDecoration(
+//                   color: const Color(0xFFF5F5F5),
+//                   borderRadius: BorderRadius.circular(8),
+//                 ),
+//                 child: SwitchListTile(
+//                   title: const Text(
+//                     'Allow Extra Time',
+//                     style: TextStyle(fontWeight: FontWeight.w600),
+//                   ),
+//                   value: extraTimeAllowed,
+//                   activeColor: const Color(0xFF2E7D32),
+//                   onChanged: (value) {
+//                     setState(() => extraTimeAllowed = value);
+//                   },
+//                   contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+//                 ),
+//               ),
+
+//               // Extra Time Duration (only show if enabled)
+//               if (extraTimeAllowed) ...[
+//                 const SizedBox(height: 16),
+//                 const Text(
+//                   'Extra Time Duration (minutes)',
+//                   style: TextStyle(
+//                     fontWeight: FontWeight.w600,
+//                     fontSize: 14,
+//                   ),
+//                 ),
+//                 const SizedBox(height: 8),
+//                 Container(
+//                   decoration: BoxDecoration(
+//                     border: Border.all(color: const Color(0xFFCCCCCC)),
+//                     borderRadius: BorderRadius.circular(8),
+//                   ),
+//                   child: Row(
+//                     children: [
+//                       IconButton(
+//                         icon: const Icon(Icons.remove),
+//                         onPressed: () {
+//                           if (extraTimeDuration > 10) {
+//                             setState(() => extraTimeDuration -= 10);
+//                           }
+//                         },
+//                       ),
+//                       Expanded(
+//                         child: Text(
+//                           '$extraTimeDuration min',
+//                           textAlign: TextAlign.center,
+//                           style: const TextStyle(
+//                             fontSize: 16,
+//                             fontWeight: FontWeight.bold,
+//                           ),
+//                         ),
+//                       ),
+//                       IconButton(
+//                         icon: const Icon(Icons.add),
+//                         onPressed: () {
+//                           setState(() => extraTimeDuration += 10);
+//                         },
+//                       ),
+//                     ],
+//                   ),
+//                 ),
+//               ],
+//             ],
+//           ),
+//         ),
+//         actions: [
+//           TextButton(
+//             onPressed: () => Navigator.of(context).pop(null),
+//             child: const Text(
+//               'Cancel',
+//               style: TextStyle(color: Color(0xFF666666)),
+//             ),
+//           ),
+//           ElevatedButton(
+//             onPressed: () {
+//               Navigator.of(context).pop({
+//                 'totalDuration': totalDuration,
+//                 'halfTimeDuration': halfTimeDuration,
+//                 'extraTimeAllowed': extraTimeAllowed,
+//                 'extraTimeDuration': extraTimeDuration,
+//               });
+//             },
+//             style: ElevatedButton.styleFrom(
+//               backgroundColor: const Color(0xFF2E7D32),
+//               foregroundColor: Colors.white,
+//               shape: RoundedRectangleBorder(
+//                 borderRadius: BorderRadius.circular(8),
+//               ),
+//             ),
+//             child: const Text('Continue'),
+//           ),
+//         ],
+//       ),
+//     ),
+//   );
+// }
+
+  Future<Map<String, dynamic>?> _showMatchConfigModal(
+      BuildContext context) async {
+    int totalDuration = 90;
+    int halfTimeDuration = 15;
+
+    bool extraTimeAllowedForHalfTime = false;
+    int extraTimeDurationForHalfTime = 5;
+
+    bool extraTimeAllowedForFullTime = false;
+    int extraTimeDurationForFullTime = 10;
+
+    return showDialog<Map<String, dynamic>>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          title: const Text(
+            'Match Configuration',
+            style: TextStyle(
+              color: Color(0xFF2E7D32),
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Set match duration and settings',
+                  style: TextStyle(color: Color(0xFF666666), fontSize: 14),
+                ),
+                const SizedBox(height: 20),
+
+                // 🕐 Total Duration
+                _buildStepper(
+                  label: 'Total Duration (minutes)',
+                  value: totalDuration,
+                  onDecrease: () {
+                    if (totalDuration > 30) setState(() => totalDuration -= 15);
+                  },
+                  onIncrease: () => setState(() => totalDuration += 15),
+                ),
+                const SizedBox(height: 16),
+
+                // 🛑 Half Time Duration
+                _buildStepper(
+                  label: 'Half Time Duration (minutes)',
+                  value: halfTimeDuration,
+                  step: 5,
+                  minValue: 5,
+                  onDecrease: () {
+                    if (halfTimeDuration > 5)
+                      setState(() => halfTimeDuration -= 5);
+                  },
+                  onIncrease: () => setState(() => halfTimeDuration += 5),
+                ),
+                const SizedBox(height: 16),
+
+                // ⚽ Extra Time for Half-Time
+                SwitchListTile(
+                  title: const Text('Allow Extra Time (Half-Time)'),
+                  value: extraTimeAllowedForHalfTime,
+                  activeColor: const Color(0xFF2E7D32),
+                  onChanged: (value) =>
+                      setState(() => extraTimeAllowedForHalfTime = value),
+                ),
+                if (extraTimeAllowedForHalfTime)
+                  _buildStepper(
+                    label: 'Extra Time Duration (Half-Time)',
+                    value: extraTimeDurationForHalfTime,
+                    step: 5,
+                    minValue: 5,
+                    onDecrease: () {
+                      if (extraTimeDurationForHalfTime > 5) {
+                        setState(() => extraTimeDurationForHalfTime -= 5);
+                      }
+                    },
+                    onIncrease: () =>
+                        setState(() => extraTimeDurationForHalfTime += 5),
+                  ),
+                const SizedBox(height: 16),
+
+                // 🏁 Extra Time for Full-Time
+                SwitchListTile(
+                  title: const Text('Allow Extra Time (Full-Time)'),
+                  value: extraTimeAllowedForFullTime,
+                  activeColor: const Color(0xFF2E7D32),
+                  onChanged: (value) =>
+                      setState(() => extraTimeAllowedForFullTime = value),
+                ),
+                if (extraTimeAllowedForFullTime)
+                  _buildStepper(
+                    label: 'Extra Time Duration (Full-Time)',
+                    value: extraTimeDurationForFullTime,
+                    step: 5,
+                    minValue: 5,
+                    onDecrease: () {
+                      if (extraTimeDurationForFullTime > 5) {
+                        setState(() => extraTimeDurationForFullTime -= 5);
+                      }
+                    },
+                    onIncrease: () =>
+                        setState(() => extraTimeDurationForFullTime += 5),
+                  ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(null),
+              child: const Text('Cancel',
+                  style: TextStyle(color: Color(0xFF666666))),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop({
+                  "totalDuration": totalDuration,
+                  "halfTimeDuration": halfTimeDuration,
+                  "extraTimeAllowedForHalfTime": extraTimeAllowedForHalfTime,
+                  "extraTimeDurationForHalfTime": extraTimeDurationForHalfTime,
+                  "extraTimeAllowedForFullTime": extraTimeAllowedForFullTime,
+                  "extraTimeDurationForFullTime": extraTimeDurationForFullTime,
+                });
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF2E7D32),
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8)),
+              ),
+              child: const Text('Continue'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Reusable stepper widget
+  Widget _buildStepper({
+    required String label,
+    required int value,
+    required VoidCallback onDecrease,
+    required VoidCallback onIncrease,
+    int step = 10,
+    int minValue = 10,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label,
+            style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+        const SizedBox(height: 8),
+        Container(
+          decoration: BoxDecoration(
+            border: Border.all(color: const Color(0xFFCCCCCC)),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Row(
+            children: [
+              IconButton(
+                icon: const Icon(Icons.remove),
+                onPressed: () {
+                  if (value > minValue) onDecrease();
+                },
+              ),
+              Expanded(
+                child: Text(
+                  '$value min',
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                      fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+              ),
+              IconButton(icon: const Icon(Icons.add), onPressed: onIncrease),
+            ],
+          ),
+        ),
+      ],
+    );
   }
 
   void _showMatchOptions(BuildContext context, MatchData match) {
@@ -576,7 +1069,18 @@ class _ViewMatchScreenState extends State<ViewMatchScreen>
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Opening live match...')),
     );
-          Navigator.pushReplacement(
+
+    if (match.scoringMethod == "Set Based") {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => SetBasedScreen(
+            matchId: match.id.toString(),
+          ),
+        ),
+      );
+    } else if (match.scoringMethod == "Goal Based") {
+      Navigator.pushReplacement(
         context,
         MaterialPageRoute(
           builder: (context) => ScorecardScreen(
@@ -584,6 +1088,16 @@ class _ViewMatchScreenState extends State<ViewMatchScreen>
           ),
         ),
       );
+    } else if (match.scoringMethod == "Point Based") {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => PointBasedScreen(
+            matchId: match.id.toString(),
+          ),
+        ),
+      );
+    }
   }
 
   void _viewMatchDetails(MatchData match) {
@@ -598,8 +1112,8 @@ class _ViewMatchScreenState extends State<ViewMatchScreen>
         return 'Live';
       case 'upcoming':
         return 'Upcoming';
-      case 'completed':
-        return 'Completed';
+      case 'finished':
+        return 'Finished';
       case 'postponed':
         return 'Postponed';
       case 'cancelled':
@@ -615,7 +1129,7 @@ class _ViewMatchScreenState extends State<ViewMatchScreen>
         return Icons.play_circle_filled;
       case 'upcoming':
         return Icons.schedule;
-      case 'completed':
+      case 'finished':
         return Icons.check_circle;
       case 'postponed':
         return Icons.schedule_outlined;
@@ -632,7 +1146,7 @@ class _ViewMatchScreenState extends State<ViewMatchScreen>
         return 'No live matches at the moment';
       case 'upcoming':
         return 'No upcoming matches scheduled';
-      case 'completed':
+      case 'finished':
         return 'No completed matches yet';
       case 'postponed':
         return 'No postponed matches';
@@ -649,7 +1163,7 @@ class _ViewMatchScreenState extends State<ViewMatchScreen>
         return const Color(0xFF2E7D32);
       case 'upcoming':
         return const Color(0xFF1976D2);
-      case 'completed':
+      case 'finished':
         return const Color(0xFF666666);
       case 'postponed':
         return const Color(0xFFFF9800);

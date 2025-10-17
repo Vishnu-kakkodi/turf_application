@@ -978,30 +978,67 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen>
         ],
       ),
 // Replace the existing floating action button code
-      floatingActionButton: _tabController.index == 2
-          ? FloatingActionButton.extended(
-              onPressed: () async {
-                final result = await Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => CreateTournamentMatchScreen(
-                      tournamentId: widget.tournament.id,
-                      tournamentName: widget.tournament.name,
-                    ),
-                  ),
-                );
+floatingActionButton: Builder(
+  builder: (context) {
+    if (_tabController.index == 2) {
+      // ✅ Show "Schedule Match" button on tab index 2
+      return FloatingActionButton.extended(
+        onPressed: () async {
+          final result = await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => CreateTournamentMatchScreen(
+                tournamentId: widget.tournament.id,
+                tournamentName: widget.tournament.name,
+              ),
+            ),
+          );
 
-                // Refresh matches if needed
-                if (result == true) {
-                  // Refresh your matches list
-                }
-              },
-              backgroundColor: const Color(0xFF2E7D32),
-              icon: const Icon(Icons.add, color: Colors.white),
-              label: const Text('Schedule Match',
-                  style: TextStyle(color: Colors.white)),
-            )
-          : null,
+          if (result == true) {
+            // Refresh your matches list
+          }
+        },
+        backgroundColor: const Color(0xFF2E7D32),
+        icon: const Icon(Icons.add, color: Colors.white),
+        label: const Text(
+          'Schedule Match',
+          style: TextStyle(color: Colors.white),
+        ),
+      );
+    } else if (_tabController.index == 1) {
+      // ✅ Show "Add Team" button on tab index 1
+      return FloatingActionButton.extended(
+        onPressed: () async {
+                    _showAddTeamDialog();
+
+          // final result = await Navigator.push(
+          //   context,
+          //   MaterialPageRoute(
+          //     builder: (context) => AddTeamScreen(
+          //       tournamentId: widget.tournament.id,
+          //     ),
+          //   ),
+          // );
+
+          // if (result == true) {
+          //   // Refresh your teams list
+          // }
+        },
+        backgroundColor: const Color(0xFF2E7D32),
+        icon: const Icon(Icons.group_add, color: Colors.white),
+        label: const Text(
+          'Add Team',
+          style: TextStyle(color: Colors.white),
+        ),
+      );
+    } else {
+      // ❌ No button for other tabs
+      return Text("");
+    }
+  },
+),
+
+          
     );
   }
 
@@ -1222,21 +1259,21 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen>
                   ),
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 24),
-                ElevatedButton.icon(
-                  onPressed: () => _showAddTeamDialog(),
-                  icon: const Icon(Icons.add, color: Colors.white),
-                  label: const Text('Add Your First Team',
-                      style: TextStyle(color: Colors.white)),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF2E7D32),
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 24, vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                ),
+                // const SizedBox(height: 24),
+                // ElevatedButton.icon(
+                //   onPressed: () => _showAddTeamDialog(),
+                //   icon: const Icon(Icons.add, color: Colors.white),
+                //   label: const Text('Add Your First Team',
+                //       style: TextStyle(color: Colors.white)),
+                //   style: ElevatedButton.styleFrom(
+                //     backgroundColor: const Color(0xFF2E7D32),
+                //     padding: const EdgeInsets.symmetric(
+                //         horizontal: 24, vertical: 12),
+                //     shape: RoundedRectangleBorder(
+                //       borderRadius: BorderRadius.circular(12),
+                //     ),
+                //   ),
+                // ),
               ],
             ),
           );

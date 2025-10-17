@@ -739,11 +739,7 @@ class _CreateNewMatchScreenState extends State<CreateNewMatchScreen>
   static const List<String> _matchTypes = ['T20', 'ODI', 'Test', 'T10'];
   static const List<String> _matchFormats = [
     'Friendly',
-    'League',
-    'Tournament',
     'Practice',
-    'International',
-    'Domestic'
   ];
 
   final String userId = '6884add9466d0e6a78245550'; // Replace with actual user ID
@@ -961,52 +957,50 @@ class _CreateNewMatchScreenState extends State<CreateNewMatchScreen>
                   const SizedBox(height: 24),
                   // Tab Bar
                   Container(
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF5F5F5),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: TabBar(
-                      controller: _tabController,
-                      indicator: BoxDecoration(
-                        color: const Color(0xFF2E7D32),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      indicatorColor: Colors.transparent,
+  decoration: BoxDecoration(
+    color: const Color(0xFF2E7D32), // Full-width green background
+    borderRadius: BorderRadius.circular(12),
+  ),
+  child: TabBar(
+    controller: _tabController,
+    indicator: const BoxDecoration(), // 👈 removes underline completely
+    indicatorColor: Colors.transparent,
+    labelColor: Colors.white,
+    unselectedLabelColor: Colors.white.withOpacity(0.7), // subtle contrast
+    labelStyle: const TextStyle(
+      fontSize: 16,
+      fontWeight: FontWeight.w600,
+    ),
+    onTap: (index) {
+      // Reset selections when switching tabs
+      setState(() {
+        _selectedTeam1 = null;
+        _selectedTeam2 = null;
+        _selectedTeam1Id = null;
+        _selectedTeam2Id = null;
+        _team1Controller.clear();
+        _team2Controller.clear();
+        _showTeam1Suggestions = false;
+        _showTeam2Suggestions = false;
+      });
+    },
+    tabs: const [
+      Tab(text: 'Cricket Match'),
+      // Tab(text: 'Tournament'),
+    ],
+  ),
+)
 
-                      labelColor: Colors.white,
-                      unselectedLabelColor: const Color(0xFF333333),
-                      labelStyle: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                      onTap: (index) {
-                        // Reset selections when switching tabs
-                        setState(() {
-                          _selectedTeam1 = null;
-                          _selectedTeam2 = null;
-                          _selectedTeam1Id = null;
-                          _selectedTeam2Id = null;
-                          _team1Controller.clear();
-                          _team2Controller.clear();
-                          _showTeam1Suggestions = false;
-                          _showTeam2Suggestions = false;
-                        });
-                      },
-                      tabs: const [
-                        Tab(text: 'Friendly Match'),
-                        Tab(text: 'Tournament'),
-                      ],
-                    ),
-                  ),
                 ],
               ),
             ),
             Expanded(
               child: TabBarView(
                 controller: _tabController,
+                physics: const NeverScrollableScrollPhysics(),
                 children: [
                   _buildFriendlyMatchTab(),
-                  _buildTournamentTab(),
+                  // _buildTournamentTab(),
                 ],
               ),
             ),

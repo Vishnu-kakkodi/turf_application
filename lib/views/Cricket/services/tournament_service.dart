@@ -90,6 +90,9 @@ class TournamentService {
     try {
       final url = Uri.parse('$baseUrl/allteams?search=$query');
       final response = await http.get(url);
+      print("Responseeeseseseesuuuuu$url");
+
+      print("Responseeeseseseesuuuuu${response.body}");
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);

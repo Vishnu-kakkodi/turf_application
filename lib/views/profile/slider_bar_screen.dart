@@ -7,6 +7,7 @@ import 'package:booking_application/referearn/refer_earn.dart';
 import 'package:booking_application/views/Cricket/cricket_score_manager.dart';
 import 'package:booking_application/views/Cricket/match_history.dart';
 import 'package:booking_application/views/Cricket/create_team.dart';
+import 'package:booking_application/views/Cricket/tournament.dart';
 import 'package:booking_application/views/Games/choose_game_screen.dart';
 import 'package:booking_application/views/Games/game_manager_screen.dart';
 import 'package:booking_application/views/Games/scorecard_pro_screen.dart';
@@ -194,19 +195,19 @@ class _SliderBarScreenState extends State<SliderBarScreen> {
                     ),
 
                     // Create a Match - Direct navigation
-                    // GestureDetector(
-                    //   onTap: () {
-                    //     Navigator.push(
-                    //         context,
-                    //         MaterialPageRoute(
-                    //             builder: (context) => const MatchesScreen()));
-                    //   },
-                    //   child: _buildMenuItem(
-                    //     icon: Icons.sports_cricket,
-                    //     title: 'Create a Match',
-                    //     badgeColor: Colors.orange,
-                    //   ),
-                    // ),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) =>  TournamentHomeScreen()));
+                      },
+                      child: _buildMenuItem(
+                        icon: Icons.games,
+                        title: 'Tournaments',
+                        badgeColor: Colors.orange,
+                      ),
+                    ),
 
                     // Create a Team - Direct navigation
                     // GestureDetector(

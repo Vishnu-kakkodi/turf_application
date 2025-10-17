@@ -1,6 +1,7 @@
 
 import 'package:booking_application/views/Cricket/live_match_screen.dart';
 import 'package:booking_application/views/Cricket/match_toss_screen.dart';
+import 'package:booking_application/views/Cricket/views/completed_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -434,37 +435,42 @@ class _ViewMatchesScreenState extends State<ViewMatchesScreen>
         );
 
       case MatchStatus.completed:
-        return Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          decoration: BoxDecoration(
-            color: const Color(0xFF666666),
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: const [
-              Icon(
-                Icons.check_circle,
-                size: 14,
-                color: Colors.white,
-              ),
-              SizedBox(width: 6),
-              Text(
-                'COMPLETED',
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
+        return GestureDetector(
+          onTap: (){
+            Navigator.push(context, MaterialPageRoute(builder: (context)=>CompletedScreen()));
+          },
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            decoration: BoxDecoration(
+              color: const Color.fromARGB(255, 102, 255, 138),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: const [
+                Icon(
+                  Icons.check_circle,
+                  size: 14,
                   color: Colors.white,
                 ),
-              ),
-            ],
+                SizedBox(width: 6),
+                Text(
+                  'VIEW',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+              ],
+            ),
           ),
         );
     }
   }
 
   void _startMatch(Match match) {
-    Navigator.push(
+    Navigator.pushReplacement(
         context,
         MaterialPageRoute(
             builder: (context) => MatchTossScreen(

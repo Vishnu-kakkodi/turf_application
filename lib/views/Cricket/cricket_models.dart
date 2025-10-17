@@ -1484,7 +1484,7 @@ static Future<Map<String, String>?> showOpeningBatsmenModal(
                       if (winningTeam != null && margin != null) ...[
                         const SizedBox(height: 8),
                         Text(
-                          '$winningTeam won by $margin',
+                          '$winningTeam',
                           style: const TextStyle(
                             fontSize: 16,
                             color: Colors.white,

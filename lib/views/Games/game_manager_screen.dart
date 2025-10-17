@@ -93,19 +93,19 @@ class GameManagerScreen extends StatelessWidget {
                         print('View Matches tapped');
                       },
                     ),
-                    const SizedBox(height: 20),
+                    // const SizedBox(height: 20),
 
-                    _buildMenuCard(
-                      title: 'View Tournaments',
-                      onTap: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => TournamentHomeScreen()));
+                    // _buildMenuCard(
+                    //   title: 'View Tournaments',
+                    //   onTap: () {
+                    //     Navigator.push(
+                    //         context,
+                    //         MaterialPageRoute(
+                    //             builder: (context) => TournamentHomeScreen()));
                         
-                        print('View Tournaments tapped');
-                      },
-                    ),
+                    //     print('View Tournaments tapped');
+                    //   },
+                    // ),
                   ],
                 ),
               ],
