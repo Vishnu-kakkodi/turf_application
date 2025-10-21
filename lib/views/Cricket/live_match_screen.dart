@@ -2720,9 +2720,6 @@
 //   }
 // }
 
-
-
-
 import 'package:booking_application/views/Cricket/services/api_service.dart';
 import 'package:booking_application/views/Cricket/services/socket_service.dart';
 import 'package:booking_application/views/Cricket/views/innings_break_screen.dart';
@@ -2762,7 +2759,7 @@ class _LiveMatchScreenState extends State<LiveMatchScreen>
   String currentBowler = "Player B2";
   String currentBowlerId = "Player B2";
   String nonStriker = "Player A3";
-    int nonStrikerRun = 0;
+  int nonStrikerRun = 0;
   int nonStrikerBowl = 0;
   bool isWaitingForBatsman = false;
   bool isWaitingForBowler = false;
@@ -2884,10 +2881,8 @@ class _LiveMatchScreenState extends State<LiveMatchScreen>
               match['currentStriker']?['name'] ??
               match['opening']?['striker']?['name'] ??
               'Waiting...';
-                        currentBatsmanRun = currentStriker?['runs'] ??
-              0;
-                        currentBatsmanBowl = currentStriker?['balls'] ??
-              0;
+          currentBatsmanRun = currentStriker?['runs'] ?? 0;
+          currentBatsmanBowl = currentStriker?['balls'] ?? 0;
           strikerId = currentStriker?['playerId'] ??
               match['currentStriker']?['_id'] ??
               match['opening']?['striker']?['_id'];
@@ -2896,10 +2891,8 @@ class _LiveMatchScreenState extends State<LiveMatchScreen>
               match['nonStriker']?['name'] ??
               match['opening']?['nonStriker']?['name'] ??
               'Waiting...';
-                        nonStrikerRun = currentNonStriker?['runs'] ??
-              0;
-                        nonStrikerBowl = currentNonStriker?['balls'] ??
-              0;
+          nonStrikerRun = currentNonStriker?['runs'] ?? 0;
+          nonStrikerBowl = currentNonStriker?['balls'] ?? 0;
           nonStrikerId = currentNonStriker?['playerId'] ??
               match['nonStriker']?['_id'] ??
               match['opening']?['nonStriker']?['_id'];
@@ -3015,9 +3008,13 @@ class _LiveMatchScreenState extends State<LiveMatchScreen>
                           'name': bowler['playerName'] ?? 'Unknown',
                           'overs': (bowler['overs'] ?? 0.0).toDouble(),
                           'maidens': bowler['maidens'] ?? 0,
-                          'runs': bowler['runsConceded'] ?? 0,
+                          'runs': bowler['runs'] ?? 0,
                           'wickets': bowler['wickets'] ?? 0,
-                          'wides': bowler['wides'] ?? 0,
+                                                    'wides': bowler['wides'] ?? 0,
+
+                          'byes': bowler['byes'] ?? 0,
+
+                          'legByes': bowler['legByes'] ?? 0,
                           'noballs': bowler['noBalls'] ?? 0,
                           'econ': (bowler['economy'] ?? 0.0).toDouble(),
                         }));
@@ -3061,8 +3058,11 @@ class _LiveMatchScreenState extends State<LiveMatchScreen>
                               'name': _getPlayerNameById(player['playerId']),
                               'overs': (player['overs'] ?? 0.0).toDouble(),
                               'maidens': player['maidens'] ?? 0,
-                              'runs': player['runsConceded'] ?? 0,
+                              'runs': player['runs'] ?? 0,
                               'wickets': player['wickets'] ?? 0,
+                                                        'byes': player['byes'] ?? 0,
+
+                          'legByes': player['legByes'] ?? 0,
                               'wides': player['wides'] ?? 0,
                               'noballs': player['noBalls'] ?? 0,
                               'econ': (player['economy'] ?? 0.0).toDouble(),
@@ -3169,21 +3169,21 @@ class _LiveMatchScreenState extends State<LiveMatchScreen>
           strikerId = currentPlayers['striker']['playerId'];
         } else if (data['currentStriker'] != null) {
           currentBatsman = data['currentStriker']['name'];
-                    currentBatsmanRun = data['currentStriker']['stats']['runs'] ?? 0;
+          currentBatsmanRun = data['currentStriker']['stats']['runs'] ?? 0;
           currentBatsmanBowl = data['currentStriker']['stats']['balls'] ?? 0;
           strikerId = data['currentStriker']['_id'];
         }
 
         if (currentPlayers['nonStriker'] != null) {
           nonStriker = currentPlayers['nonStriker']['playerName'];
-                    nonStrikerRun = currentPlayers['nonStriker']['runs'] ?? 0;
+          nonStrikerRun = currentPlayers['nonStriker']['runs'] ?? 0;
 
           nonStrikerBowl = currentPlayers['nonStriker']['balls'] ?? 0;
 
           nonStrikerId = currentPlayers['nonStriker']['playerId'];
         } else if (data['nonStriker'] != null) {
           nonStriker = data['nonStriker']['name'];
-                              nonStrikerRun = data['nonStriker']['stats']['runs'];
+          nonStrikerRun = data['nonStriker']['stats']['runs'];
 
           nonStrikerBowl = data['nonStriker']['stats']['balls'] ?? 0;
           nonStrikerId = data['nonStriker']['_id'] ?? 0;
@@ -3290,8 +3290,11 @@ class _LiveMatchScreenState extends State<LiveMatchScreen>
                       'name': bowler['playerName'] ?? 'Unknown',
                       'overs': (bowler['overs'] ?? 0.0).toDouble(),
                       'maidens': bowler['maidens'] ?? 0,
-                      'runs': bowler['runsConceded'] ?? 0,
+                      'runs': bowler['runs'] ?? 0,
                       'wickets': bowler['wickets'] ?? 0,
+                                                'byes': bowler['byes'] ?? 0,
+
+                          'legByes': bowler['legByes'] ?? 0,
                       'wides': bowler['wides'] ?? 0,
                       'noballs': bowler['noBalls'] ?? 0,
                       'econ': (bowler['economy'] ?? 0.0).toDouble(),
@@ -3338,6 +3341,12 @@ class _LiveMatchScreenState extends State<LiveMatchScreen>
           isExtra = true;
         } else if (ball['extraType'] == 'noball') {
           ballDisplay = "Nb";
+          isExtra = true;
+        } else if (ball['extraType'] == 'bye') {
+          ballDisplay = "bye";
+          isExtra = true;
+        } else if (ball['extraType'] == 'legbye') {
+          ballDisplay = "LB";
           isExtra = true;
         } else {
           int runs = ball['runs'] ?? 0;
@@ -3533,11 +3542,9 @@ class _LiveMatchScreenState extends State<LiveMatchScreen>
       }
 
       print("Striker Id: $strikerId");
-            print("Non Striker Id: $nonStrikerId");
+      print("Non Striker Id: $nonStrikerId");
       print("Bowler Id: $bowlerId");
-            print("Current Innings: $currentInnings");
-
-
+      print("Current Innings: $currentInnings");
 
       Map<String, dynamic> payload = {
         "runs": currentRun,
@@ -3598,21 +3605,23 @@ class _LiveMatchScreenState extends State<LiveMatchScreen>
     }
   }
 
-  Future<void> _updateExtra(String extraType, String bowlerId) async {
+  Future<void> _updateByes(String extraType, String bowlerId) async {
     try {
       int baseRuns = 0;
       bool ballUpdate = true;
 
       int? currentRun;
 
-      if (extraType == 'wide' || extraType == 'noBall') {
+      if (extraType == 'bye' || extraType == 'legbye') {
         baseRuns = 0;
         ballUpdate = false;
         currentRun = await CricketModals.showRunSelectionModal(context);
-        currentRun ??= 0;
+        if (currentRun == null) return;
+
       } else {
         currentRun = await CricketModals.showRunSelectionModal(context);
-        currentRun ??= 0;
+        if (currentRun == null) return;
+
       }
 
       final int totalExtraRuns = baseRuns + currentRun;
@@ -3625,9 +3634,179 @@ class _LiveMatchScreenState extends State<LiveMatchScreen>
       });
 
       setState(() {
-        totalRuns += totalExtraRuns + 1;
-        String display = extraType == 'wide' ? 'Wd' : 'Nb';
+                _updateOvers();
+
+        totalRuns += totalExtraRuns;
+        String display;
+        if (extraType == 'wide') {
+          display = 'Wd';
+        } else if (extraType == 'noball') {
+          display = 'Nb';
+        } else if (extraType == 'bye') {
+                    if(currentRun != 0){
+            display = 'bye+$currentRun';
+          }else{
+            display = 'bye';
+          }
+        } else if (extraType == 'legbye') {
+                    if(currentRun != 0){
+            display = 'LB+$currentRun';
+          }else{
+            display = 'LB';
+          }        } else {
+          display = ''; // default empty if unknown type
+        }
+
         _updateThisOver(display, isExtra: true, isWicket: false);
+                if (totalExtraRuns % 2 == 1) {
+          String temp = currentBatsman;
+          dynamic tempRun = currentBatsmanRun;
+          dynamic tempBall = currentBatsmanBowl;
+          String? tempId = strikerId;
+          currentBatsman = nonStriker;
+          currentBatsmanRun = nonStrikerRun;
+          currentBatsmanBowl = nonStrikerBowl;
+          strikerId = nonStrikerId;
+          nonStrikerRun = tempRun;
+          nonStrikerBowl = tempBall;
+          nonStriker = temp;
+          nonStrikerId = tempId;
+        }
+
+        if (overs > 0) {
+          runRate = totalRuns / overs;
+        }
+      });
+
+      _showSnackBar('${extraType.toUpperCase()} added (+$totalExtraRuns)');
+    } catch (e) {
+      _showSnackBar('Failed to update extra: $e');
+      print('Error updating extra: $e');
+    }
+  }
+
+  // Future<void> _updateExtra(String extraType, String bowlerId) async {
+  //   try {
+  //     int baseRuns = 0;
+  //     bool ballUpdate = true;
+
+  //     int? currentRun;
+
+  //     if (extraType == 'wide' || extraType == 'noBall') {
+  //       baseRuns = 0;
+  //       ballUpdate = false;
+  //       currentRun = await CricketModals.showRunSelectionModal(context);
+  //           if (currentRun == null) return;
+
+  //       currentRun ??= 0;
+  //     } else {
+  //       currentRun = await CricketModals.showRunSelectionModal(context);
+  //           if (currentRun == null) return;
+
+  //       currentRun ??= 0;
+  //     }
+
+  //     final int totalExtraRuns = baseRuns + currentRun;
+
+  //     await ApiService.updateMatch(widget.matchId, {
+  //       "extraType": extraType,
+  //       "runs": totalExtraRuns,
+  //       "ballUpdate": true,
+  //       "bowler": bowlerId
+  //     });
+
+  //     setState(() {
+  //       totalRuns += totalExtraRuns + 1;
+  //       String display = extraType == 'wide' ? 'Wd' : 'Nb';
+  //       _updateThisOver(display, isExtra: true, isWicket: false);
+  //     });
+
+  //     _showSnackBar('${extraType.toUpperCase()} added (+$totalExtraRuns)');
+  //   } catch (e) {
+  //     _showSnackBar('Failed to update extra: $e');
+  //     print('Error updating extra: $e');
+  //   }
+  // }
+
+  Future<void> _updateExtra(String extraType, String bowlerId) async {
+    try {
+      int baseRuns = 0;
+      bool ballUpdate = true;
+      int? currentRun;
+
+      // Wide and No-ball special handling
+      if (extraType == 'wide' || extraType == 'noBall') {
+        baseRuns = 0;
+        ballUpdate = false;
+        currentRun = await CricketModals.showRunSelectionModal(context);
+        if (currentRun == null) return;
+      } else {
+        currentRun = await CricketModals.showRunSelectionModal(context);
+        if (currentRun == null) return;
+      }
+
+      currentRun ??= 0;
+      final int totalExtraRuns = baseRuns + currentRun;
+
+      // API call to update match
+      await ApiService.updateMatch(widget.matchId, {
+        "extraType": extraType,
+        "runs": totalExtraRuns,
+        "ballUpdate": true,
+        "bowler": bowlerId,
+        "striker": strikerId,
+        "nonStriker": nonStrikerId,
+      });
+
+      setState(() {
+        // Ensure non-nullable int
+        int runsTaken = currentRun ?? 0;
+
+        // Update total runs (including the extra run itself)
+        totalRuns += runsTaken + 1;
+                  currentBatsmanRun += runsTaken;
+
+
+        // Update over display
+        String display;
+        if (extraType == 'wide') {
+          if(runsTaken != 0){
+            display = 'Wd+$runsTaken';
+          }else{
+            display = 'Wd';
+          }
+        } else if (extraType == 'noball') {
+                    if(runsTaken != 0){
+            display = 'Nb+$runsTaken';
+          }else{
+            display = 'Nb';
+          }
+        } else if (extraType == 'bye') {
+          display = 'B';
+        } else if (extraType == 'legbye') {
+          display = 'LB';
+        } else {
+          display = ''; // default empty if unknown type
+        }
+        _updateThisOver(display, isExtra: true, isWicket: false);
+
+        // Swap strike if odd runs
+        if (runsTaken % 2 == 1) {
+          String temp = currentBatsman;
+          dynamic tempRun = currentBatsmanRun;
+          dynamic tempBall = currentBatsmanBowl;
+          String? tempId = strikerId;
+
+          currentBatsman = nonStriker;
+          currentBatsmanRun = nonStrikerRun;
+          currentBatsmanBowl = nonStrikerBowl;
+          strikerId = nonStrikerId;
+
+          nonStriker = temp;
+          nonStrikerRun = tempRun;
+          nonStrikerBowl = tempBall;
+          nonStrikerId = tempId;
+        }
       });
 
       _showSnackBar('${extraType.toUpperCase()} added (+$totalExtraRuns)');
@@ -3652,7 +3831,7 @@ class _LiveMatchScreenState extends State<LiveMatchScreen>
       //   "innings": currentInnings
       // };
 
-      Map<String, dynamic> payload =  {
+      Map<String, dynamic> payload = {
         "wickets": 1,
         "ballUpdate": true,
         "innings": currentInnings,
@@ -3675,14 +3854,14 @@ class _LiveMatchScreenState extends State<LiveMatchScreen>
       });
 
       _initializeMatch(showTabLoading: true);
-                print("kkkkkkkkkkkkkjjjjjjjjjjjjjjjjjjjjjjjjjjjwickets$wickets");
-                                print("Teamplayers${teamAPlayers.length}");
+      print("kkkkkkkkkkkkkjjjjjjjjjjjjjjjjjjjjjjjjjjjwickets$wickets");
+      print("Teamplayers${teamAPlayers.length}");
 
-
-      if (wickets >= ((teamAPlayers.length)-1) || wickets >= ((teamBPlayers.length))-1) {
+      if (wickets >= ((teamAPlayers.length) - 1) ||
+          wickets >= ((teamBPlayers.length)) - 1) {
         _handleInningsEnd();
       } else {
-                print("kkkkkkkkkkkkkjjjjjjjjjjjjjjjjjjjjjjjjjjj");
+        print("kkkkkkkkkkkkkjjjjjjjjjjjjjjjjjjjjjjjjjjj");
 
         await _selectNextBatsman(dismissedPlayerId);
       }
@@ -3726,18 +3905,18 @@ class _LiveMatchScreenState extends State<LiveMatchScreen>
         // strikerId = nonStrikerId;
         // nonStriker = temp;
         // nonStrikerId = tempId;
-                  String temp = currentBatsman;
-          dynamic tempRun = currentBatsmanRun;
-          dynamic tempBall = currentBatsmanBowl;
-          String? tempId = strikerId;
-          currentBatsman = nonStriker;
-          currentBatsmanRun = nonStrikerRun;
-          currentBatsmanBowl = nonStrikerBowl;
-          strikerId = nonStrikerId;
-          nonStrikerRun = tempRun;
-          nonStrikerBowl = tempBall;
-          nonStriker = temp;
-          nonStrikerId = tempId;
+        String temp = currentBatsman;
+        dynamic tempRun = currentBatsmanRun;
+        dynamic tempBall = currentBatsmanBowl;
+        String? tempId = strikerId;
+        currentBatsman = nonStriker;
+        currentBatsmanRun = nonStrikerRun;
+        currentBatsmanBowl = nonStrikerBowl;
+        strikerId = nonStrikerId;
+        nonStrikerRun = tempRun;
+        nonStrikerBowl = tempBall;
+        nonStriker = temp;
+        nonStrikerId = tempId;
       });
 
       _showSnackBar('Batsmen swapped');
@@ -3760,9 +3939,7 @@ class _LiveMatchScreenState extends State<LiveMatchScreen>
       });
 
       _showSnackBar('New batsman added');
-            _initializeMatch(showTabLoading: true);
-
-
+      _initializeMatch(showTabLoading: true);
     } catch (e) {
       _showSnackBar('Failed to change striker: $e');
       print('Error changing striker: $e');
@@ -3789,6 +3966,7 @@ class _LiveMatchScreenState extends State<LiveMatchScreen>
       }
 
       _showSnackBar('Last ball undone');
+      _initializeMatch(showTabLoading: true);
     } catch (e) {
       _showSnackBar('Failed to undo: $e');
       print('Error undoing: $e');
@@ -3809,15 +3987,21 @@ class _LiveMatchScreenState extends State<LiveMatchScreen>
     if (result != null && result['name'] != null) {
       String selectedBowlerName = result['name']!;
       String? selectedBowlerId = result['id'];
+      print('Bowler ID Prontingyyyyyy $bowlerId');
 
       if (selectedBowlerId != null && selectedBowlerId.isNotEmpty) {
         setState(() {
           currentBowler = selectedBowlerName;
           bowlerId = selectedBowlerId;
         });
+        print('Bowler ID Prontingttttttt $bowlerId');
 
         await _changeBowler(selectedBowlerId);
       }
+    } else {
+      print('Bowler ID Prontinggggggg $bowlerId');
+
+      await _changeBowler(bowlerId.toString());
     }
   }
 
@@ -3853,8 +4037,6 @@ class _LiveMatchScreenState extends State<LiveMatchScreen>
 
 // print("Striker: $strikerId");
 // print("NonStriker: $nonStrikerId");
-
-
 
 //     List<Map<String, String>> availableBatsmenMap = battingTeamPlayers
 //         .where((player) =>
@@ -3897,100 +4079,97 @@ class _LiveMatchScreenState extends State<LiveMatchScreen>
 //     }
 //   }
 
+  Future<void> _selectNextBatsman(String outPlayerId) async {
+    // 1️⃣ Determine batting team
+    List<Map<String, String>> battingTeamPlayers =
+        currentInnings == 1 ? teamAPlayers : teamBPlayers;
 
-Future<void> _selectNextBatsman(String outPlayerId) async {
-  // 1️⃣ Determine batting team
-  List<Map<String, String>> battingTeamPlayers =
-      currentInnings == 1 ? teamAPlayers : teamBPlayers;
+    // 2️⃣ Print current team state
+    print('--- Batting Team Players ---');
+    for (var player in battingTeamPlayers) {
+      print(
+        'Player: ${player['name']} | ID: ${player['id']} | Status: ${player['status']}',
+      );
+    }
 
-  // 2️⃣ Print current team state
-  print('--- Batting Team Players ---');
-  for (var player in battingTeamPlayers) {
-    print(
-      'Player: ${player['name']} | ID: ${player['id']} | Status: ${player['status']}',
-    );
-  }
+    print("Striker: $strikerId");
+    print("NonStriker: $nonStrikerId");
 
-  print("Striker: $strikerId");
-  print("NonStriker: $nonStrikerId");
+    // 3️⃣ Filter available batsmen
+    List<Map<String, String>> availableBatsmenMap =
+        battingTeamPlayers.where((player) {
+      final playerId = player['id'];
+      final playerName = player['name'];
+      final plaplayerStatus = player['status'];
 
-  // 3️⃣ Filter available batsmen
-List<Map<String, String>> availableBatsmenMap = battingTeamPlayers.where((player) {
-  final playerId = player['id'];
-  final playerName = player['name'];
-    final plaplayerStatus = player['status'];
-
-
-  if (plaplayerStatus == "out" || plaplayerStatus == "Out") {
-    print('❌ Excluded (current batsman): $playerName');
-    return false;
-  }
-
-    if (playerId == strikerId || playerId == nonStrikerId) {
-    print('❌ Excluded (current batsman): $playerName');
-    return false;
-  }
-
-  // final matchingEntry = battingScorecard.firstWhere(
-  //   (b) => b['id'] == playerId,
-  //   orElse: () => {},
-  // );
-
-  // final status = matchingEntry['status']?.toString().toLowerCase() ?? 'unknown';
-  // print("ggggggggggggggggggggggg$status");
-  // final isOut = status.contains('out');
-
-  // if (isOut) {
-  //   print('❌ Excluded (already out): $playerName | Status: $status');
-  //   return false;
-  // }
-
-  print('✅ Included: $playerName');
-  return true;
-}).toList();
-
-
-  // 4️⃣ Debug available batsmen
-  print('--- Available Batsmen ---');
-  for (var p in availableBatsmenMap) {
-    print('Player: ${p['name']} | ID: ${p['id']}');
-  }
-
-  // 5️⃣ Handle case when no one is left
-  if (availableBatsmenMap.isEmpty) {
-    _showSnackBar('No batsmen available');
-    return;
-  }
-
-  // 6️⃣ Show selection modal
-  final nextBatsman = await CricketModals.showNextBatsmanModal(
-    context,
-    availableBatsmen: availableBatsmenMap,
-  );
-
-  // 7️⃣ Update state if user selected someone
-  if (nextBatsman != null) {
-    final nextBatsmanId = nextBatsman['id']!;
-    final nextBatsmanName = nextBatsman['name']!;
-
-    setState(() {
-      if (strikerId == outPlayerId) {
-        currentBatsman = nextBatsmanName;
-        currentBatsmanRun = 0;
-        currentBatsmanBowl = 0;
-        strikerId = nextBatsmanId;
-      } else {
-        nonStriker = nextBatsmanName;
-        nonStrikerRun = 0;
-        nonStrikerBowl = 0;
-        nonStrikerId = nextBatsmanId;
+      if (plaplayerStatus == "out" || plaplayerStatus == "Out") {
+        print('❌ Excluded (current batsman): $playerName');
+        return false;
       }
-    });
 
-    await _changeStriker(nextBatsmanId, outPlayerId);
+      if (playerId == strikerId || playerId == nonStrikerId) {
+        print('❌ Excluded (current batsman): $playerName');
+        return false;
+      }
+
+      // final matchingEntry = battingScorecard.firstWhere(
+      //   (b) => b['id'] == playerId,
+      //   orElse: () => {},
+      // );
+
+      // final status = matchingEntry['status']?.toString().toLowerCase() ?? 'unknown';
+      // print("ggggggggggggggggggggggg$status");
+      // final isOut = status.contains('out');
+
+      // if (isOut) {
+      //   print('❌ Excluded (already out): $playerName | Status: $status');
+      //   return false;
+      // }
+
+      print('✅ Included: $playerName');
+      return true;
+    }).toList();
+
+    // 4️⃣ Debug available batsmen
+    print('--- Available Batsmen ---');
+    for (var p in availableBatsmenMap) {
+      print('Player: ${p['name']} | ID: ${p['id']}');
+    }
+
+    // 5️⃣ Handle case when no one is left
+    if (availableBatsmenMap.isEmpty) {
+      _showSnackBar('No batsmen available');
+      return;
+    }
+
+    // 6️⃣ Show selection modal
+    final nextBatsman = await CricketModals.showNextBatsmanModal(
+      context,
+      availableBatsmen: availableBatsmenMap,
+    );
+
+    // 7️⃣ Update state if user selected someone
+    if (nextBatsman != null) {
+      final nextBatsmanId = nextBatsman['id']!;
+      final nextBatsmanName = nextBatsman['name']!;
+
+      setState(() {
+        if (strikerId == outPlayerId) {
+          currentBatsman = nextBatsmanName;
+          currentBatsmanRun = 0;
+          currentBatsmanBowl = 0;
+          strikerId = nextBatsmanId;
+        } else {
+          nonStriker = nextBatsmanName;
+          nonStrikerRun = 0;
+          nonStrikerBowl = 0;
+          nonStrikerId = nextBatsmanId;
+        }
+      });
+
+      await _changeStriker(nextBatsmanId, outPlayerId);
+    }
   }
-}
-
 
   Future<void> _handleInningsEnd() async {
     if (currentInnings == 1) {
@@ -4018,29 +4197,28 @@ List<Map<String, String>> availableBatsmenMap = battingTeamPlayers.where((player
   }
 
   Future<void> _handleMatchEnd() async {
-    if(wickets>=10 && totalRuns<target){
-    await CricketModals.showMatchOverModal(
-      context,
-      result: "Match completed successfully!",
-      winningTeam: "$team1Name won by ${target-totalRuns} runs",
-      margin: "${target-totalRuns} runs",
-    );
-    }else if(wickets<10 && totalRuns >= target){
-          await CricketModals.showMatchOverModal(
-      context,
-      result: "Match completed successfully!",
-      winningTeam: "$team2Name won by ${target-totalRuns} runs",
-      margin: "${totalRuns-target} runs",
-    );
-    }else if(totalRuns == target){
-          await CricketModals.showMatchOverModal(
-      context,
-      result: "Match completed successfully!",
-      winningTeam: "Match Tie",
-      margin: "",
-    );
+    if (wickets >= 10 && totalRuns < target) {
+      await CricketModals.showMatchOverModal(
+        context,
+        result: "Match completed successfully!",
+        winningTeam: "$team1Name won by ${target - totalRuns} runs",
+        margin: "${target - totalRuns} runs",
+      );
+    } else if (wickets < 10 && totalRuns >= target) {
+      await CricketModals.showMatchOverModal(
+        context,
+        result: "Match completed successfully!",
+        winningTeam: "$team2Name won by ${target - totalRuns} runs",
+        margin: "${totalRuns - target} runs",
+      );
+    } else if (totalRuns == target) {
+      await CricketModals.showMatchOverModal(
+        context,
+        result: "Match completed successfully!",
+        winningTeam: "Match Tie",
+        margin: "",
+      );
     }
-
 
     Navigator.of(context).pop();
   }
@@ -4106,10 +4284,10 @@ List<Map<String, String>> availableBatsmenMap = battingTeamPlayers.where((player
         break;
 
       case 'Bye':
-        _updateScore(1, true, true, "bye");
+        _updateByes("bye", bowlerId);
         break;
       case 'Leg Bye':
-        _updateScore(1, true, true, "legbye");
+        _updateByes("legbye", bowlerId);
         break;
 
       case 'Undo':
@@ -4616,6 +4794,39 @@ List<Map<String, String>> availableBatsmenMap = battingTeamPlayers.where((player
                     Color textColor = const Color(0xFF666666);
 
                     String display = ball['display'];
+                    if (display == 'Wd') {
+                      setState(() {
+                        display =
+                            ball['display'] + '+' + ball['runs'].toString();
+                        bgColor = const Color(0xFFFFF3E0);
+                        borderColor = const Color(0xFFFF9800);
+                        textColor = const Color(0xFFFF9800);
+                      });
+                    } else if (display == 'Nb') {
+                      setState(() {
+                        display =
+                            ball['display'] + '+' + ball['runs'].toString();
+                        bgColor = const Color(0xFFFFF3E0);
+                        borderColor = const Color(0xFFFF9800);
+                        textColor = const Color(0xFFFF9800);
+                      });
+                    } else if (display == 'bye') {
+                      setState(() {
+                        display =
+                            ball['display'] + '+' + ball['runs'].toString();
+                        bgColor = const Color(0xFFFFF3E0);
+                        borderColor = const Color(0xFFFF9800);
+                        textColor = const Color(0xFFFF9800);
+                      });
+                    } else if (display == 'LB') {
+                      setState(() {
+                        display =
+                            ball['display'] + '+' + ball['runs'].toString();
+                        bgColor = const Color(0xFFFFF3E0);
+                        borderColor = const Color(0xFFFF9800);
+                        textColor = const Color(0xFFFF9800);
+                      });
+                    }
                     bool isExtra = ball['isExtra'];
 
                     if (display != ".") {
@@ -4623,7 +4834,7 @@ List<Map<String, String>> availableBatsmenMap = battingTeamPlayers.where((player
                         bgColor = const Color(0xFFFFEBEE);
                         borderColor = const Color(0xFFD32F2F);
                         textColor = const Color(0xFFD32F2F);
-                      } else if (display == "Wd" || display == "Nb") {
+                      } else if (display == 'Wd' || display == "Nb") {
                         bgColor = const Color(0xFFFFF3E0);
                         borderColor = const Color(0xFFFF9800);
                         textColor = const Color(0xFFFF9800);
@@ -4651,7 +4862,7 @@ List<Map<String, String>> availableBatsmenMap = battingTeamPlayers.where((player
                           style: TextStyle(
                             color: textColor,
                             fontWeight: FontWeight.bold,
-                            fontSize: 14,
+                            fontSize: 10,
                           ),
                         ),
                       ),
@@ -4832,372 +5043,523 @@ List<Map<String, String>> availableBatsmenMap = battingTeamPlayers.where((player
   //   );
   // }
 
+  void _loadInningsData(int innings) async {
+    setState(() {
+      isTabLoading = true;
+      currentInnings = innings;
+    });
 
-void _loadInningsData(int innings) async {
-  setState(() {
-    isTabLoading = true;
-    currentInnings = innings;
-  });
+    try {
+      // Fetch fresh match data
+      final response = await ApiService.getSingleMatch(widget.matchId);
 
-  try {
-    // Fetch fresh match data
-    final response = await ApiService.getSingleMatch(widget.matchId);
+      if (response['success'] == true) {
+        final match = response['match'];
 
-    if (response['success'] == true) {
-      final match = response['match'];
-      
-      setState(() {
-        // Update current team based on innings
-        currentTeam = innings == 1 ? team1Name : team2Name;
-        
-        // Clear existing data
-        battingScorecard = [];
-        bowlingScorecard = [];
-        
-        // Get scorecard data for the selected innings
-        if (match['scorecard'] != null &&
-            match['scorecard']['innings'] != null &&
-            match['scorecard']['innings'].isNotEmpty) {
-          
-          // Find the specific innings data
-          var selectedInningsData = match['scorecard']['innings'].firstWhere(
-            (inning) => inning['inningsNumber'] == innings,
-            orElse: () => null,
-          );
+        setState(() {
+          // Update current team based on innings
+          currentTeam = innings == 1 ? team1Name : team2Name;
 
-          if (selectedInningsData != null) {
-            // Populate batting scorecard for selected innings
-            if (selectedInningsData['batting'] != null) {
-              battingScorecard = List<Map<String, dynamic>>.from(
-                  (selectedInningsData['batting'] as List).map((batsman) => {
-                        'id': batsman['playerId'],
-                        'name': batsman['playerName'] ?? 'Unknown',
-                        'runs': batsman['runs'] ?? 0,
-                        'balls': batsman['balls'] ?? 0,
-                        'fours': batsman['fours'] ?? 0,
-                        'sixes': batsman['sixes'] ?? 0,
-                        'sr': batsman['strikeRate'] ?? 0.0,
-                        'status': batsman['isNotOut'] == true
-                            ? 'Not out'
-                            : (batsman['dismissal'] ?? 'Out'),
-                      }));
-            }
+          // Clear existing data
+          battingScorecard = [];
+          bowlingScorecard = [];
 
-            // Populate bowling scorecard for selected innings
-            if (selectedInningsData['bowling'] != null) {
-              bowlingScorecard = List<Map<String, dynamic>>.from(
-                  (selectedInningsData['bowling'] as List).map((bowler) => {
-                        'name': bowler['playerName'] ?? 'Unknown',
-                        'overs': (bowler['overs'] ?? 0.0).toDouble(),
-                        'maidens': bowler['maidens'] ?? 0,
-                        'runs': bowler['runsConceded'] ?? 
-                                bowler['runs'] ?? 0,
-                        'wickets': bowler['wickets'] ?? 0,
-                        'wides': bowler['wides'] ?? 0,
-                        'noballs': bowler['noBalls'] ?? 0,
-                        'econ': (bowler['economy'] ?? 0.0).toDouble(),
-                      }));
+          // Get scorecard data for the selected innings
+          if (match['scorecard'] != null &&
+              match['scorecard']['innings'] != null &&
+              match['scorecard']['innings'].isNotEmpty) {
+            // Find the specific innings data
+            var selectedInningsData = match['scorecard']['innings'].firstWhere(
+              (inning) => inning['inningsNumber'] == innings,
+              orElse: () => null,
+            );
+
+            if (selectedInningsData != null) {
+              // Populate batting scorecard for selected innings
+              if (selectedInningsData['batting'] != null) {
+                battingScorecard = List<Map<String, dynamic>>.from(
+                    (selectedInningsData['batting'] as List).map((batsman) => {
+                          'id': batsman['playerId'],
+                          'name': batsman['playerName'] ?? 'Unknown',
+                          'runs': batsman['runs'] ?? 0,
+                          'balls': batsman['balls'] ?? 0,
+                          'fours': batsman['fours'] ?? 0,
+                          'sixes': batsman['sixes'] ?? 0,
+                          'sr': batsman['strikeRate'] ?? 0.0,
+                          'status': batsman['isNotOut'] == true
+                              ? 'Not out'
+                              : (batsman['dismissal'] ?? 'Out'),
+                        }));
+              }
+
+              // Populate bowling scorecard for selected innings
+              if (selectedInningsData['bowling'] != null) {
+                bowlingScorecard = List<Map<String, dynamic>>.from(
+                    (selectedInningsData['bowling'] as List).map((bowler) => {
+                          'name': bowler['playerName'] ?? 'Unknown',
+                          'overs': (bowler['overs'] ?? 0.0).toDouble(),
+                          'maidens': bowler['maidens'] ?? 0,
+                          'runs': bowler['runs'] ?? bowler['runs'] ?? 0,
+                          'wickets': bowler['wickets'] ?? 0,
+                                                    'byes': bowler['byes'] ?? 0,
+
+                          'legByes': bowler['legByes'] ?? 0,
+                          'wides': bowler['wides'] ?? 0,
+                          'noballs': bowler['noBalls'] ?? 0,
+                          'econ': (bowler['economy'] ?? 0.0).toDouble(),
+                        }));
+              }
             }
           }
-        }
-        
-        // Fallback: Try to get from playersHistory if scorecard is empty
-        // if (battingScorecard.isEmpty && match['playersHistory'] != null) {
-        //   for (var history in match['playersHistory']) {
-        //     if (history['innings'] == innings && history['players'] != null) {
-        //       // Get batting data
-        //       battingScorecard = List<Map<String, dynamic>>.from(
-        //           history['players']
-        //               .where((player) => player['runs'] != null)
-        //               .map((player) => {
-        //                     'id': player['playerId'],
-        //                     'name': _getPlayerNameById(player['playerId']),
-        //                     'runs': player['runs'] ?? 0,
-        //                     'balls': player['balls'] ?? 0,
-        //                     'fours': player['fours'] ?? 0,
-        //                     'sixes': player['sixes'] ?? 0,
-        //                     'sr': player['strikeRate'] ?? 0.0,
-        //                     'status': player['isOut'] == true ? 'Out' : 'Not out',
-        //                   }));
-              
-        //       // Get bowling data
-        //       bowlingScorecard = List<Map<String, dynamic>>.from(
-        //           history['players']
-        //               .where((player) => player['overs'] != null && player['overs'] > 0)
-        //               .map((player) => {
-        //                     'name': _getPlayerNameById(player['playerId']),
-        //                     'overs': (player['overs'] ?? 0.0).toDouble(),
-        //                     'maidens': player['maidens'] ?? 0,
-        //                     'runs': player['runsConceded'] ?? 0,
-        //                     'wickets': player['wickets'] ?? 0,
-        //                     'wides': player['wides'] ?? 0,
-        //                     'noballs': player['noBalls'] ?? 0,
-        //                     'econ': (player['economy'] ?? 0.0).toDouble(),
-        //                   }));
-        //       break;
-        //     }
-        //   }
-        // }
-        
-        // If still no data, show message
-        if (battingScorecard.isEmpty && bowlingScorecard.isEmpty) {
-          print('No data available for innings $innings');
-          _showSnackBar('No data available for innings $innings');
-        }
+
+          // Fallback: Try to get from playersHistory if scorecard is empty
+          // if (battingScorecard.isEmpty && match['playersHistory'] != null) {
+          //   for (var history in match['playersHistory']) {
+          //     if (history['innings'] == innings && history['players'] != null) {
+          //       // Get batting data
+          //       battingScorecard = List<Map<String, dynamic>>.from(
+          //           history['players']
+          //               .where((player) => player['runs'] != null)
+          //               .map((player) => {
+          //                     'id': player['playerId'],
+          //                     'name': _getPlayerNameById(player['playerId']),
+          //                     'runs': player['runs'] ?? 0,
+          //                     'balls': player['balls'] ?? 0,
+          //                     'fours': player['fours'] ?? 0,
+          //                     'sixes': player['sixes'] ?? 0,
+          //                     'sr': player['strikeRate'] ?? 0.0,
+          //                     'status': player['isOut'] == true ? 'Out' : 'Not out',
+          //                   }));
+
+          //       // Get bowling data
+          //       bowlingScorecard = List<Map<String, dynamic>>.from(
+          //           history['players']
+          //               .where((player) => player['overs'] != null && player['overs'] > 0)
+          //               .map((player) => {
+          //                     'name': _getPlayerNameById(player['playerId']),
+          //                     'overs': (player['overs'] ?? 0.0).toDouble(),
+          //                     'maidens': player['maidens'] ?? 0,
+          //                     'runs': player['runsConceded'] ?? 0,
+          //                     'wickets': player['wickets'] ?? 0,
+          //                     'wides': player['wides'] ?? 0,
+          //                     'noballs': player['noBalls'] ?? 0,
+          //                     'econ': (player['economy'] ?? 0.0).toDouble(),
+          //                   }));
+          //       break;
+          //     }
+          //   }
+          // }
+
+          // If still no data, show message
+          if (battingScorecard.isEmpty && bowlingScorecard.isEmpty) {
+            print('No data available for innings $innings');
+            _showSnackBar('No data available for innings $innings');
+          }
+        });
+      }
+    } catch (e) {
+      print('Error loading innings data: $e');
+      _showSnackBar('Failed to load innings data');
+    } finally {
+      setState(() {
+        isTabLoading = false;
       });
     }
-  } catch (e) {
-    print('Error loading innings data: $e');
-    _showSnackBar('Failed to load innings data');
-  } finally {
-    setState(() {
-      isTabLoading = false;
-    });
   }
-}
 
   Widget _buildScorecardTab() {
-  if (isTabLoading) {
-    return _buildTabLoadingIndicator();
+    if (isTabLoading) {
+      return _buildTabLoadingIndicator();
+    }
+    return SingleChildScrollView(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: InkWell(
+                  onTap: () {
+                    if (currentInnings != 1) {
+                      _loadInningsData(1);
+                    }
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    decoration: BoxDecoration(
+                      color: currentInnings == 1
+                          ? const Color(0xFF1976D2)
+                          : const Color(0xFFF5F5F5),
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(8),
+                        bottomLeft: Radius.circular(8),
+                      ),
+                      border: Border.all(color: const Color(0xFFE0E0E0)),
+                    ),
+                    child: Center(
+                      child: Text(
+                        '1st Innings',
+                        style: TextStyle(
+                          color: currentInnings == 1
+                              ? Colors.white
+                              : const Color(0xFF666666),
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              Expanded(
+                child: InkWell(
+                  onTap: () {
+                    if (currentInnings != 2) {
+                      _loadInningsData(2);
+                    }
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    decoration: BoxDecoration(
+                      color: currentInnings == 2
+                          ? const Color(0xFF1976D2)
+                          : const Color(0xFFF5F5F5),
+                      borderRadius: const BorderRadius.only(
+                        topRight: Radius.circular(8),
+                        bottomRight: Radius.circular(8),
+                      ),
+                      border: Border.all(color: const Color(0xFFE0E0E0)),
+                    ),
+                    child: Center(
+                      child: Text(
+                        '2nd Innings',
+                        style: TextStyle(
+                          color: currentInnings == 2
+                              ? Colors.white
+                              : const Color(0xFF666666),
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          _buildScorecardSection(
+            title: '$currentTeam BATTING',
+            headers: ['BATSMAN', 'R', 'B', '4S', '6S', 'SR'],
+            data: battingScorecard,
+            isBatting: true,
+          ),
+          const SizedBox(height: 20),
+          _buildScorecardSection(
+            title: 'BOWLING',
+            headers: ['BOWLER', 'O', 'M', 'R', 'W', 'B', 'LB', 'WD', 'NB', 'ECON'],
+            data: bowlingScorecard,
+            isBatting: false,
+          ),
+          const SizedBox(height: 20),
+        ],
+      ),
+    );
   }
-  return SingleChildScrollView(
-    padding: const EdgeInsets.symmetric(horizontal: 16),
+
+  // Widget _buildScorecardSection({
+  //   required String title,
+  //   required List<String> headers,
+  //   required List<Map<String, dynamic>> data,
+  //   required bool isBatting,
+  // }) {
+  //   return Container(
+  //     decoration: BoxDecoration(
+  //       color: Colors.white,
+  //       borderRadius: BorderRadius.circular(12),
+  //       border: Border.all(color: const Color(0xFFE0E0E0)),
+  //       boxShadow: [
+  //         BoxShadow(
+  //           color: Colors.black.withOpacity(0.1),
+  //           blurRadius: 4,
+  //           offset: const Offset(0, 2),
+  //         ),
+  //       ],
+  //     ),
+  //     child: Column(
+  //       crossAxisAlignment: CrossAxisAlignment.start,
+  //       children: [
+  //         Padding(
+  //           padding: const EdgeInsets.all(16),
+  //           child: Text(
+  //             title,
+  //             style: const TextStyle(
+  //               fontSize: 12,
+  //               color: Color(0xFF666666),
+  //               fontWeight: FontWeight.w500,
+  //               letterSpacing: 1,
+  //             ),
+  //           ),
+  //         ),
+  //         Container(
+  //           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+  //           decoration: const BoxDecoration(
+  //             color: Color(0xFFF5F5F5),
+  //           ),
+  //           child: Row(
+  //             children: headers.map((header) {
+  //               bool isPlayerName = header == 'BATSMAN' || header == 'BOWLER';
+  //               return Expanded(
+  //                 flex: isPlayerName ? 3 : 1,
+  //                 child: Text(
+  //                   header,
+  //                   style: const TextStyle(
+  //                     fontSize: 11,
+  //                     color: Color(0xFF666666),
+  //                     fontWeight: FontWeight.w500,
+  //                   ),
+  //                   textAlign: isPlayerName ? TextAlign.left : TextAlign.center,
+  //                 ),
+  //               );
+  //             }).toList(),
+  //           ),
+  //         ),
+  //         ...data.map((player) => Container(
+  //               padding:
+  //                   const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+  //               child: Column(
+  //                 children: [
+  //                   Row(
+  //                     children: [
+  //                       Expanded(
+  //                         flex: 3,
+  //                         child: Text(
+  //                           player['name'],
+  //                           style: const TextStyle(
+  //                             color: Color(0xFF212121),
+  //                             fontWeight: FontWeight.w500,
+  //                           ),
+  //                         ),
+  //                       ),
+  //                       if (isBatting) ...[
+  //                         Expanded(
+  //                             child: _buildStatCell(player['runs'].toString())),
+  //                         Expanded(
+  //                             child:
+  //                                 _buildStatCell(player['balls'].toString())),
+  //                         Expanded(
+  //                             child:
+  //                                 _buildStatCell(player['fours'].toString())),
+  //                         Expanded(
+  //                             child:
+  //                                 _buildStatCell(player['sixes'].toString())),
+  //                         Expanded(
+  //                             child: _buildStatCell(
+  //                                 player['sr'].toStringAsFixed(2))),
+  //                       ] else ...[
+  //                         Expanded(
+  //                             child:
+  //                                 _buildStatCell(player['overs'].toString())),
+  //                         Expanded(
+  //                             child:
+  //                                 _buildStatCell(player['maidens'].toString())),
+  //                         Expanded(
+  //                             child: _buildStatCell(player['runs'].toString())),
+  //                         Expanded(
+  //                             child:
+  //                                 _buildStatCell(player['wickets'].toString())),
+  //                                                           Expanded(
+  //                             child:
+  //                                 _buildStatCell(player['byes'].toString())),
+  //                                                           Expanded(
+  //                             child:
+  //                                 _buildStatCell(player['legByes'].toString())),
+  //                         Expanded(
+  //                             child:
+  //                                 _buildStatCell(player['wides'].toString())),
+  //                         Expanded(
+  //                             child:
+  //                                 _buildStatCell(player['noballs'].toString())),
+  //                         Expanded(
+  //                             child: _buildStatCell(
+  //                                 player['econ'].toStringAsFixed(2))),
+  //                       ],
+  //                     ],
+  //                   ),
+  //                   if (isBatting && player['status'] != null) ...[
+  //                     const SizedBox(height: 4),
+  //                     Row(
+  //                       children: [
+  //                         Text(
+  //                           player['status'],
+  //                           style: const TextStyle(
+  //                             color: Color(0xFF666666),
+  //                             fontSize: 12,
+  //                             fontStyle: FontStyle.italic,
+  //                           ),
+  //                         ),
+  //                       ],
+  //                     ),
+  //                   ],
+  //                 ],
+  //               ),
+  //             )),
+  //       ],
+  //     ),
+  //   );
+  // }
+
+  // Widget _buildStatCell(String value) {
+  //   return Text(
+  //     value,
+  //     style: const TextStyle(color: Color(0xFF212121)),
+  //     textAlign: TextAlign.center,
+  //   );
+  // }
+
+
+
+  Widget _buildScorecardSection({
+  required String title,
+  required List<String> headers,
+  required List<Map<String, dynamic>> data,
+  required bool isBatting,
+}) {
+  return Container(
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(12),
+      border: Border.all(color: const Color(0xFFE0E0E0)),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withOpacity(0.1),
+          blurRadius: 4,
+          offset: const Offset(0, 2),
+        ),
+      ],
+    ),
     child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          children: [
-            Expanded(
-              child: InkWell(
-                onTap: () {
-                  if (currentInnings != 1) {
-                    _loadInningsData(1);
-                  }
-                },
-                child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  decoration: BoxDecoration(
-                    color: currentInnings == 1
-                        ? const Color(0xFF1976D2)
-                        : const Color(0xFFF5F5F5),
-                    borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(8),
-                      bottomLeft: Radius.circular(8),
-                    ),
-                    border: Border.all(color: const Color(0xFFE0E0E0)),
-                  ),
-                  child: Center(
-                    child: Text(
-                      '1st Innings',
-                      style: TextStyle(
-                        color: currentInnings == 1
-                            ? Colors.white
-                            : const Color(0xFF666666),
-                        fontWeight: FontWeight.w600,
+        Padding(
+          padding: const EdgeInsets.all(16),
+          child: Text(
+            title,
+            style: const TextStyle(
+              fontSize: 12,
+              color: Color(0xFF666666),
+              fontWeight: FontWeight.w500,
+              letterSpacing: 1,
+            ),
+          ),
+        ),
+
+        // ✅ Wrap header + data with horizontal scroll
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Column(
+            children: [
+              // Header Row
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                decoration: const BoxDecoration(
+                  color: Color(0xFFF5F5F5),
+                ),
+                child: Row(
+                  children: headers.map((header) {
+                    bool isPlayerName =
+                        header == 'BATSMAN' || header == 'BOWLER';
+                    return Container(
+                      width: isPlayerName ? 120 : 50, // ✅ Fixed width for scrolling
+                      alignment: isPlayerName
+                          ? Alignment.centerLeft
+                          : Alignment.center,
+                      child: Text(
+                        header,
+                        style: const TextStyle(
+                          fontSize: 11,
+                          color: Color(0xFF666666),
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
-                    ),
+                    );
+                  }).toList(),
+                ),
+              ),
+
+              // Data Rows
+              ...data.map(
+                (player) => Container(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 16, vertical: 12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            width: 120,
+                            child: Text(
+                              player['name'],
+                              style: const TextStyle(
+                                color: Color(0xFF212121),
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                          if (isBatting) ...[
+                            _buildCell(player['runs']),
+                            _buildCell(player['balls']),
+                            _buildCell(player['fours']),
+                            _buildCell(player['sixes']),
+                            _buildCell(player['sr'].toStringAsFixed(2)),
+                          ] else ...[
+                            _buildCell(player['overs']),
+                            _buildCell(player['maidens']),
+                            _buildCell(player['runs']),
+                            _buildCell(player['wickets']),
+                            _buildCell(player['byes']),
+                            _buildCell(player['legByes']),
+                            _buildCell(player['wides']),
+                            _buildCell(player['noballs']),
+                            _buildCell(player['econ'].toStringAsFixed(2)),
+                          ],
+                        ],
+                      ),
+                      if (isBatting && player['status'] != null) ...[
+                        const SizedBox(height: 4),
+                        Text(
+                          player['status'],
+                          style: const TextStyle(
+                            color: Color(0xFF666666),
+                            fontSize: 12,
+                            fontStyle: FontStyle.italic,
+                          ),
+                        ),
+                      ],
+                    ],
                   ),
                 ),
               ),
-            ),
-            Expanded(
-              child: InkWell(
-                onTap: () {
-                  if (currentInnings != 2) {
-                    _loadInningsData(2);
-                  }
-                },
-                child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  decoration: BoxDecoration(
-                    color: currentInnings == 2
-                        ? const Color(0xFF1976D2)
-                        : const Color(0xFFF5F5F5),
-                    borderRadius: const BorderRadius.only(
-                      topRight: Radius.circular(8),
-                      bottomRight: Radius.circular(8),
-                    ),
-                    border: Border.all(color: const Color(0xFFE0E0E0)),
-                  ),
-                  child: Center(
-                    child: Text(
-                      '2nd Innings',
-                      style: TextStyle(
-                        color: currentInnings == 2
-                            ? Colors.white
-                            : const Color(0xFF666666),
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
-        const SizedBox(height: 20),
-        _buildScorecardSection(
-          title: '$currentTeam BATTING',
-          headers: ['BATSMAN', 'R', 'B', '4S', '6S', 'SR'],
-          data: battingScorecard,
-          isBatting: true,
-        ),
-        const SizedBox(height: 20),
-        _buildScorecardSection(
-          title: 'BOWLING',
-          headers: ['BOWLER', 'O', 'M', 'R', 'W', 'WD', 'NB', 'ECON'],
-          data: bowlingScorecard,
-          isBatting: false,
-        ),
-        const SizedBox(height: 20),
       ],
     ),
   );
 }
 
-
-  Widget _buildScorecardSection({
-    required String title,
-    required List<String> headers,
-    required List<Map<String, dynamic>> data,
-    required bool isBatting,
-  }) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFE0E0E0)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Text(
-              title,
-              style: const TextStyle(
-                fontSize: 12,
-                color: Color(0xFF666666),
-                fontWeight: FontWeight.w500,
-                letterSpacing: 1,
-              ),
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            decoration: const BoxDecoration(
-              color: Color(0xFFF5F5F5),
-            ),
-            child: Row(
-              children: headers.map((header) {
-                bool isPlayerName = header == 'BATSMAN' || header == 'BOWLER';
-                return Expanded(
-                  flex: isPlayerName ? 3 : 1,
-                  child: Text(
-                    header,
-                    style: const TextStyle(
-                      fontSize: 11,
-                      color: Color(0xFF666666),
-                      fontWeight: FontWeight.w500,
-                    ),
-                    textAlign: isPlayerName ? TextAlign.left : TextAlign.center,
-                  ),
-                );
-              }).toList(),
-            ),
-          ),
-          ...data.map((player) => Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                child: Column(
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          flex: 3,
-                          child: Text(
-                            player['name'],
-                            style: const TextStyle(
-                              color: Color(0xFF212121),
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ),
-                        if (isBatting) ...[
-                          Expanded(
-                              child: _buildStatCell(player['runs'].toString())),
-                          Expanded(
-                              child:
-                                  _buildStatCell(player['balls'].toString())),
-                          Expanded(
-                              child:
-                                  _buildStatCell(player['fours'].toString())),
-                          Expanded(
-                              child:
-                                  _buildStatCell(player['sixes'].toString())),
-                          Expanded(
-                              child: _buildStatCell(
-                                  player['sr'].toStringAsFixed(2))),
-                        ] else ...[
-                          Expanded(
-                              child:
-                                  _buildStatCell(player['overs'].toString())),
-                          Expanded(
-                              child:
-                                  _buildStatCell(player['maidens'].toString())),
-                          Expanded(
-                              child: _buildStatCell(player['runs'].toString())),
-                          Expanded(
-                              child:
-                                  _buildStatCell(player['wickets'].toString())),
-                          Expanded(
-                              child:
-                                  _buildStatCell(player['wides'].toString())),
-                          Expanded(
-                              child:
-                                  _buildStatCell(player['noballs'].toString())),
-                          Expanded(
-                              child: _buildStatCell(
-                                  player['econ'].toStringAsFixed(2))),
-                        ],
-                      ],
-                    ),
-                    if (isBatting && player['status'] != null) ...[
-                      const SizedBox(height: 4),
-                      Row(
-                        children: [
-                          Text(
-                            player['status'],
-                            style: const TextStyle(
-                              color: Color(0xFF666666),
-                              fontSize: 12,
-                              fontStyle: FontStyle.italic,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ],
-                ),
-              )),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildStatCell(String value) {
-    return Text(
-      value,
+// ✅ Helper for consistent column width
+Widget _buildCell(dynamic value) {
+  return Container(
+    width: 50,
+    alignment: Alignment.center,
+    child: Text(
+      value.toString(),
       style: const TextStyle(color: Color(0xFF212121)),
-      textAlign: TextAlign.center,
-    );
-  }
+    ),
+  );
+}
+
 
   Widget _buildCommentaryTab() {
     if (isTabLoading) {
@@ -5266,195 +5628,199 @@ void _loadInningsData(int innings) async {
   }
 
   Widget _buildMVPTab() {
-  if (isTabLoading) {
-    return _buildTabLoadingIndicator();
-  }
+    if (isTabLoading) {
+      return _buildTabLoadingIndicator();
+    }
 
-  return Container(
-    margin: const EdgeInsets.symmetric(horizontal: 16),
-    padding: const EdgeInsets.all(16),
-    decoration: BoxDecoration(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(12),
-      border: Border.all(color: const Color(0xFFE0E0E0)),
-      boxShadow: [
-        BoxShadow(
-          color: Colors.black.withOpacity(0.1),
-          blurRadius: 4,
-          offset: const Offset(0, 2),
-        ),
-      ],
-    ),
-    child: SingleChildScrollView( // 👈 Entire content scrolls
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'MVP Leaderboard',
-            style: TextStyle(
-              fontSize: 18,
-              color: Color(0xFF1976D2),
-              fontWeight: FontWeight.bold,
-            ),
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFE0E0E0)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
           ),
-          const SizedBox(height: 20),
-          Row(
-            children: [
-              const Expanded(
-                flex: 3,
-                child: Text(
-                  'PLAYER',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Color(0xFF666666),
-                    fontWeight: FontWeight.w500,
-                    letterSpacing: 1,
-                  ),
-                ),
-              ),
-              Expanded(
-                child: Text(
-                  'POINTS',
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: Color(0xFF666666),
-                    fontWeight: FontWeight.w500,
-                    letterSpacing: 1,
-                  ),
-                  textAlign: TextAlign.right,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          if (mvpPlayers.isEmpty)
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 20),
-              child: Center(
-                child: Text(
-                  'No MVP data yet',
-                  style: TextStyle(
-                    color: Color(0xFF666666),
-                    fontStyle: FontStyle.italic,
-                  ),
-                ),
-              ),
-            )
-          else
-            ListView.separated(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(), // 👈 Disable inner scroll
-              itemCount: mvpPlayers.length,
-              separatorBuilder: (context, index) => const SizedBox(height: 12),
-              itemBuilder: (context, index) {
-                final player = mvpPlayers[index];
-                return Row(
-                  children: [
-                    Expanded(
-                      flex: 3,
-                      child: Text(
-                        player['name'] ?? 'Unknown',
-                        style: const TextStyle(
-                          color: Color(0xFF212121),
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      child: Text(
-                        player['points']?.toString() ?? '0',
-                        style: const TextStyle(
-                          color: Color(0xFF212121),
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        textAlign: TextAlign.right,
-                      ),
-                    ),
-                  ],
-                );
-              },
-            ),
-          if (topPerformers.isNotEmpty) ...[
-            const SizedBox(height: 24),
+        ],
+      ),
+      child: SingleChildScrollView(
+        // 👈 Entire content scrolls
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
             const Text(
-              'Top Performers',
+              'MVP Leaderboard',
               style: TextStyle(
-                fontSize: 16,
+                fontSize: 18,
                 color: Color(0xFF1976D2),
                 fontWeight: FontWeight.bold,
               ),
             ),
-            const SizedBox(height: 16),
-            ListView.separated(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(), // 👈 Disable inner scroll
-              itemCount: topPerformers.length,
-              separatorBuilder: (context, index) =>
-                  const SizedBox(height: 12),
-              itemBuilder: (context, index) {
-                final performer = topPerformers[index];
-                return Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: _getPerformerColor(performer['category'] ?? '')
-                        .withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(
-                      color: _getPerformerColor(performer['category'] ?? '')
-                          .withOpacity(0.3),
+            const SizedBox(height: 20),
+            Row(
+              children: [
+                const Expanded(
+                  flex: 3,
+                  child: Text(
+                    'PLAYER',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Color(0xFF666666),
+                      fontWeight: FontWeight.w500,
+                      letterSpacing: 1,
                     ),
                   ),
-                  child: Row(
+                ),
+                Expanded(
+                  child: Text(
+                    'POINTS',
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: Color(0xFF666666),
+                      fontWeight: FontWeight.w500,
+                      letterSpacing: 1,
+                    ),
+                    textAlign: TextAlign.right,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            if (mvpPlayers.isEmpty)
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 20),
+                child: Center(
+                  child: Text(
+                    'No MVP data yet',
+                    style: TextStyle(
+                      color: Color(0xFF666666),
+                      fontStyle: FontStyle.italic,
+                    ),
+                  ),
+                ),
+              )
+            else
+              ListView.separated(
+                shrinkWrap: true,
+                physics:
+                    const NeverScrollableScrollPhysics(), // 👈 Disable inner scroll
+                itemCount: mvpPlayers.length,
+                separatorBuilder: (context, index) =>
+                    const SizedBox(height: 12),
+                itemBuilder: (context, index) {
+                  final player = mvpPlayers[index];
+                  return Row(
                     children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: _getPerformerColor(performer['category'] ?? ''),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Text(
-                          performer['category'] ?? '',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 10,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
                       Expanded(
+                        flex: 3,
                         child: Text(
-                          performer['name'] ?? 'Unknown',
+                          player['name'] ?? 'Unknown',
                           style: const TextStyle(
                             color: Color(0xFF212121),
-                            fontSize: 14,
+                            fontSize: 16,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
                       ),
-                      Text(
-                        performer['stat'] ?? '',
-                        style: const TextStyle(
-                          color: Color(0xFF666666),
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
+                      Expanded(
+                        child: Text(
+                          player['points']?.toString() ?? '0',
+                          style: const TextStyle(
+                            color: Color(0xFF212121),
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          textAlign: TextAlign.right,
                         ),
                       ),
                     ],
-                  ),
-                );
-              },
-            ),
+                  );
+                },
+              ),
+            if (topPerformers.isNotEmpty) ...[
+              const SizedBox(height: 24),
+              const Text(
+                'Top Performers',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Color(0xFF1976D2),
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 16),
+              ListView.separated(
+                shrinkWrap: true,
+                physics:
+                    const NeverScrollableScrollPhysics(), // 👈 Disable inner scroll
+                itemCount: topPerformers.length,
+                separatorBuilder: (context, index) =>
+                    const SizedBox(height: 12),
+                itemBuilder: (context, index) {
+                  final performer = topPerformers[index];
+                  return Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: _getPerformerColor(performer['category'] ?? '')
+                          .withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                        color: _getPerformerColor(performer['category'] ?? '')
+                            .withOpacity(0.3),
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color:
+                                _getPerformerColor(performer['category'] ?? ''),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(
+                            performer['category'] ?? '',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 10,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            performer['name'] ?? 'Unknown',
+                            style: const TextStyle(
+                              color: Color(0xFF212121),
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                        Text(
+                          performer['stat'] ?? '',
+                          style: const TextStyle(
+                            color: Color(0xFF666666),
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ],
           ],
-        ],
+        ),
       ),
-    ),
-  );
-}
-
+    );
+  }
 
   // Widget _buildMVPTab() {
   //   if (isTabLoading) {

@@ -7,7 +7,6 @@ class MatchDetailsCard extends StatelessWidget {
   final VoidCallback? onStartMatch;
   final VoidCallback? onViewLive;
   final VoidCallback? onViewDetails;
-  // final VoidCallback? onOptions;
 
   const MatchDetailsCard({
     Key? key,
@@ -16,8 +15,58 @@ class MatchDetailsCard extends StatelessWidget {
     this.onStartMatch,
     this.onViewLive,
     this.onViewDetails,
-    // this.onOptions,
   }) : super(key: key);
+
+  // Helper method to get game image URL based on category
+  String _getGameImageUrl(String categoryName) {
+    switch (categoryName.toLowerCase()) {
+      case 'football':
+      case 'soccer':
+        return 'https://images.unsplash.com/photo-1579952363873-27f3bade9f55?w=400';
+      case 'badminton':
+        return 'https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?w=400';
+      case 'cricket':
+        return 'https://images.unsplash.com/photo-1531415074968-036ba1b575da?w=400';
+      case 'tennis':
+        return 'https://images.unsplash.com/photo-1554068865-24cecd4e34b8?w=400';
+      case 'basketball':
+        return 'https://images.unsplash.com/photo-1546519638-68e109498ffc?w=400';
+      case 'volleyball':
+        return 'https://images.unsplash.com/photo-1612872087720-bb876e2e67d1?w=400';
+      case 'tennis':
+        return 'https://images.unsplash.com/photo-1609710228159-0fa9bd7c0827?w=400';
+      case 'hockey':
+        return 'https://images.unsplash.com/photo-1515703407324-5f753afd8be8?w=400';
+      default:
+        return 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=400';
+    }
+  }
+
+  // Helper method to get game color based on category
+  Color _getGameColor(String categoryName) {
+    switch (categoryName.toLowerCase()) {
+      case 'football':
+      case 'soccer':
+        return const Color(0xFF2E7D32);
+      case 'badminton':
+        return const Color(0xFF1976D2);
+      case 'cricket':
+        return const Color(0xFFE65100);
+      case 'tennis':
+        return const Color(0xFF7B1FA2);
+      case 'basketball':
+        return const Color(0xFFD84315);
+      case 'volleyball':
+        return const Color(0xFF0277BD);
+      case 'table tennis':
+      case 'tennis':
+        return const Color(0xFFC62828);
+      case 'hockey':
+        return const Color(0xFF00695C);
+      default:
+        return const Color(0xFF616161);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -49,7 +98,7 @@ class MatchDetailsCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildMatchTitle(),
+                  _buildMatchTitleWithImage(),
                   const SizedBox(height: 12),
                   _buildMatchInfo(),
                   const SizedBox(height: 16),
@@ -131,15 +180,111 @@ class MatchDetailsCard extends StatelessWidget {
     );
   }
 
-  Widget _buildMatchTitle() {
-    return Text(
-      match.name,
-      style: const TextStyle(
-        fontSize: 22,
-        fontWeight: FontWeight.bold,
-        color: Color(0xFF1A1A1A),
-        letterSpacing: -0.5,
-      ),
+  // NEW: Match title with game image
+  Widget _buildMatchTitleWithImage() {
+    return Row(
+      children: [
+        // Game Image Container
+        Container(
+          width: 64,
+          height: 64,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: _getGameColor(match.categoryName).withOpacity(0.3),
+              width: 2,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: _getGameColor(match.categoryName).withOpacity(0.2),
+                blurRadius: 8,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(10),
+            child: Image.network(
+              _getGameImageUrl(match.categoryName),
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) {
+                // Fallback to icon if image fails to load
+                return Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        _getGameColor(match.categoryName),
+                        _getGameColor(match.categoryName).withOpacity(0.7),
+                      ],
+                    ),
+                  ),
+                  child: Icon(
+                    Icons.sports,
+                    color: Colors.white,
+                    size: 32,
+                  ),
+                );
+              },
+              loadingBuilder: (context, child, loadingProgress) {
+                if (loadingProgress == null) return child;
+                return Container(
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade200,
+                  ),
+                  child: Center(
+                    child: CircularProgressIndicator(
+                      value: loadingProgress.expectedTotalBytes != null
+                          ? loadingProgress.cumulativeBytesLoaded /
+                              loadingProgress.expectedTotalBytes!
+                          : null,
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        _getGameColor(match.categoryName),
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        ),
+        const SizedBox(width: 16),
+        // Match Name
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                match.name,
+                style: const TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF1A1A1A),
+                  letterSpacing: -0.5,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: _getGameColor(match.categoryName).withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Text(
+                  match.categoryName,
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: _getGameColor(match.categoryName),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 
@@ -153,16 +298,6 @@ class MatchDetailsCard extends StatelessWidget {
       ),
       child: Row(
         children: [
-          _buildInfoChip(
-            icon: Icons.category_outlined,
-            label: match.categoryName,
-          ),
-          Container(
-            width: 1,
-            height: 20,
-            color: Colors.grey.shade300,
-            margin: const EdgeInsets.symmetric(horizontal: 12),
-          ),
           _buildInfoChip(
             icon: Icons.sports_score,
             label: match.scoringMethod,
@@ -298,22 +433,6 @@ class MatchDetailsCard extends StatelessWidget {
               ),
             ),
           ),
-          // const SizedBox(width: 12),
-          // Expanded(
-          //   child: OutlinedButton.icon(
-          //     onPressed: onOptions,
-          //     icon: const Icon(Icons.more_horiz, size: 20),
-          //     label: const Text('Options'),
-          //     style: OutlinedButton.styleFrom(
-          //       foregroundColor: const Color(0xFF2E7D32),
-          //       side: const BorderSide(color: Color(0xFF2E7D32), width: 1.5),
-          //       padding: const EdgeInsets.symmetric(vertical: 14),
-          //       shape: RoundedRectangleBorder(
-          //         borderRadius: BorderRadius.circular(12),
-          //       ),
-          //     ),
-          //   ),
-          // ),
         ],
       );
     } else if (status == 'live') {
@@ -331,6 +450,23 @@ class MatchDetailsCard extends StatelessWidget {
               borderRadius: BorderRadius.circular(12),
             ),
             elevation: 0,
+          ),
+        ),
+      );
+    }else if(status == 'cancel'){
+      return SizedBox(
+        width: double.infinity,
+        child: OutlinedButton.icon(
+          onPressed: (){},
+          icon: const Icon(Icons.info_outline, size: 20),
+          label: const Text('Match cancelled'),
+          style: OutlinedButton.styleFrom(
+            foregroundColor: const Color(0xFF2E7D32),
+            side: const BorderSide(color: Color(0xFF2E7D32), width: 1.5),
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
           ),
         ),
       );

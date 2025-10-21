@@ -1,4 +1,5 @@
 import 'package:booking_application/helper/storage_helper.dart';
+import 'package:booking_application/views/Games/GameViews/football_completed.dart';
 import 'package:booking_application/views/Games/GameViews/point_based_screen.dart';
 import 'package:booking_application/views/Games/GameViews/set_based_screen.dart';
 import 'package:booking_application/views/Games/game_selection.dart';
@@ -68,7 +69,7 @@ class _ViewMatchScreenState extends State<ViewMatchScreen>
           'upcoming',
           'finished',
           'postponed',
-          'cancelled',
+          'cancel',
         ];
         _availableStatuses = statusOrder
             .where((status) => _groupedMatches.containsKey(status))
@@ -218,6 +219,8 @@ class _ViewMatchScreenState extends State<ViewMatchScreen>
             status: status,
             onStartMatch: () => _startMatch(match),
             onViewLive: () => _viewLiveMatch(match),
+                        onViewDetails: () => Navigator.push(context, MaterialPageRoute(builder: (context)=>FootballCompleted(matchId: match.id))),
+
             
 
             // onOptions: () => _showMatchOptions(context, match),
@@ -806,54 +809,54 @@ class _ViewMatchScreenState extends State<ViewMatchScreen>
                   },
                   onIncrease: () => setState(() => halfTimeDuration += 5),
                 ),
-                const SizedBox(height: 16),
+                // const SizedBox(height: 16),
 
                 // ⚽ Extra Time for Half-Time
-                SwitchListTile(
-                  title: const Text('Allow Extra Time (Half-Time)'),
-                  value: extraTimeAllowedForHalfTime,
-                  activeColor: const Color(0xFF2E7D32),
-                  onChanged: (value) =>
-                      setState(() => extraTimeAllowedForHalfTime = value),
-                ),
-                if (extraTimeAllowedForHalfTime)
-                  _buildStepper(
-                    label: 'Extra Time Duration (Half-Time)',
-                    value: extraTimeDurationForHalfTime,
-                    step: 5,
-                    minValue: 5,
-                    onDecrease: () {
-                      if (extraTimeDurationForHalfTime > 5) {
-                        setState(() => extraTimeDurationForHalfTime -= 5);
-                      }
-                    },
-                    onIncrease: () =>
-                        setState(() => extraTimeDurationForHalfTime += 5),
-                  ),
-                const SizedBox(height: 16),
+                // SwitchListTile(
+                //   title: const Text('Allow Extra Time (Half-Time)'),
+                //   value: extraTimeAllowedForHalfTime,
+                //   activeColor: const Color(0xFF2E7D32),
+                //   onChanged: (value) =>
+                //       setState(() => extraTimeAllowedForHalfTime = value),
+                // ),
+                // if (extraTimeAllowedForHalfTime)
+                //   _buildStepper(
+                //     label: 'Extra Time Duration (Half-Time)',
+                //     value: extraTimeDurationForHalfTime,
+                //     step: 5,
+                //     minValue: 5,
+                //     onDecrease: () {
+                //       if (extraTimeDurationForHalfTime > 5) {
+                //         setState(() => extraTimeDurationForHalfTime -= 5);
+                //       }
+                //     },
+                //     onIncrease: () =>
+                //         setState(() => extraTimeDurationForHalfTime += 5),
+                //   ),
+                // const SizedBox(height: 16),
 
                 // 🏁 Extra Time for Full-Time
-                SwitchListTile(
-                  title: const Text('Allow Extra Time (Full-Time)'),
-                  value: extraTimeAllowedForFullTime,
-                  activeColor: const Color(0xFF2E7D32),
-                  onChanged: (value) =>
-                      setState(() => extraTimeAllowedForFullTime = value),
-                ),
-                if (extraTimeAllowedForFullTime)
-                  _buildStepper(
-                    label: 'Extra Time Duration (Full-Time)',
-                    value: extraTimeDurationForFullTime,
-                    step: 5,
-                    minValue: 5,
-                    onDecrease: () {
-                      if (extraTimeDurationForFullTime > 5) {
-                        setState(() => extraTimeDurationForFullTime -= 5);
-                      }
-                    },
-                    onIncrease: () =>
-                        setState(() => extraTimeDurationForFullTime += 5),
-                  ),
+                // SwitchListTile(
+                //   title: const Text('Allow Extra Time (Full-Time)'),
+                //   value: extraTimeAllowedForFullTime,
+                //   activeColor: const Color(0xFF2E7D32),
+                //   onChanged: (value) =>
+                //       setState(() => extraTimeAllowedForFullTime = value),
+                // ),
+                // if (extraTimeAllowedForFullTime)
+                //   _buildStepper(
+                //     label: 'Extra Time Duration (Full-Time)',
+                //     value: extraTimeDurationForFullTime,
+                //     step: 5,
+                //     minValue: 5,
+                //     onDecrease: () {
+                //       if (extraTimeDurationForFullTime > 5) {
+                //         setState(() => extraTimeDurationForFullTime -= 5);
+                //       }
+                //     },
+                //     onIncrease: () =>
+                //         setState(() => extraTimeDurationForFullTime += 5),
+                //   ),
               ],
             ),
           ),
@@ -972,7 +975,7 @@ class _ViewMatchScreenState extends State<ViewMatchScreen>
               title: const Text('Cancel Match'),
               onTap: () {
                 Navigator.pop(context);
-                _updateMatchStatus(match.id, 'cancelled');
+                _updateMatchStatus(match.id, 'cancel');
               },
             ),
             ListTile(
@@ -1116,7 +1119,7 @@ class _ViewMatchScreenState extends State<ViewMatchScreen>
         return 'Finished';
       case 'postponed':
         return 'Postponed';
-      case 'cancelled':
+      case 'cancel':
         return 'Cancelled';
       default:
         return status[0].toUpperCase() + status.substring(1);
@@ -1133,7 +1136,7 @@ class _ViewMatchScreenState extends State<ViewMatchScreen>
         return Icons.check_circle;
       case 'postponed':
         return Icons.schedule_outlined;
-      case 'cancelled':
+      case 'cancel':
         return Icons.cancel;
       default:
         return Icons.help;
@@ -1150,7 +1153,7 @@ class _ViewMatchScreenState extends State<ViewMatchScreen>
         return 'No completed matches yet';
       case 'postponed':
         return 'No postponed matches';
-      case 'cancelled':
+      case 'cancel':
         return 'No cancelled matches';
       default:
         return 'No matches found';
@@ -1167,7 +1170,7 @@ class _ViewMatchScreenState extends State<ViewMatchScreen>
         return const Color(0xFF666666);
       case 'postponed':
         return const Color(0xFFFF9800);
-      case 'cancelled':
+      case 'cancel':
         return const Color(0xFFE53935);
       default:
         return const Color(0xFF666666);

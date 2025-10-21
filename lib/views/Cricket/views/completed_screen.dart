@@ -1,9 +1,12 @@
+import 'package:booking_application/helper/storage_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class CompletedScreen extends StatefulWidget {
-  const CompletedScreen({Key? key}) : super(key: key);
+  final String matchId;
+
+  const CompletedScreen({Key? key, required this.matchId}) : super(key: key);
 
   @override
   State<CompletedScreen> createState() => _CompletedScreenState();
@@ -13,17 +16,35 @@ class _CompletedScreenState extends State<CompletedScreen> {
   bool isLoading = true;
   String? error;
   Map<String, dynamic>? matchData;
+        String? userId;
 
-  @override
-  void initState() {
-    super.initState();
-    fetchMatchData();
-  }
 
-  Future<void> fetchMatchData() async {
+@override
+void initState() {
+  super.initState();
+  initData();
+}
+
+Future<void> initData() async {
+  await loadUserId(); // ✅ Waits for user ID to finish loading
+  fetchMatchData();   // ✅ Only called after user ID is ready
+}
+
+
+Future<void> loadUserId() async {
+  final currentUser = await UserPreferences.getUser();
+  if (!mounted) return; // prevents setState on unmounted widget
+  setState(() {
+    userId = currentUser?.id.toString();
+  });
+}
+
+
+  Future<void> fetchMatchData() async { 
     try {
+      
       final response = await http.get(
-        Uri.parse('http://31.97.206.144:3081/users/completedmatches/68f1f14bcf6791047d6b7707'),
+        Uri.parse('http://31.97.206.144:3081/users/completedmatches/${widget.matchId}'),
       );
 
       if (response.statusCode == 200) {

@@ -313,7 +313,7 @@ static Future<Map<String, String>?> showBowlerSelectionModal(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       TextButton(
-                        onPressed: () => Navigator.of(context).pop(),
+                        onPressed: () => Navigator.of(context).pop(null),
                         child: const Text(
                           'Cancel',
                           style: TextStyle(
