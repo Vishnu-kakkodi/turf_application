@@ -52,7 +52,8 @@ class TeamService {
       if (response.statusCode == 200) {
         final jsonResponse = jsonDecode(response.body);
         return SearchUsersResponse.fromJson(jsonResponse);
-      } else {
+      } 
+      else {
         throw Exception('Failed to search users: ${response.statusCode}');
       }
     } catch (e) {

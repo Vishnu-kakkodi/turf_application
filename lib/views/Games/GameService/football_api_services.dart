@@ -1,7 +1,7 @@
-import 'package:booking_application/views/Games/create_games.dart';
-import 'package:booking_application/views/Games/game_manager_screen.dart';
+import 'package:booking_application/views/Games/GameViews/create_games.dart';
+import 'package:booking_application/views/Games/GameViews/game_manager_screen.dart';
 import 'package:booking_application/views/Games/game_provider.dart';
-import 'package:booking_application/views/Games/games_view_screen.dart';
+import 'package:booking_application/views/Games/GameViews/games_view_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
@@ -52,6 +52,22 @@ class MatchApiService {
       rethrow;
     }
   }
+
+  static Future<void> makeSubstitution(String matchId, Map<String, dynamic> payload) async {
+  final response = await http.put(
+    Uri.parse('$baseUrl/users/update-score/$matchId'),
+    headers: {'Content-Type': 'application/json'},
+    body: json.encode(payload),
+  );
+
+  print("Response status code: ${response.statusCode}");
+    print("Response status code: ${response.body}");
+
+  
+  if (response.statusCode != 200) {
+    throw Exception('Failed to make substitution');
+  }
+}
 }
 
 // Socket Service Class

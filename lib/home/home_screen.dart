@@ -8,7 +8,6 @@ import 'package:booking_application/provider/LocationProvider/location_provider.
 import 'package:booking_application/provider/category_provider.dart';
 import 'package:booking_application/provider/tournament_category_provider.dart';
 import 'package:booking_application/provider/upcoming_tournament_provider.dart';
-import 'package:booking_application/views/Cricket/user_live_screen.dart';
 import 'package:booking_application/views/LocationScreen/location_search_screen.dart';
 import 'package:booking_application/views/details_screen.dart';
 import 'package:booking_application/views/live_screen.dart';
@@ -558,10 +557,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
             GestureDetector(
               onTap: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const UserLiveScreen()));
+                // Navigator.push(
+                //     context,
+                //     MaterialPageRoute(
+                //         builder: (context) => const UserLiveScreen()));
               },
               child: Container(
                 padding: const EdgeInsets.all(16),

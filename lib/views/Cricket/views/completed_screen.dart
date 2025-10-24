@@ -161,10 +161,10 @@ Future<void> loadUserId() async {
                 
                 // Innings 2
                 _buildInningsCard(innings2, Colors.purple),
-                const SizedBox(height: 16),
+                // const SizedBox(height: 16),
                 
                 // Top Performer
-                _buildTopPerformer(innings2),
+                // _buildTopPerformer(innings2),
               ],
             ),
           ),

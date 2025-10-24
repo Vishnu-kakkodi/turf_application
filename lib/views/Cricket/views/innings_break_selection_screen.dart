@@ -1,7 +1,7 @@
-import 'package:booking_application/views/Cricket/cricket_models.dart';
+import 'package:booking_application/views/Cricket/views/cricket_models.dart';
 import 'package:flutter/material.dart';
 import 'package:booking_application/views/Cricket/services/api_service.dart';
-import 'package:booking_application/views/Cricket/live_match_screen.dart';
+import 'package:booking_application/views/Cricket/views/live_match_screen.dart';
 
 class InningsBreakSelectionScreen extends StatelessWidget {
   final String matchId;
@@ -76,7 +76,7 @@ class InningsBreakSelectionScreen extends StatelessWidget {
         "bowler": bowlerId,
       };
       
-      await ApiService.updateMatch(matchId, payload);
+      await ApiService.updateMatch(context, matchId, payload);
       
       // Close loading dialog
       Navigator.of(context).pop();

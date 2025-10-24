@@ -1,4 +1,4 @@
-import 'package:booking_application/views/Games/games_view_screen.dart';
+import 'package:booking_application/views/Games/GameViews/games_view_screen.dart';
 import 'package:flutter/material.dart';
 
 class MatchDetailsCard extends StatelessWidget {
@@ -310,7 +310,7 @@ class MatchDetailsCard extends StatelessWidget {
           ),
           _buildInfoChip(
             icon: match.gameMode == 'team' ? Icons.groups : Icons.person,
-            label: match.gameMode == 'team' ? 'Team' : 'Singles',
+            label: match.gameMode == 'team' ? 'Team' : 'Team',
           ),
         ],
       ),
@@ -454,22 +454,29 @@ class MatchDetailsCard extends StatelessWidget {
         ),
       );
     }else if(status == 'cancel'){
-      return SizedBox(
-        width: double.infinity,
-        child: OutlinedButton.icon(
-          onPressed: (){},
-          icon: const Icon(Icons.info_outline, size: 20),
-          label: const Text('Match cancelled'),
-          style: OutlinedButton.styleFrom(
-            foregroundColor: const Color(0xFF2E7D32),
-            side: const BorderSide(color: Color(0xFF2E7D32), width: 1.5),
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-          ),
+return Container(
+  width: double.infinity,
+  padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+  decoration: BoxDecoration(
+    border: Border.all(color: const Color(0xFF2E7D32), width: 1.5),
+    borderRadius: BorderRadius.circular(12),
+  ),
+  child: Row(
+    mainAxisAlignment: MainAxisAlignment.center,
+    children: [
+      const Icon(Icons.info_outline, size: 20, color: Color(0xFF2E7D32)),
+      const SizedBox(width: 8),
+      Text(
+        '${match.cancelReason ?? 'No reason provided'}',
+        style: const TextStyle(
+          color: Color(0xFF2E7D32),
+          fontWeight: FontWeight.w500,
         ),
-      );
+      ),
+    ],
+  ),
+);
+
     } else {
       return SizedBox(
         width: double.infinity,

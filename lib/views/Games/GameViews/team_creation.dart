@@ -1,3 +1,4 @@
+import 'package:booking_application/helper/storage_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -9,8 +10,7 @@ import '../GameService/team_service.dart';
 
 class TeamCreation extends StatefulWidget {
   final String categoryId;
-  final String userId;
-  const TeamCreation({super.key, required this.categoryId, required this.userId});
+  const TeamCreation({super.key, required this.categoryId});
 
   @override
   State<TeamCreation> createState() => _TeamCreationState();
@@ -27,6 +27,21 @@ class _TeamCreationState extends State<TeamCreation> {
   List<User> _searchResults = [];
   bool _isSearching = false;
   Timer? _debounce;
+   String? userId; 
+
+
+    @override
+  void initState() {
+    super.initState();
+        _loadUserId();
+  }
+
+        void _loadUserId() async {
+    final user = await UserPreferences.getUser();
+    if (user != null) {
+      userId = user.id;
+    } 
+  }
 
   Future<void> _searchPlayers(String query) async {
     if (query.isEmpty) {
@@ -54,11 +69,17 @@ class _TeamCreationState extends State<TeamCreation> {
         _isSearching = false;
       });
     } catch (e) {
-      setState(() {
-        _searchResults.clear();
-        _isSearching = false;
-      });
-      _showSnackBar("Error searching users: ${e.toString()}", Icons.error, Colors.red);
+  setState(() {
+    _searchResults.clear();
+    _isSearching = false;
+  });
+
+  // Check if it's a 404 error
+  if (e.toString().contains('404')) {
+    _showSnackBar("No users found", Icons.info, Colors.orange);
+  } else {
+    _showSnackBar("Error searching users", Icons.error, Colors.red);
+  }
     }
   }
 
@@ -101,7 +122,7 @@ class _TeamCreationState extends State<TeamCreation> {
 
     try {
   final url = Uri.parse(
-      'http://31.97.206.144:3081/users/creategameteams/${widget.userId}');
+      'http://31.97.206.144:3081/users/creategameteams/${userId.toString()}');
 
   final requestBody = {
     'categoryId': widget.categoryId,

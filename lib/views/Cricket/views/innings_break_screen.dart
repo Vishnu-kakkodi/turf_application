@@ -1,4 +1,4 @@
-import 'package:booking_application/views/Cricket/live_match_screen.dart';
+import 'package:booking_application/views/Cricket/views/live_match_screen.dart';
 import 'package:flutter/material.dart';
 
 class InningsBreakScreen extends StatelessWidget {

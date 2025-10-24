@@ -1,7 +1,7 @@
-import 'package:booking_application/views/Games/create_games.dart';
-import 'package:booking_application/views/Games/game_manager_screen.dart';
+import 'package:booking_application/views/Games/GameViews/create_games.dart';
+import 'package:booking_application/views/Games/GameViews/game_manager_screen.dart';
 import 'package:booking_application/views/Games/game_provider.dart';
-import 'package:booking_application/views/Games/games_view_screen.dart';
+import 'package:booking_application/views/Games/GameViews/games_view_screen.dart';
 import 'package:booking_application/views/Games/sport_congig.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -1031,7 +1031,7 @@ class _PointBasedScreenState extends State<PointBasedScreen> {
                 context.read<GameProvider>().updateMatchStatus(widget.matchId, "completed");
                 Navigator.pushReplacement(
                   context,
-                  MaterialPageRoute(builder: (context) => ViewMatchScreen()),
+                  MaterialPageRoute(builder: (context) => ViewMatchScreen(initialTabIndex: 3,)),
                 );
               },
               style: ElevatedButton.styleFrom(

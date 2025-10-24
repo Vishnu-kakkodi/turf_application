@@ -73,12 +73,43 @@ class SocketService {
     });
 
     // Listen for live match updates
-    socket!.on('live-match-update', (data) {
-      print('Live match update received: $data');
-      if (onMatchUpdate != null && data is Map<String, dynamic>) {
-        onMatchUpdate!(data);
-      }
-    });
+    // socket!.on('live-match-update', (data) {
+    //   print('Live match update received: ${data['data']}');
+    //   if (onMatchUpdate != null && data['data']['match'] is Map<String, dynamic>) {
+    //     onMatchUpdate!(data['data']['match']);
+    //   }
+    // });
+
+
+//     socket!.on('live-match-update', (data) {
+//   print('🎯 COMPLETE SOCKET RESPONSE STRUCTURE:');
+  
+//   String fullResponse = data.toString();
+//   int chunkSize = 1000; // Characters per chunk
+  
+//   for (int i = 0; i < fullResponse.length; i += chunkSize) {
+//     int end = (i + chunkSize < fullResponse.length) ? i + chunkSize : fullResponse.length;
+//     print('CHUNK ${(i ~/ chunkSize) + 1}: ${fullResponse.substring(i, end)}');
+//   }
+  
+//   if (onMatchUpdate != null && data['data']['match'] is Map<String, dynamic>) {
+//     onMatchUpdate!(data['data']['match']);
+//   }
+// });
+
+    //     socket!.on('match-update', (data) {
+    //   print('Live match update receiveddddd: ${data['data']}');
+    //   if (onMatchUpdate != null && data['data']['match'] is Map<String, dynamic>) {
+    //     onMatchUpdate!(data['data']['match']);
+    //   }
+    // });
+
+    //     socket!.on('live-score-update', (data) {
+    //   print('Live match update receivedyyyyy: ${data['data']}');
+    //   if (onMatchUpdate != null && data['data']['match'] is Map<String, dynamic>) {
+    //     onMatchUpdate!(data['data']['match']);
+    //   }
+    // });
 
     // Listen for join confirmation
     socket!.on('join-confirmation', (data) {
